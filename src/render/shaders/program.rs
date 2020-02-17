@@ -44,6 +44,10 @@ impl ShaderProgram {
             gl::DeleteProgram(self.id);
         }
     }
+
+    pub fn id(&self) -> GLuint {
+        self.id
+    }
 }
 
 fn handle_error(id: GLuint) -> Option<String> {

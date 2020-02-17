@@ -4,6 +4,7 @@ mod utils;
 
 extern crate gl;
 extern crate glutin;
+extern crate image;
 
 use crate::render::display::Display;
 use crate::render::renderer::Renderer;
@@ -19,6 +20,10 @@ fn main() {
     // TODO: remove this temporary data
     use crate::math::vector::v3;
     use crate::render::models::Quad;
+    use crate::render::Texture;
+
+    let dirt = Texture::new();
+
     let quad = Quad::new(
         v3 {
             x: -0.5,
