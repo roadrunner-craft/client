@@ -13,12 +13,14 @@ impl Renderer {
         let vertex_src: &'static str = r#"
             #version 410 core
 
-            in vec3 position;
-            out vec3 color;
+            layout (location=0) in vec3 position;
+            layout (location=1) in vec2 uv;
+
+            out vec2 pass_uv;
 
             void main() {
+                pass_uv = uv;
                 gl_Position = vec4(position, 1.0);
-                color = vec3(position.x+0.5, 1, position.y+0.5);
             }
         "#;
         let vertex = VertexShader::compile(vertex_src).unwrap();
@@ -26,12 +28,14 @@ impl Renderer {
         let fragment_src: &'static str = r#"
             #version 410 core
 
-            in vec3 color;
-            out vec4 out_color;
+            in vec2 pass_uv;
+
+            out vec4 color;
+
+            uniform sampler2D textureSampler;
 
             void main() {
-                out_color = vec4(color, 1.0);
-               // color = vec4(1.0, 0.0, 0.0, 1.0);
+                color = texture(textureSampler, pass_uv);
             }
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
