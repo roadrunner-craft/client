@@ -1,3 +1,4 @@
+mod components;
 mod math;
 mod render;
 mod utils;
@@ -15,50 +16,28 @@ use glutin::event_loop::{ControlFlow, EventLoop};
 fn main() {
     let event_loop = EventLoop::new();
     let display = Display::create("sick opengl shitshow", &event_loop);
-    let renderer = Renderer::init();
+    let size = display.context.window().inner_size();
+    let mut renderer = Renderer::init(size.width, size.height);
 
     // TODO: remove this temporary data
     use crate::math::vector::v3;
-    use crate::render::models::Quad;
+    use crate::render::models::Cube;
     use crate::render::Texture;
 
     let dirt = Texture::new();
+    let cube = Cube::new();
 
-    let quad = Quad::new(
-        v3 {
-            x: -0.5,
-            y: 0.5,
-            z: 0.0,
+    event_loop.run(move |event, _, control_flow| match event {
+        Event::LoopDestroyed => return,
+        Event::WindowEvent { event, .. } => match event {
+            WindowEvent::Resized(size) => renderer.set_window_size(size.width, size.height),
+            WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+            _ => (),
         },
-        v3 {
-            x: -0.5,
-            y: -0.5,
-            z: 0.0,
-        },
-        v3 {
-            x: 0.5,
-            y: -0.5,
-            z: 0.0,
-        },
-        v3 {
-            x: 0.5,
-            y: 0.5,
-            z: 0.0,
-        },
-    );
-
-    event_loop.run(move |event, _, control_flow| {
-        if let Event::WindowEvent {
-            event: WindowEvent::CloseRequested,
-            ..
-        } = &event
-        {
-            *control_flow = ControlFlow::Exit;
-            return;
+        Event::RedrawRequested(_) => {
+            renderer.draw(&cube);
+            display.context.swap_buffers().unwrap();
         }
-
-        renderer.draw(&quad);
-
-        display.context.swap_buffers().unwrap();
+        _ => (),
     });
 }

@@ -42,6 +42,10 @@ impl Model {
         model
     }
 
+    pub fn get_indices_count(&self) -> usize {
+        self.indices_count
+    }
+
     pub fn add_vbo<T>(&mut self, dimension: i32, data: &Vec<T>) {
         let mut vbo: GLuint = 0;
 

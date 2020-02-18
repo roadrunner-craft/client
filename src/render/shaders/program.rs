@@ -1,6 +1,11 @@
+use crate::math::matrix::m4;
+use crate::math::vector::v3;
 use crate::render::shaders::{FragmentShader, VertexShader};
 use crate::utils::c::cstr_of_size;
+use crate::utils::c::str2cstr;
+
 use gl::types::{GLchar, GLint, GLuint};
+use std::mem;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ShaderProgram {
@@ -35,6 +40,44 @@ impl ShaderProgram {
         Ok(ShaderProgram { id })
     }
 
+    #[allow(dead_code)]
+    fn get_uniform_location(&self, name: &str) -> GLint {
+        let s = str2cstr(name);
+        unsafe { gl::GetUniformLocation(self.id, s.as_ptr()) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_texture(&self, name: &str, value: GLuint) {
+        unsafe { gl::Uniform1i(self.get_uniform_location(name), value as i32) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_float(&self, name: &str, value: f32) {
+        unsafe { gl::Uniform1f(self.get_uniform_location(name), value) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_bool(&self, name: &str, value: bool) {
+        unsafe { gl::Uniform1i(self.get_uniform_location(name), value as i32) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_v3(&self, name: &str, value: v3) {
+        unsafe { gl::Uniform3f(self.get_uniform_location(name), value.x, value.y, value.z) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_m4(&self, name: &str, value: m4) {
+        unsafe {
+            gl::UniformMatrix4fv(
+                self.get_uniform_location(name),
+                1,
+                gl::TRUE,
+                mem::transmute(&value.0[0]),
+            )
+        }
+    }
+
     pub fn enable(&self) {
         unsafe { gl::UseProgram(self.id) }
     }
@@ -45,6 +88,7 @@ impl ShaderProgram {
         }
     }
 
+    #[allow(dead_code)]
     pub fn id(&self) -> GLuint {
         self.id
     }
