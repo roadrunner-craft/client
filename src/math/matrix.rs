@@ -3,9 +3,9 @@ use std::ops;
 
 #[allow(non_camel_case_types)]
 #[derive(Default, Copy, Clone)]
-pub struct m44([[f32; 4]; 4]);
+pub struct m4(pub [[f32; 4]; 4]);
 
-impl m44 {
+impl m4 {
     #[allow(dead_code)]
     pub fn zero() -> Self {
         Self([
@@ -26,6 +26,10 @@ impl m44 {
         ])
     }
 
+    pub fn dimensions(&self) -> usize {
+        4
+    }
+
     pub fn get(&self, y: usize, x: usize) -> f32 {
         self.0[y][x]
     }
@@ -36,13 +40,11 @@ impl m44 {
 
     #[allow(dead_code)]
     pub fn transpose(&mut self) -> &mut Self {
-        let length = 4;
-
-        for y in 0..length - 1 {
-            for x in (y + 1..length).rev() {
-                let tmp = self.get(y, x);
-                self.set(y, x, self.get(x, y));
-                self.set(x, y, tmp);
+        for y in 0..self.dimensions() - 1 {
+            for x in (y + 1..self.dimensions()).rev() {
+                let tmp = self.0[y][x];
+                self.0[y][x] = self.0[x][y];
+                self.0[x][y] = tmp;
             }
         }
 
@@ -57,17 +59,15 @@ impl m44 {
     }
 
     pub fn row_echelon_form(&mut self) -> &mut Self {
-        let length = 4;
-
-        for d in 0..length {
-            for y in d + 1..length {
+        for d in 0..self.dimensions() {
+            for y in d + 1..self.dimensions() {
                 if self.get(d, d) == 0.0 {
                     self.set(d, d, 1.0e-18);
                 }
 
                 let scaler = self.get(y, d) / self.get(d, d);
 
-                for x in 0..length {
+                for x in 0..self.dimensions() {
                     self.set(y, x, self.get(y, x) - scaler * self.get(d, x));
                 }
             }
@@ -85,25 +85,24 @@ impl m44 {
         let mut m = self.clone();
         m.row_echelon_form();
 
-        let mut product: f32 = m.get(0, 0);
-        for d in 1..4 {
-            product *= m.get(d, d)
+        let mut det: f32 = m.get(0, 0);
+        for d in 1..self.dimensions() {
+            det *= m.get(d, d)
         }
-        product
+        det
     }
 }
 
-impl ops::Mul for m44 {
-    type Output = m44;
+impl ops::Mul for m4 {
+    type Output = m4;
 
-    fn mul(self, other: m44) -> Self::Output {
-        let length = 4;
-        let mut m = m44::zero();
+    fn mul(self, other: m4) -> Self::Output {
+        let mut m = m4::zero();
 
-        for y in 0..length {
-            for x in 0..length {
+        for y in 0..self.dimensions() {
+            for x in 0..self.dimensions() {
                 let mut sum = 0.0;
-                for k in 0..length {
+                for k in 0..self.dimensions() {
                     sum += self.get(y, k) * other.get(k, x)
                 }
                 m.set(y, x, sum);
@@ -114,7 +113,7 @@ impl ops::Mul for m44 {
     }
 }
 
-impl fmt::Debug for m44 {
+impl fmt::Debug for m4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut s = String::new();
         for y in 0..4 {
@@ -129,6 +128,6 @@ impl fmt::Debug for m44 {
             s.push_str(&line);
         }
 
-        writeln!(f, "m44 (\n{})", s)
+        writeln!(f, "m4 (\n{})", s)
     }
 }

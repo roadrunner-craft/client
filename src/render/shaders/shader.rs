@@ -1,13 +1,13 @@
 use crate::utils::c::cstr_of_size;
+use crate::utils::c::str2cstr;
 use gl::types::{GLchar, GLint, GLuint};
-use std::ffi::CString;
 
 #[derive(Debug, Copy, Clone)]
 struct Shader {}
 
 impl Shader {
     fn compile(id: GLuint, src: &'static str) -> Result<GLuint, String> {
-        let src = &CString::new(src).unwrap();
+        let src = str2cstr(src);
 
         unsafe {
             gl::ShaderSource(id, 1, &src.as_ptr(), std::ptr::null());

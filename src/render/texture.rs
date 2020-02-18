@@ -30,7 +30,7 @@ impl Texture {
                 unsafe {
                     let mut id: GLuint = 0;
                     gl::GenTextures(1, &mut id);
-                    //gl::ActiveTexture(gl::TEXTURE0);
+                    gl::ActiveTexture(gl::TEXTURE0);
                     gl::BindTexture(gl::TEXTURE_2D, id);
                     gl::TexImage2D(
                         gl::TEXTURE_2D,
@@ -48,6 +48,8 @@ impl Texture {
                     gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
                     gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
                     gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+
+                    // TODO: assign to uniform if there are more than one texture
 
                     Texture { id }
                 }

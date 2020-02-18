@@ -1,3 +1,4 @@
+pub mod camera;
 pub mod display;
 pub mod models;
 pub mod renderer;
