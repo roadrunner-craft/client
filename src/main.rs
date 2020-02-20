@@ -26,11 +26,13 @@ fn main() {
 
     let dirt = Texture::new();
     let cube = Cube::new();
+    //   use crate::utils::traits::Bindable;
+    // dirt.unbind();
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::LoopDestroyed => return,
         Event::WindowEvent { event, .. } => match event {
-            WindowEvent::Resized(size) => renderer.set_window_size(size.width, size.height),
+            WindowEvent::Resized(size) => renderer.set_size(size.width, size.height),
             WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
             _ => (),
         },

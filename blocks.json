@@ -1,0 +1,49 @@
+{
+    0: {
+        "name": "minecraft:air",
+        "solid": false,
+        "opaque": false,
+    },
+    1: {
+        "name": "minecraft:stone"
+        "texture": 1
+    },
+    2: {
+        "name": "minecraft:grass",
+        "texture": {
+            "sides": 3,
+            "top": 0,
+            "bottom": 2
+        }
+    },
+    3: {
+        "name": "minecraft:dirt",
+        "texture": 2
+    },
+    7: {
+        "name": "minecraft:bedrock",
+        "texture": 5
+    },
+    9: {
+        "name": "minecraft:water",
+        "texture": 6,
+        "solid": false,
+        "opaque": false
+    },
+    12: {
+        "name": "minecraft:sand",
+        "texture": 4
+    },
+    17: {
+        "name": "minecraft:log",
+        "texture": {
+            "sides": 7,
+            "top": 8,
+            "bottom": 8
+        }
+    },
+    18: {
+        "name": "minecraft:leaves",
+        "texture": 9
+    }
+}

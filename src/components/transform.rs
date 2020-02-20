@@ -1,8 +1,9 @@
 use crate::math::matrix::m4;
 use crate::math::vector::v3;
+use crate::utils::traits::Matrix;
 
 pub struct Transform {
-    pub m: m4,
+    m: m4,
     scale: v3,
 }
 
@@ -56,17 +57,17 @@ impl Transform {
     #[allow(dead_code)]
     pub fn get_position(&self) -> v3 {
         v3 {
-            x: self.m.get(0, 3),
-            y: self.m.get(1, 3),
-            z: self.m.get(2, 3),
+            x: self.m[0][3],
+            y: self.m[1][3],
+            z: self.m[2][3],
         }
     }
 
     #[allow(dead_code)]
     pub fn set_position(&mut self, value: v3) -> &mut Self {
-        self.m.set(0, 3, value.x);
-        self.m.set(1, 3, value.y);
-        self.m.set(2, 3, value.z);
+        self.m[0][3] = value.x;
+        self.m[1][3] = value.y;
+        self.m[2][3] = value.z;
         self
     }
 
@@ -77,9 +78,9 @@ impl Transform {
 
     #[allow(dead_code)]
     pub fn set_scale(&mut self, value: v3) -> &mut Self {
-        self.m.set(0, 0, self.m.get(1, 1) / self.scale.x * value.x);
-        self.m.set(1, 1, self.m.get(2, 2) / self.scale.y * value.y);
-        self.m.set(2, 2, self.m.get(3, 3) / self.scale.z * value.z);
+        self.m[0][0] = self.m[1][1] / self.scale.x * value.x;
+        self.m[1][1] = self.m[2][2] / self.scale.y * value.y;
+        self.m[2][2] = self.m[3][3] / self.scale.z * value.z;
         self.scale = value;
         self
     }
@@ -97,16 +98,15 @@ impl Transform {
             (value.x.to_radians().cos(), value.x.to_radians().sin()),
         );
 
-        self.m.set(0, 0, cos_x * cos_y * self.scale.x);
-        self.m.set(0, 1, cos_x * sin_y * sin_z - sin_x * cos_z);
-        self.m.set(0, 2, cos_x * sin_y * cos_z + sin_x * sin_z);
-        self.m.set(1, 0, sin_x * cos_y);
-        self.m
-            .set(1, 1, sin_x * sin_y * sin_z + cos_x * cos_z * self.scale.y);
-        self.m.set(1, 2, sin_x * sin_y * cos_z - cos_x * sin_z);
-        self.m.set(2, 0, -sin_y);
-        self.m.set(2, 1, cos_y * sin_z);
-        self.m.set(2, 2, cos_y * cos_z * self.scale.z);
+        self.m[0][0] = cos_x * cos_y * self.scale.x;
+        self.m[0][1] = cos_x * sin_y * sin_z - sin_x * cos_z;
+        self.m[0][2] = cos_x * sin_y * cos_z + sin_x * sin_z;
+        self.m[1][0] = sin_x * cos_y;
+        self.m[1][1] = sin_x * sin_y * sin_z + cos_x * cos_z * self.scale.y;
+        self.m[1][2] = sin_x * sin_y * cos_z - cos_x * sin_z;
+        self.m[2][0] = -sin_y;
+        self.m[2][1] = cos_y * sin_z;
+        self.m[2][2] = cos_y * cos_z * self.scale.z;
         self
     }
 }
@@ -117,5 +117,11 @@ impl Default for Transform {
             m: m4::identity(),
             scale: v3::identity(),
         }
+    }
+}
+
+impl Matrix for Transform {
+    fn get_matrix(&self) -> &m4 {
+        &self.m
     }
 }

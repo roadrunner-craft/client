@@ -58,9 +58,13 @@ impl Cube {
                     f2, b1, b4, f3, // right
                     b2, f1, f4, b3, // left
                     b2, b1, f2, f1, // top
-                    f4, f3, b4, b4, // bottom
+                    f4, f3, b4, b3, // bottom
                 ],
                 vec![
+                    v2 { x: 0.0, y: 0.0 },
+                    v2 { x: 1.0, y: 0.0 },
+                    v2 { x: 1.0, y: 1.0 },
+                    v2 { x: 0.0, y: 1.0 },
                     v2 { x: 0.0, y: 0.0 },
                     v2 { x: 1.0, y: 0.0 },
                     v2 { x: 1.0, y: 1.0 },

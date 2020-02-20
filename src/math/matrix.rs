@@ -30,21 +30,13 @@ impl m4 {
         4
     }
 
-    pub fn get(&self, y: usize, x: usize) -> f32 {
-        self.0[y][x]
-    }
-
-    pub fn set(&mut self, y: usize, x: usize, value: f32) {
-        self.0[y][x] = value
-    }
-
     #[allow(dead_code)]
     pub fn transpose(&mut self) -> &mut Self {
         for y in 0..self.dimensions() - 1 {
             for x in (y + 1..self.dimensions()).rev() {
-                let tmp = self.0[y][x];
-                self.0[y][x] = self.0[x][y];
-                self.0[x][y] = tmp;
+                let tmp = self[y][x];
+                self[y][x] = self[x][y];
+                self[x][y] = tmp;
             }
         }
 
@@ -61,14 +53,14 @@ impl m4 {
     pub fn row_echelon_form(&mut self) -> &mut Self {
         for d in 0..self.dimensions() {
             for y in d + 1..self.dimensions() {
-                if self.get(d, d) == 0.0 {
-                    self.set(d, d, 1.0e-18);
+                if self[d][d] == 0.0 {
+                    self[d][d] = 1.0e-18;
                 }
 
-                let scaler = self.get(y, d) / self.get(d, d);
+                let scaler = self[y][d] / self[d][d];
 
                 for x in 0..self.dimensions() {
-                    self.set(y, x, self.get(y, x) - scaler * self.get(d, x));
+                    self[y][x] = self[y][x] - scaler * self[d][x];
                 }
             }
         }
@@ -85,11 +77,25 @@ impl m4 {
         let mut m = self.clone();
         m.row_echelon_form();
 
-        let mut det: f32 = m.get(0, 0);
+        let mut det: f32 = m[0][0];
         for d in 1..self.dimensions() {
-            det *= m.get(d, d)
+            det *= m[d][d]
         }
         det
+    }
+}
+
+impl ops::Index<usize> for m4 {
+    type Output = [f32; 4];
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl ops::IndexMut<usize> for m4 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 
@@ -103,9 +109,25 @@ impl ops::Mul for m4 {
             for x in 0..self.dimensions() {
                 let mut sum = 0.0;
                 for k in 0..self.dimensions() {
-                    sum += self.get(y, k) * other.get(k, x)
+                    sum += self[y][k] * other[k][x];
                 }
-                m.set(y, x, sum);
+                m[y][x] = sum;
+            }
+        }
+
+        m
+    }
+}
+
+impl ops::Neg for m4 {
+    type Output = m4;
+
+    fn neg(self) -> Self::Output {
+        let mut m = m4::zero();
+
+        for y in 0..self.dimensions() {
+            for x in 0..self.dimensions() {
+                m[y][x] = -self[y][x];
             }
         }
 
@@ -119,10 +141,7 @@ impl fmt::Debug for m4 {
         for y in 0..4 {
             let line = format!(
                 "\t[{}, {}, {}, {}]\n",
-                self.get(y, 0),
-                self.get(y, 1),
-                self.get(y, 2),
-                self.get(y, 3)
+                self[y][0], self[y][1], self[y][2], self[y][3],
             );
 
             s.push_str(&line);
