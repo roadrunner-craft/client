@@ -1,0 +1,12 @@
+{
+    0: "dirt",
+    1: "grass_block_top",
+    2: "dirt",
+    3: "grass_block_side",
+    4: "sand",
+    5: "bedrock",
+    6: "water_still",
+    7: "oak_log",
+    8: "oak_log_top",
+    9: "oak_leaves"
+}
