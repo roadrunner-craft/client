@@ -7,6 +7,7 @@ pub struct Display {
 }
 
 impl Display {
+    // TODO: handle fullscreen
     pub fn create(title: &'static str, event_loop: &EventLoop<()>) -> Self {
         let window_builder = WindowBuilder::new().with_title(title);
         let context_builder = ContextBuilder::new()
@@ -22,6 +23,11 @@ impl Display {
         let context = unsafe { context.make_current().unwrap() };
 
         gl::load_with(|symbol| context.get_proc_address(symbol));
+
+        let size = context.window().inner_size();
+        unsafe {
+            gl::Viewport(0, 0, size.width as i32, size.height as i32);
+        }
 
         Display { context }
     }

@@ -67,13 +67,13 @@ impl ShaderProgram {
     }
 
     #[allow(dead_code)]
-    pub fn set_uniform_m4(&self, name: &str, value: m4) {
+    pub fn set_uniform_m4(&self, name: &str, value: &m4) {
         unsafe {
             gl::UniformMatrix4fv(
                 self.get_uniform_location(name),
                 1,
                 gl::TRUE,
-                mem::transmute(&value.0[0]),
+                mem::transmute(&value[0]),
             )
         }
     }
