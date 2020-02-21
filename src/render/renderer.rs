@@ -1,8 +1,10 @@
 use crate::components::Transform;
+use crate::input::{keyboard, InputHandler};
 use crate::math::vector::v3;
-use crate::render::camera::PerspectiveCamera;
+use crate::render::camera::Camera;
 use crate::render::models::Cube;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
+use crate::render::{Display, RenderSettings};
 use crate::utils::traits::{Bindable, Matrix};
 
 use gl::types::GLint;
@@ -10,7 +12,7 @@ use std::ptr;
 
 pub struct Renderer {
     pub program: ShaderProgram,
-    camera: PerspectiveCamera,
+    settings: RenderSettings,
 }
 
 impl Renderer {
@@ -47,10 +49,13 @@ impl Renderer {
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
 
+        // TODO: remove this temporary data
+        crate::render::Texture::new();
+
         // TODO: make sure to handle dpi and update
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
-            camera: PerspectiveCamera::new(70.0, 0.1, 1024.0, width as f32 / height as f32),
+            settings: RenderSettings::default(),
         }
     }
 
@@ -58,12 +63,15 @@ impl Renderer {
         unsafe {
             gl::Viewport(0, 0, width as i32, height as i32);
         }
-
-        let aspect_ratio = width as f32 / height as f32;
-        self.camera.set_aspect_ratio(aspect_ratio);
     }
 
-    pub fn draw(&self, cube: &Cube) {
+    pub fn update(&mut self, input: &InputHandler) {
+        if input.is_key_pressed(keyboard::M) {
+            self.settings.wireframe = !self.settings.wireframe;
+        }
+    }
+
+    pub fn draw<C: Camera>(&self, display: &Display, camera: &C, cube: &Cube) {
         //world: &World, camera: &Camera) {
         self.program.enable();
         self.program.set_uniform_m4(
@@ -87,26 +95,25 @@ impl Renderer {
             )
             .get_matrix(),
         );
-        self.program.set_uniform_m4("view", self.camera.get_view());
+        self.program.set_uniform_m4("view", camera.get_view());
         self.program
-            .set_uniform_m4("projection", self.camera.get_projection());
+            .set_uniform_m4("projection", camera.get_projection());
 
         //uniform! {
         //    texture: atlas.get_texture(),
-        //    projection: self.projection.get_matrix(),
-        //    view: self.camera.get_matrix(),
+        //    projection: camera.get_projection(),
+        //    view: camera.get_view(),
         //    transform: mesh.get_matrix(),
         //    uvs: mesh.get_uvs()
         //};
 
         unsafe {
-            gl::ClearColor(0.0, 0.0, 1.0, 1.0);
+            gl::ClearColor(116.0 / 255.0, 173.0 / 255.0, 251.0 / 255.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 
             gl::Enable(gl::DEPTH_TEST);
 
-            gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-            gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+            self.settings.apply();
 
             cube.bind();
             gl::DrawElements(
@@ -117,6 +124,8 @@ impl Renderer {
             );
             cube.unbind();
         }
+
+        display.context.swap_buffers().unwrap();
     }
 }
 
