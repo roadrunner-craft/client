@@ -11,9 +11,7 @@ pub struct Texture {
 
 impl Texture {
     pub fn new() -> Texture {
-        let path = Path::new(
-            "/Users/xehos/src/github.com/afrigon/minecraft.rs/res/textures/block/grass_block_side.png",
-        );
+        let path = Path::new("res/textures/block/dirt.png");
         let path = path.to_str().unwrap();
 
         match image::open(path) {
