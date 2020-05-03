@@ -3,8 +3,8 @@ use std::ops;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct CursorDelta {
-    x: f64,
-    y: f64,
+    pub x: f64,
+    pub y: f64,
 }
 
 impl ops::AddAssign for CursorDelta {

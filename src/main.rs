@@ -63,6 +63,7 @@ fn main() {
                 last_fps_update = Instant::now();
             }
 
+            // should be a loop to updage every component instead of just the camera
             camera.update(&input_handler, &time_delta);
             renderer.update(&input_handler);
             input_handler.clear_cursor_delta();
