@@ -6,7 +6,8 @@ pub use self::cursor::CursorHandler;
 pub use self::keyboard::KeyboardHandler;
 
 use glutin::dpi::PhysicalPosition;
-use glutin::event::{KeyboardInput, ScanCode};
+use glutin::event::KeyboardInput;
+use scancode::Scancode;
 
 #[derive(Debug, Default)]
 pub struct InputHandler {
@@ -23,7 +24,7 @@ impl InputHandler {
         self.cursor.process(input)
     }
 
-    pub fn is_key_pressed(&self, key: ScanCode) -> bool {
+    pub fn is_key_pressed(&self, key: Scancode) -> bool {
         self.keyboard.is_pressed(key)
     }
 

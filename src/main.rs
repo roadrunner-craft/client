@@ -7,6 +7,7 @@ mod utils;
 extern crate gl;
 extern crate glutin;
 extern crate image;
+extern crate scancode;
 
 use crate::input::InputHandler;
 use crate::render::camera::PerspectiveCamera;
