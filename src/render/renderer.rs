@@ -1,5 +1,5 @@
 use crate::components::Transform;
-use crate::input::{keyboard, InputHandler};
+use crate::input::InputHandler;
 use crate::math::vector::v3;
 use crate::render::camera::Camera;
 use crate::render::models::Cube;
@@ -8,6 +8,7 @@ use crate::render::{Display, RenderSettings};
 use crate::utils::traits::{Bindable, Matrix};
 
 use gl::types::GLint;
+use scancode::Scancode;
 use std::ptr;
 
 pub struct Renderer {
@@ -69,7 +70,7 @@ impl Renderer {
 
     pub fn update(&mut self, input: &InputHandler) {
         self.abc += 1.0;
-        if input.is_key_pressed(keyboard::M) {
+        if input.is_key_pressed(Scancode::M) {
             self.settings.wireframe = !self.settings.wireframe;
         }
     }

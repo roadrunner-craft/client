@@ -1,10 +1,12 @@
 use super::orthographic::OrthographicProjection;
 use super::perspective::PerspectiveProjection;
 use crate::components::Transform;
-use crate::input::{keyboard, CursorDelta, InputHandler};
+use crate::input::{CursorDelta, InputHandler};
 use crate::math::matrix::m4;
 use crate::math::vector::v3;
 use crate::utils::traits::Matrix;
+
+use scancode::Scancode;
 
 const SPEED: f32 = 5.0;
 
@@ -36,27 +38,27 @@ impl PerspectiveCamera {
             z: 0.0,
         };
 
-        if input.is_key_pressed(keyboard::W) {
+        if input.is_key_pressed(Scancode::W) {
             delta.z += speed;
         }
 
-        if input.is_key_pressed(keyboard::S) {
+        if input.is_key_pressed(Scancode::S) {
             delta.z -= speed;
         }
 
-        if input.is_key_pressed(keyboard::A) {
+        if input.is_key_pressed(Scancode::A) {
             delta.x -= speed;
         }
 
-        if input.is_key_pressed(keyboard::D) {
+        if input.is_key_pressed(Scancode::D) {
             delta.x += speed;
         }
 
-        if input.is_key_pressed(keyboard::SPACE) {
+        if input.is_key_pressed(Scancode::Space) {
             delta.y += speed;
         }
 
-        if input.is_key_pressed(keyboard::LEFT_SHIFT) {
+        if input.is_key_pressed(Scancode::LeftShift) {
             delta.y -= speed;
         }
 
