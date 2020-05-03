@@ -10,6 +10,10 @@ pub struct v2 {
 }
 
 impl v2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+
     #[allow(dead_code)]
     pub fn zero() -> Self {
         Self::default()
@@ -17,27 +21,27 @@ impl v2 {
 
     #[allow(dead_code)]
     pub fn up() -> Self {
-        Self { x: 0.0, y: 1.0 }
+        Self::new(0.0, 1.0)
     }
 
     #[allow(dead_code)]
     pub fn down() -> Self {
-        Self { x: 0.0, y: -1.0 }
+        Self::new(0.0, -1.0)
     }
 
     #[allow(dead_code)]
     pub fn right() -> Self {
-        Self { x: 1.0, y: 0.0 }
+        Self::new(1.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn left() -> Self {
-        Self { x: -1.0, y: 0.0 }
+        Self::new(-1.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn identity() -> Self {
-        Self { x: 1.0, y: 1.0 }
+        Self::new(1.0, 1.0)
     }
 
     #[allow(dead_code)]
@@ -64,10 +68,7 @@ impl v2 {
     pub fn normalized(self) -> Self {
         let m = self.magnitude();
 
-        Self {
-            x: self.x / m,
-            y: self.y / m,
-        }
+        Self::new(self.x / m, self.y / m)
     }
 }
 
@@ -75,19 +76,13 @@ impl ops::Add for v2 {
     type Output = Self;
 
     fn add(self, other: v2) -> Self::Output {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
+        Self::new(self.x + other.x, self.y + other.y)
     }
 }
 
 impl ops::AddAssign for v2 {
     fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        };
+        *self = Self::new(self.x + other.x, self.y + other.y);
     }
 }
 
@@ -95,19 +90,13 @@ impl ops::Sub for v2 {
     type Output = Self;
 
     fn sub(self, other: v2) -> Self::Output {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
+        Self::new(self.x - other.x, self.y - other.y)
     }
 }
 
 impl ops::SubAssign for v2 {
     fn sub_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
+        *self = Self::new(self.x - other.x, self.y - other.y);
     }
 }
 
@@ -115,10 +104,7 @@ impl ops::Mul<v2> for f32 {
     type Output = v2;
 
     fn mul(self, v: v2) -> Self::Output {
-        Self::Output {
-            x: v.x * self,
-            y: v.y * self,
-        }
+        Self::Output::new(self * v.x, self * v.y)
     }
 }
 
@@ -126,19 +112,13 @@ impl ops::Mul<f32> for v2 {
     type Output = Self;
 
     fn mul(self, scalar: f32) -> Self::Output {
-        Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-        }
+        Self::new(self.x * scalar, self.y * scalar)
     }
 }
 
 impl ops::MulAssign<f32> for v2 {
     fn mul_assign(&mut self, scalar: f32) {
-        *self = Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-        }
+        *self = Self::new(self.x * scalar, self.y * scalar);
     }
 }
 
@@ -166,6 +146,10 @@ pub struct v3 {
 }
 
 impl v3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self { x, y, z }
+    }
+
     #[allow(dead_code)]
     pub fn zero() -> Self {
         Self::default()
@@ -173,65 +157,37 @@ impl v3 {
 
     #[allow(dead_code)]
     pub fn forward() -> Self {
-        Self {
-            x: 0.0,
-            y: 0.0,
-            z: 1.0,
-        }
+        Self::new(0.0, 0.0, 1.0)
     }
 
     #[allow(dead_code)]
     pub fn backward() -> Self {
-        Self {
-            x: 0.0,
-            y: 0.0,
-            z: -1.0,
-        }
+        Self::new(0.0, 0.0, -1.0)
     }
 
     #[allow(dead_code)]
     pub fn up() -> Self {
-        Self {
-            x: 0.0,
-            y: 1.0,
-            z: 0.0,
-        }
+        Self::new(0.0, 1.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn down() -> Self {
-        Self {
-            x: 0.0,
-            y: -1.0,
-            z: 0.0,
-        }
+        Self::new(0.0, -1.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn right() -> Self {
-        Self {
-            x: 1.0,
-            y: 0.0,
-            z: 0.0,
-        }
+        Self::new(1.0, 0.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn left() -> Self {
-        Self {
-            x: -1.0,
-            y: 0.0,
-            z: 0.0,
-        }
+        Self::new(-1.0, 0.0, 0.0)
     }
 
     #[allow(dead_code)]
     pub fn identity() -> Self {
-        Self {
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
-        }
+        Self::new(1.0, 1.0, 1.0)
     }
 
     #[allow(dead_code)]
@@ -241,11 +197,11 @@ impl v3 {
 
     #[allow(dead_code)]
     pub fn cross(a: Self, b: Self) -> Self {
-        Self {
-            x: a.y * b.z - a.z * b.y,
-            y: a.z * b.x - a.x * b.z,
-            z: a.x * b.y - a.y * b.x,
-        }
+        Self::new(
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x,
+        )
     }
 
     #[allow(dead_code)]
@@ -267,11 +223,7 @@ impl v3 {
     pub fn normalized(self) -> Self {
         let m = self.magnitude();
 
-        Self {
-            x: self.x / m,
-            y: self.y / m,
-            z: self.z / m,
-        }
+        Self::new(self.x / m, self.y / m, self.z / m)
     }
 }
 
@@ -279,21 +231,13 @@ impl ops::Add for v3 {
     type Output = Self;
 
     fn add(self, other: v3) -> Self::Output {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
+        Self::new(self.x + other.x, self.y + other.y, self.z + other.z)
     }
 }
 
 impl ops::AddAssign for v3 {
     fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        };
+        *self = Self::new(self.x + other.x, self.y + other.y, self.z + other.z);
     }
 }
 
@@ -301,21 +245,13 @@ impl ops::Sub for v3 {
     type Output = Self;
 
     fn sub(self, other: v3) -> Self::Output {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
+        Self::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
 }
 
 impl ops::SubAssign for v3 {
     fn sub_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
+        *self = Self::new(self.x - other.x, self.y - other.y, self.z - other.z);
     }
 }
 
@@ -323,11 +259,7 @@ impl ops::Mul<v3> for f32 {
     type Output = v3;
 
     fn mul(self, v: v3) -> Self::Output {
-        Self::Output {
-            x: v.x * self,
-            y: v.y * self,
-            z: v.z * self,
-        }
+        Self::Output::new(self * v.x, self * v.y, self * v.z)
     }
 }
 
@@ -335,21 +267,13 @@ impl ops::Mul<f32> for v3 {
     type Output = Self;
 
     fn mul(self, scalar: f32) -> Self::Output {
-        Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
-        }
+        Self::new(self.x * scalar, self.y * scalar, self.z * scalar)
     }
 }
 
 impl ops::MulAssign<f32> for v3 {
     fn mul_assign(&mut self, scalar: f32) {
-        *self = Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
-        }
+        *self = Self::new(self.x * scalar, self.y * scalar, self.z * scalar);
     }
 }
 

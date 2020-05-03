@@ -28,7 +28,7 @@ impl PerspectiveCamera {
         }
     }
 
-    pub fn update(&mut self, input: &InputHandler, time_delta: &f32) {
+    pub fn update<'a>(&mut self, input: &InputHandler, time_delta: &f32) {
         let speed = self.speed * time_delta;
         let mut delta = v3 {
             x: 0.0,
@@ -60,12 +60,19 @@ impl PerspectiveCamera {
             delta.y -= speed;
         }
 
-        self.move_by(delta);
-    }
-
-    fn move_by(&mut self, delta: v3) {
         self.transform
             .set_position(self.transform.get_position() - delta);
+
+        let cursor_delta = input.get_cursor_delta();
+
+        self.transform.set_euler_angles(
+            self.transform.get_euler_angles()
+                - v3 {
+                    x: cursor_delta.y as f32,
+                    y: cursor_delta.x as f32,
+                    z: 0.0,
+                },
+        );
     }
 
     pub fn set_aspect_ratio(&mut self, aspect_ratio: f32) {
@@ -110,11 +117,6 @@ impl OrthographicCamera {
             y: -y,
             z: -z,
         });
-    }
-
-    // TODO: needed ?
-    pub fn set_rotation(&mut self, rotation: v3) {
-        self.transform.set_rotation(rotation);
     }
 }
 
