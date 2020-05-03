@@ -11,7 +11,7 @@ pub struct Texture {
 
 impl Texture {
     pub fn new() -> Texture {
-        let path = Path::new("res/textures/block/dirt.png");
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures/block/dirt.png");
         let path = path.to_str().unwrap();
 
         match image::open(path) {
