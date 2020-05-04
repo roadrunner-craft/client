@@ -137,7 +137,7 @@ impl Transform {
         self
     }
 
-    pub fn generate_matrix(&mut self) {
+    fn generate_matrix(&mut self) {
         let ((cos_x, sin_x), (cos_y, sin_y), (cos_z, sin_z)) = (
             (
                 self.rotation.z.to_radians().cos(),
