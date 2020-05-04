@@ -14,7 +14,6 @@ use std::ptr;
 pub struct Renderer {
     pub program: ShaderProgram,
     settings: RenderSettings,
-    abc: f32,
 }
 
 impl Renderer {
@@ -58,7 +57,6 @@ impl Renderer {
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
             settings: RenderSettings::default(),
-            abc: 0.0,
         }
     }
 
@@ -69,7 +67,6 @@ impl Renderer {
     }
 
     pub fn update(&mut self, input: &InputHandler) {
-        self.abc += 1.0;
         if input.is_key_pressed(Scancode::M) {
             self.settings.wireframe = !self.settings.wireframe;
         }
@@ -88,7 +85,7 @@ impl Renderer {
                 },
                 v3 {
                     x: 0.0,
-                    y: self.abc,
+                    y: 0.0,
                     z: 0.0,
                 },
                 v3 {
