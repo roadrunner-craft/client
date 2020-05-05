@@ -25,7 +25,7 @@ impl AtlasGenerator {
         grid_size
     }
 
-    pub fn generate(files: HashMap<usize, &str>) -> Vec<u8> {
+    pub fn generate(files: HashMap<usize, &str>) -> (Vec<u8>, u32) {
         let tile_count = files.len();
         let tile_size: usize = 16;
         let grid_size: usize = AtlasGenerator::get_required_size(tile_count);
@@ -94,18 +94,14 @@ impl AtlasGenerator {
             }
         }
 
-        let x = image::save_buffer(
-            "./atlas.png",
-            img.as_slice(),
-            img_size as u32,
-            img_size as u32,
-            image::ColorType::Rgba8,
-        );
+        // image::save_buffer(
+        //     "./atlas.png",
+        //     img.as_slice(),
+        //     img_size as u32,
+        //     img_size as u32,
+        //     image::ColorType::Rgba8,
+        // );
 
-        if let Err(a) = x {
-            println!("{}", a);
-        }
-
-        img
+        (img, img_size as u32)
     }
 }
