@@ -1,49 +1,98 @@
 {
-    0: {
+    "0": {
         "name": "minecraft:air",
-        "solid": false,
-        "opaque": false,
-    },
-    1: {
-        "name": "minecraft:stone"
-        "texture": 1
-    },
-    2: {
-        "name": "minecraft:grass",
-        "texture": {
-            "sides": 3,
-            "top": 0,
-            "bottom": 2
-        }
-    },
-    3: {
-        "name": "minecraft:dirt",
-        "texture": 2
-    },
-    7: {
-        "name": "minecraft:bedrock",
-        "texture": 5
-    },
-    9: {
-        "name": "minecraft:water",
-        "texture": 6,
         "solid": false,
         "opaque": false
     },
-    12: {
-        "name": "minecraft:sand",
-        "texture": 4
-    },
-    17: {
-        "name": "minecraft:log",
+    "1": {
+        "name": "minecraft:stone",
         "texture": {
-            "sides": 7,
-            "top": 8,
-            "bottom": 8
+            "front": 1,
+            "back": 1,
+            "left": 1,
+            "right": 1,
+            "top": 1,
+            "bottom": 1
         }
     },
-    18: {
+    "2": {
+        "name": "minecraft:grass",
+        "texture": {
+            "front": 4,
+            "back": 4,
+            "left": 4,
+            "right": 4,
+            "top": 2,
+            "bottom": 3
+        }
+    },
+    "3": {
+        "name": "minecraft:dirt",
+        "texture": {
+            "front": 3,
+            "back": 3,
+            "left": 3,
+            "right": 3,
+            "top": 3,
+            "bottom": 3
+        }
+    },
+    "7": {
+        "name": "minecraft:bedrock",
+        "texture": {
+            "front": 6,
+            "back": 6,
+            "left": 6,
+            "right": 6,
+            "top": 6,
+            "bottom": 6
+        }
+    },
+    "9": {
+        "name": "minecraft:water",
+        "solid": false,
+        "opaque": false,
+        "texture": {
+            "front": 7,
+            "back": 7,
+            "left": 7,
+            "right": 7,
+            "top": 7,
+            "bottom": 7
+        }
+
+    },
+    "12": {
+        "name": "minecraft:sand",
+        "texture": {
+            "front": 5,
+            "back": 5,
+            "left": 5,
+            "right": 5,
+            "top": 5,
+            "bottom": 5
+        }
+    },
+    "17": {
+        "name": "minecraft:log",
+        "texture": {
+            "front": 8,
+            "back": 8,
+            "left": 8,
+            "right": 8,
+            "top": 9,
+            "bottom": 9
+        }
+    },
+    "18": {
         "name": "minecraft:leaves",
-        "texture": 9
+        "texture": {
+            "front": 10,
+            "back": 10,
+            "left": 10,
+            "right": 10,
+            "top": 10,
+            "bottom": 10
+        }
     }
 }

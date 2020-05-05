@@ -1,5 +1,5 @@
+use crate::game::texture::TextureDatabase;
 use image::DynamicImage;
-use std::collections::HashMap;
 use std::path::Path;
 use std::ptr;
 use std::vec::Vec;
@@ -25,8 +25,8 @@ impl AtlasGenerator {
         grid_size
     }
 
-    pub fn generate(files: HashMap<usize, &str>) -> (Vec<u8>, u32) {
-        let tile_count = files.len();
+    pub fn generate(database: TextureDatabase) -> (Vec<u8>, u32) {
+        let tile_count = database.map.len();
         let tile_size: usize = 16;
         let grid_size: usize = AtlasGenerator::get_required_size(tile_count);
         let img_size = grid_size * tile_size;
@@ -35,17 +35,20 @@ impl AtlasGenerator {
         let mut img = Vec::new();
         img.resize(buffer_size, 255);
 
-        for (index, filename) in files.iter() {
-            if *index >= grid_size.pow(2) {
+        for (index, filename) in database.map.iter() {
+            let index = *index - 1;
+            if index >= grid_size.pow(2) as u8 {
                 printerr!(filename, format!("{} {}", "invalid index", index));
                 continue;
             }
 
-            let filepath = Path::new(filename).to_str().unwrap();
+            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(format!("res/textures/block/{}.png", filename));
+            let path = path.to_str().unwrap();
 
-            match image::open(filepath) {
+            match image::open(path) {
                 Err(err) => {
-                    printerr!(filepath, err);
+                    printerr!(path, err);
                     continue;
                 }
                 Ok(current_img) => {
@@ -58,12 +61,12 @@ impl AtlasGenerator {
                     let height = current_img.height() as usize;
 
                     if width != tile_size || height != tile_size {
-                        printerr!(filepath, "invalid size");
+                        printerr!(path, "invalid size");
                         continue;
                     }
 
-                    let grid_x = index % grid_size;
-                    let grid_y = index / grid_size;
+                    let grid_x = (index % grid_size as u8) as usize;
+                    let grid_y = (index / grid_size as u8) as usize;
 
                     let current_img = current_img.into_raw();
 
@@ -94,13 +97,16 @@ impl AtlasGenerator {
             }
         }
 
-        // image::save_buffer(
-        //     "./atlas.png",
-        //     img.as_slice(),
-        //     img_size as u32,
-        //     img_size as u32,
-        //     image::ColorType::Rgba8,
-        // );
+        // TODO: remove this
+        if true {
+            image::save_buffer(
+                "./atlas.png",
+                img.as_slice(),
+                img_size as u32,
+                img_size as u32,
+                image::ColorType::Rgba8,
+            );
+        }
 
         (img, img_size as u32)
     }

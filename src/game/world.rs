@@ -1,7 +1,7 @@
 use std::vec::Vec;
 
+use crate::game::block::Block;
 use crate::game::chunk::Chunk;
-use crate::game::Block;
 
 pub struct World {
     pub chunks: Vec<Vec<Chunk>>,
@@ -15,11 +15,18 @@ impl World {
     }
 
     pub fn init(&mut self) {
-        self.chunks[0][0].set_layer(3, Block { id: 1 });
-        self.chunks[0][0].set_layer(0, Block { id: 2 });
-        self.chunks[0][0].set_layer(1, Block { id: 2 });
-        self.chunks[0][0].set_layer(2, Block { id: 2 });
-    }
+        for i in 0..5 {
+            self.chunks[0][0].set_layer(i, Block { id: 7 });
+        }
 
-    pub fn update(&mut self, time_delta: &f32) {}
+        for i in 5..20 {
+            self.chunks[0][0].set_layer(i, Block { id: 1 });
+        }
+
+        for i in 20..23 {
+            self.chunks[0][0].set_layer(i, Block { id: 3 });
+        }
+
+        self.chunks[0][0].set_layer(23, Block { id: 2 });
+    }
 }
