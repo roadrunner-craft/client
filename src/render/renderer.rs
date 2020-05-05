@@ -39,13 +39,20 @@ impl Renderer {
             uniform uint block_id;
             uniform float texture_size;
 
-            void main() {
+            vec2 atlas_uv(vec2 uv) {
                 float tile_size = 16;
                 float tile_per_row = texture_size / tile_size;
                 float atlas_index = block_id - 1;
 
-                pass_uv.x = mod(atlas_index, tile_per_row) / tile_per_row + uv.x * 16 / texture_size;
-                pass_uv.y = floor(atlas_index / tile_per_row) / tile_per_row + uv.y * 16 / texture_size;
+                vec2 new_uv;
+                new_uv.x = mod(atlas_index, tile_per_row) / tile_per_row + uv.x * 16 / texture_size;
+                new_uv.y = floor(atlas_index / tile_per_row) / tile_per_row + uv.y * 16 / texture_size;
+
+                return new_uv;
+            }
+
+            void main() {
+                pass_uv = atlas_uv(uv);
                 gl_Position = projection * view * transform * vec4(position, 1.0);
             }
         "#;
