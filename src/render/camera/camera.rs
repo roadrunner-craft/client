@@ -8,8 +8,8 @@ use crate::utils::traits::Matrix;
 
 use scancode::Scancode;
 
-const SPEED: f32 = 5.0;
-const SENSITIVITY: f32 = 0.3;
+const SPEED: f32 = 7.0;
+const SENSITIVITY: f32 = 0.2;
 
 pub trait Camera {
     fn get_view(&self) -> &m4;

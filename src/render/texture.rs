@@ -5,60 +5,75 @@ use image::DynamicImage;
 use std::ffi::c_void;
 use std::path::Path;
 
+static mut DEFAULT_TEXTURE_ID: GLuint = 0;
+static mut DEFAULT_TEXTURE_SIZE: u32 = 0;
+
 pub struct Texture {
     pub id: GLuint,
+    pub size: u32,
 }
 
 impl Texture {
-    pub fn new() -> Texture {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures/block/dirt.png");
-        let path = path.to_str().unwrap();
-
-        match image::open(path) {
-            Err(err) => {
-                println!("Could not load image {}: {}", path, err);
-                return Texture { id: 0 }; // Texture::default();
-            }
-            Ok(img) => {
-                let img = match img {
-                    DynamicImage::ImageRgba8(img) => img,
-                    img => img.to_rgba(),
-                };
-
-                unsafe {
-                    let mut id: GLuint = 0;
-                    gl::GenTextures(1, &mut id);
-                    gl::ActiveTexture(gl::TEXTURE0);
-                    gl::BindTexture(gl::TEXTURE_2D, id);
-                    gl::TexImage2D(
-                        gl::TEXTURE_2D,
-                        0,
-                        gl::RGBA as i32,
-                        img.width() as i32,
-                        img.height() as i32,
-                        0,
-                        gl::RGBA,
-                        gl::UNSIGNED_BYTE,
-                        img.into_raw().as_ptr() as *const c_void,
-                    );
-
-                    gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-                    gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-                    gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-                    gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
-
-                    // TODO: assign to uniform if there are more than one texture
-
-                    Texture { id }
+    pub fn new(path: &Path) -> Self {
+        match path.to_str() {
+            None => Texture::default(),
+            Some(path) => match image::open(path) {
+                Err(err) => {
+                    println!("<texture> Could not load image {}: {}", path, err);
+                    return Texture::default();
                 }
-            }
+                Ok(img) => {
+                    let img = match img {
+                        DynamicImage::ImageRgba8(img) => img,
+                        img => img.to_rgba(),
+                    };
+
+                    let width = img.width();
+                    if width != img.height() {
+                        println!("<texture> Image aspect ratio must be 1: {}", path);
+                        return Texture::default();
+                    }
+
+                    return Texture::from_image(&img.into_raw(), width);
+                }
+            },
+        }
+    }
+
+    pub fn from_image(img: &Vec<u8>, size: u32) -> Self {
+        Texture {
+            id: Texture::generate_texture(img, size),
+            size,
+        }
+    }
+
+    fn generate_texture(img: &Vec<u8>, size: u32) -> GLuint {
+        unsafe {
+            let mut id: GLuint = 0;
+            gl::GenTextures(1, &mut id);
+            gl::ActiveTexture(gl::TEXTURE0);
+            gl::BindTexture(gl::TEXTURE_2D, id);
+            gl::TexImage2D(
+                gl::TEXTURE_2D,
+                0,
+                gl::RGBA as i32,
+                size as i32,
+                size as i32,
+                0,
+                gl::RGBA,
+                gl::UNSIGNED_BYTE,
+                img.as_ptr() as *const c_void,
+            );
+
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+
+            id
         }
     }
 }
-
-//impl Default for Texture {
-// TODO: implement a default texture
-//}
 
 impl Bindable for Texture {
     fn bind(&self) {
@@ -70,8 +85,34 @@ impl Bindable for Texture {
     }
 }
 
+impl Default for Texture {
+    fn default() -> Self {
+        unsafe {
+            if DEFAULT_TEXTURE_ID != 0 {
+                return Texture {
+                    id: DEFAULT_TEXTURE_ID,
+                    size: DEFAULT_TEXTURE_SIZE,
+                };
+            }
+
+            // TODO: change this for default texture
+            let root = env!("CARGO_MANIFEST_DIR");
+            let path = Path::new(root).join("res/textures/block/dirt.png");
+
+            let t = Texture::new(&path);
+            DEFAULT_TEXTURE_ID = t.id;
+            DEFAULT_TEXTURE_SIZE = t.size;
+            t
+        }
+    }
+}
+
 impl Drop for Texture {
     fn drop(&mut self) {
-        //       unsafe { gl::DeleteTextures(1, &self.id) }
+        unsafe {
+            if self.id != DEFAULT_TEXTURE_ID {
+                gl::DeleteTextures(1, &self.id)
+            }
+        }
     }
 }

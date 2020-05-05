@@ -1,5 +1,5 @@
 use crate::math::matrix::m4;
-use crate::math::vector::v3;
+use crate::math::vector::{v2, v3};
 use crate::render::shaders::{FragmentShader, VertexShader};
 use crate::utils::c::cstr_of_size;
 use crate::utils::c::str2cstr;
@@ -52,6 +52,11 @@ impl ShaderProgram {
     }
 
     #[allow(dead_code)]
+    pub fn set_uniform_u32(&self, name: &str, value: u32) {
+        unsafe { gl::Uniform1ui(self.get_uniform_location(name), value) }
+    }
+
+    #[allow(dead_code)]
     pub fn set_uniform_float(&self, name: &str, value: f32) {
         unsafe { gl::Uniform1f(self.get_uniform_location(name), value) }
     }
@@ -59,6 +64,11 @@ impl ShaderProgram {
     #[allow(dead_code)]
     pub fn set_uniform_bool(&self, name: &str, value: bool) {
         unsafe { gl::Uniform1i(self.get_uniform_location(name), value as i32) }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_uniform_v2(&self, name: &str, value: v2) {
+        unsafe { gl::Uniform2f(self.get_uniform_location(name), value.x, value.y) }
     }
 
     #[allow(dead_code)]

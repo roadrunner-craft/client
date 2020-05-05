@@ -1,18 +1,26 @@
 use crate::components::Transform;
+use crate::game::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
+use crate::game::World;
 use crate::input::InputHandler;
 use crate::math::vector::v3;
 use crate::render::camera::Camera;
-use crate::render::models::Cube;
+use crate::render::models::Quad;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
+use crate::render::Texture;
 use crate::render::{Display, RenderSettings};
+use crate::utils::atlas::AtlasGenerator;
+use crate::utils::direction::Direction;
 use crate::utils::traits::{Bindable, Matrix};
 
 use gl::types::GLint;
 use scancode::Scancode;
+use std::collections::HashMap;
+use std::path::Path;
 use std::ptr;
 
 pub struct Renderer {
     pub program: ShaderProgram,
+    atlas: Texture,
     settings: RenderSettings,
 }
 
@@ -28,9 +36,16 @@ impl Renderer {
             uniform mat4 transform;
             uniform mat4 view;
             uniform mat4 projection;
+            uniform uint block_id;
+            uniform float texture_size;
 
             void main() {
-                pass_uv = uv;
+                float tile_size = 16;
+                float tile_per_row = texture_size / tile_size;
+                float atlas_index = block_id - 1;
+
+                pass_uv.x = mod(atlas_index, tile_per_row) / tile_per_row + uv.x * 16 / texture_size;
+                pass_uv.y = floor(atlas_index / tile_per_row) / tile_per_row + uv.y * 16 / texture_size;
                 gl_Position = projection * view * transform * vec4(position, 1.0);
             }
         "#;
@@ -50,12 +65,18 @@ impl Renderer {
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
 
-        // TODO: remove this temporary data
-        crate::render::Texture::new();
+        // TODO: this probably should be in the game code and passed as a parameter
+        let mut textures = HashMap::new();
+
+        textures.insert(0, "res/textures/block/dirt.png");
+        textures.insert(1, "res/textures/block/stone.png");
+
+        let (img, img_size) = AtlasGenerator::generate(textures);
 
         // TODO: make sure to handle dpi and update
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
+            atlas: Texture::from_image(&img, img_size),
             settings: RenderSettings::default(),
         }
     }
@@ -72,33 +93,14 @@ impl Renderer {
         }
     }
 
-    pub fn draw<C: Camera>(&self, display: &Display, camera: &C, cube: &Cube) {
+    pub fn draw<C: Camera>(&self, display: &Display, camera: &C, world: &World) {
         //world: &World, camera: &Camera) {
         self.program.enable();
-        self.program.set_uniform_m4(
-            "transform",
-            Transform::new(
-                v3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 2.0,
-                },
-                v3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-                v3 {
-                    x: 1.0,
-                    y: 1.0,
-                    z: 1.0,
-                },
-            )
-            .get_matrix(),
-        );
         self.program.set_uniform_m4("view", camera.get_view());
         self.program
             .set_uniform_m4("projection", camera.get_projection());
+        self.program
+            .set_uniform_float("texture_size", self.atlas.size as f32);
 
         //uniform! {
         //    texture: atlas.get_texture(),
@@ -116,17 +118,130 @@ impl Renderer {
 
             self.settings.apply();
 
-            cube.bind();
-            gl::DrawElements(
-                gl::TRIANGLES,
-                cube.get_indices_count() as GLint,
-                gl::UNSIGNED_INT,
-                ptr::null(),
-            );
-            cube.unbind();
+            let face = Quad::new_face();
+            face.bind();
+
+            let blocks = &world.chunks[0][0].blocks;
+
+            for x in 0..CHUNK_WIDTH {
+                for y in 0..CHUNK_HEIGHT {
+                    for z in 0..CHUNK_DEPTH {
+                        let block = blocks[x][y][z];
+
+                        if block.id == 0 {
+                            continue;
+                        }
+
+                        self.program.set_uniform_u32("block_id", block.id as u32);
+
+                        if z == 0 || blocks[x][y][z - 1].id == 0 {
+                            self.draw_face(x, y, z, Direction::FRONT);
+                        }
+
+                        if z == CHUNK_DEPTH - 1 || blocks[x][y][z + 1].id == 0 {
+                            self.draw_face(x, y, z, Direction::BACK);
+                        }
+
+                        if x == 0 || blocks[x - 1][y][z].id == 0 {
+                            self.draw_face(x, y, z, Direction::LEFT);
+                        }
+
+                        if x == CHUNK_WIDTH - 1 || blocks[x + 1][y][z].id == 0 {
+                            self.draw_face(x, y, z, Direction::RIGHT);
+                        }
+
+                        if y == 0 || blocks[x][y - 1][z].id == 0 {
+                            self.draw_face(x, y, z, Direction::BOTTOM);
+                        }
+
+                        if y == CHUNK_HEIGHT - 1 || blocks[x][y + 1][z].id == 0 {
+                            self.draw_face(x, y, z, Direction::TOP);
+                        }
+                    }
+                }
+            }
+
+            face.unbind();
         }
 
         display.context.swap_buffers().unwrap();
+    }
+
+    fn draw_face(&self, x: usize, y: usize, z: usize, direction: Direction) {
+        let position = match direction {
+            Direction::FRONT => v3 {
+                x: x as f32 - 0.5,
+                y: y as f32,
+                z: z as f32 - 0.5,
+            },
+            Direction::BACK => v3 {
+                x: x as f32 + 0.5,
+                y: y as f32,
+                z: z as f32 + 0.5,
+            },
+            Direction::LEFT => v3 {
+                x: x as f32 - 0.5,
+                y: y as f32,
+                z: z as f32 + 0.5,
+            },
+            Direction::RIGHT => v3 {
+                x: x as f32 + 0.5,
+                y: y as f32,
+                z: z as f32 - 0.5,
+            },
+            Direction::TOP => v3 {
+                x: x as f32 - 0.5,
+                y: y as f32 + 1.0,
+                z: z as f32 - 0.5,
+            },
+            Direction::BOTTOM => v3 {
+                x: x as f32 - 0.5,
+                y: y as f32,
+                z: z as f32 + 0.5,
+            },
+        };
+
+        let rotation = match direction {
+            Direction::FRONT => v3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Direction::BACK => v3 {
+                x: 0.0,
+                y: 180.0,
+                z: 0.0,
+            },
+            Direction::LEFT => v3 {
+                x: 0.0,
+                y: 90.0,
+                z: 0.0,
+            },
+            Direction::RIGHT => v3 {
+                x: 0.0,
+                y: -90.0,
+                z: 0.0,
+            },
+            Direction::TOP => v3 {
+                x: 90.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Direction::BOTTOM => v3 {
+                x: -90.0,
+                y: 0.0,
+                z: 0.0,
+            },
+        };
+
+        self.program.set_uniform_m4(
+            "transform",
+            Transform::new(position, rotation, v3::identity()).get_matrix(),
+        );
+
+        unsafe {
+            gl::DrawElements(gl::TRIANGLES, 6 as GLint, gl::UNSIGNED_INT, ptr::null());
+        }
     }
 }
 
