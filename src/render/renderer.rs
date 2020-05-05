@@ -1,6 +1,7 @@
 use crate::components::Transform;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
-use crate::game::World;
+use crate::game::texture::TextureDatabase;
+use crate::game::Game;
 use crate::input::InputHandler;
 use crate::math::vector::v3;
 use crate::render::camera::Camera;
@@ -14,14 +15,13 @@ use crate::utils::traits::{Bindable, Matrix};
 
 use gl::types::GLint;
 use scancode::Scancode;
-use std::collections::HashMap;
-use std::path::Path;
 use std::ptr;
 
 pub struct Renderer {
     pub program: ShaderProgram,
     atlas: Texture,
     settings: RenderSettings,
+    last_texture_id: u8,
 }
 
 impl Renderer {
@@ -36,13 +36,13 @@ impl Renderer {
             uniform mat4 transform;
             uniform mat4 view;
             uniform mat4 projection;
-            uniform uint block_id;
+            uniform uint texture_id;
             uniform float texture_size;
 
             vec2 atlas_uv(vec2 uv) {
                 float tile_size = 16;
                 float tile_per_row = texture_size / tile_size;
-                float atlas_index = block_id - 1;
+                float atlas_index = texture_id - 1;
 
                 vec2 new_uv;
                 new_uv.x = mod(atlas_index, tile_per_row) / tile_per_row + uv.x * 16 / texture_size;
@@ -72,19 +72,16 @@ impl Renderer {
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
 
-        // TODO: this probably should be in the game code and passed as a parameter
-        let mut textures = HashMap::new();
-
-        textures.insert(0, "res/textures/block/dirt.png");
-        textures.insert(1, "res/textures/block/stone.png");
-
-        let (img, img_size) = AtlasGenerator::generate(textures);
+        println!("a");
+        let (img, img_size) = AtlasGenerator::generate(TextureDatabase::new());
+        println!("b");
 
         // TODO: make sure to handle dpi and update
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
             atlas: Texture::from_image(&img, img_size),
             settings: RenderSettings::default(),
+            last_texture_id: 0,
         }
     }
 
@@ -100,8 +97,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw<C: Camera>(&self, display: &Display, camera: &C, world: &World) {
-        //world: &World, camera: &Camera) {
+    pub fn draw<C: Camera>(&mut self, display: &Display, camera: &C, game: &Game) {
         self.program.enable();
         self.program.set_uniform_m4("view", camera.get_view());
         self.program
@@ -128,7 +124,7 @@ impl Renderer {
             let face = Quad::new_face();
             face.bind();
 
-            let blocks = &world.chunks[0][0].blocks;
+            let blocks = &game.world.chunks[0][0].blocks;
 
             for x in 0..CHUNK_WIDTH {
                 for y in 0..CHUNK_HEIGHT {
@@ -139,30 +135,36 @@ impl Renderer {
                             continue;
                         }
 
-                        self.program.set_uniform_u32("block_id", block.id as u32);
+                        if let Some(block_properties) = game.block_database.get(block.id) {
+                            if z == 0 || blocks[x][y][z - 1].id == 0 {
+                                self.set_texture_id(block_properties.texture.front);
+                                self.draw_face(x, y, z, Direction::FRONT);
+                            }
 
-                        if z == 0 || blocks[x][y][z - 1].id == 0 {
-                            self.draw_face(x, y, z, Direction::FRONT);
-                        }
+                            if z == CHUNK_DEPTH - 1 || blocks[x][y][z + 1].id == 0 {
+                                self.set_texture_id(block_properties.texture.back);
+                                self.draw_face(x, y, z, Direction::BACK);
+                            }
 
-                        if z == CHUNK_DEPTH - 1 || blocks[x][y][z + 1].id == 0 {
-                            self.draw_face(x, y, z, Direction::BACK);
-                        }
+                            if x == 0 || blocks[x - 1][y][z].id == 0 {
+                                self.set_texture_id(block_properties.texture.left);
+                                self.draw_face(x, y, z, Direction::LEFT);
+                            }
 
-                        if x == 0 || blocks[x - 1][y][z].id == 0 {
-                            self.draw_face(x, y, z, Direction::LEFT);
-                        }
+                            if x == CHUNK_WIDTH - 1 || blocks[x + 1][y][z].id == 0 {
+                                self.set_texture_id(block_properties.texture.right);
+                                self.draw_face(x, y, z, Direction::RIGHT);
+                            }
 
-                        if x == CHUNK_WIDTH - 1 || blocks[x + 1][y][z].id == 0 {
-                            self.draw_face(x, y, z, Direction::RIGHT);
-                        }
+                            if y == 0 || blocks[x][y - 1][z].id == 0 {
+                                self.set_texture_id(block_properties.texture.bottom);
+                                self.draw_face(x, y, z, Direction::BOTTOM);
+                            }
 
-                        if y == 0 || blocks[x][y - 1][z].id == 0 {
-                            self.draw_face(x, y, z, Direction::BOTTOM);
-                        }
-
-                        if y == CHUNK_HEIGHT - 1 || blocks[x][y + 1][z].id == 0 {
-                            self.draw_face(x, y, z, Direction::TOP);
+                            if y == CHUNK_HEIGHT - 1 || blocks[x][y + 1][z].id == 0 {
+                                self.set_texture_id(block_properties.texture.top);
+                                self.draw_face(x, y, z, Direction::TOP);
+                            }
                         }
                     }
                 }
@@ -172,6 +174,15 @@ impl Renderer {
         }
 
         display.context.swap_buffers().unwrap();
+    }
+
+    fn set_texture_id(&mut self, id: u8) {
+        if self.last_texture_id == id {
+            return;
+        }
+
+        self.last_texture_id = id;
+        self.program.set_uniform_u32("texture_id", id as u32);
     }
 
     fn draw_face(&self, x: usize, y: usize, z: usize, direction: Direction) {

@@ -9,8 +9,11 @@ extern crate gl;
 extern crate glutin;
 extern crate image;
 extern crate scancode;
+// TODO: check is serde is required, I think it'is for the serialization
+extern crate serde;
+extern crate serde_json;
 
-use crate::game::World;
+use crate::game::Game;
 use crate::input::InputHandler;
 use crate::render::camera::PerspectiveCamera;
 use crate::render::renderer::Renderer;
@@ -32,9 +35,9 @@ fn main() {
     let mut renderer = Renderer::init(size.width, size.height);
     let mut camera = PerspectiveCamera::new(70.0, 0.1, 1024.0, aspect_ratio);
     let mut input_handler = InputHandler::default();
-    let mut world = World::new();
+    let mut game = Game::new();
     // TODO: remove the need for an init method
-    world.init();
+    game.world.init();
 
     let mut fps: u32 = 0;
     let mut last_time = Instant::now();
@@ -53,7 +56,7 @@ fn main() {
             _ => (),
         },
         Event::RedrawRequested(_) => {
-            renderer.draw(&display, &camera, &world);
+            renderer.draw(&display, &camera, &game);
         }
         Event::MainEventsCleared => {
             let time_delta = last_time.elapsed().as_secs_f32();
@@ -67,7 +70,7 @@ fn main() {
 
             // should be a loop to updage every component instead of just the camera
             camera.update(&input_handler, &time_delta);
-            world.update(&time_delta);
+            game.update(&time_delta);
             renderer.update(&input_handler);
             input_handler.clear_cursor_delta();
             display.context.window().request_redraw();

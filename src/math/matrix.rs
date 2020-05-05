@@ -8,12 +8,7 @@ pub struct m4(pub [[f32; 4]; 4]);
 impl m4 {
     #[allow(dead_code)]
     pub fn zero() -> Self {
-        Self([
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-        ])
+        Self::default()
     }
 
     #[allow(dead_code)]
