@@ -14,5 +14,5 @@ impl Game {
         }
     }
 
-    pub fn update(&mut self, time_delta: &f32) {}
+    pub fn update(&mut self, _time_delta: &f32) {}
 }

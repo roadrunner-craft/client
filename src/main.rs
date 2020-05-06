@@ -9,7 +9,6 @@ extern crate gl;
 extern crate glutin;
 extern crate image;
 extern crate scancode;
-// TODO: check is serde is required, I think it'is for the serialization
 extern crate serde;
 extern crate serde_json;
 
@@ -73,7 +72,6 @@ fn main() {
             // should be a loop to updage every component instead of just the camera
             camera.update(&input_handler, &time_delta);
             game.update(&time_delta);
-            renderer.update(&input_handler);
             input_handler.clear_cursor_delta();
             display.context.window().request_redraw();
         }

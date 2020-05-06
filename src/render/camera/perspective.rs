@@ -1,5 +1,4 @@
-use crate::math::matrix::m4;
-use crate::utils::traits::Matrix;
+use crate::math::matrix::{m4, Matrix};
 
 pub struct PerspectiveProjection {
     m: m4,
@@ -22,17 +21,6 @@ impl PerspectiveProjection {
         projection.m[3][3] = 0.0;
         projection.generate_matrix();
         projection
-    }
-
-    pub fn set_fov(&mut self, fov: f32) {
-        self.fov = fov;
-        self.generate_matrix();
-    }
-
-    pub fn set_planes(&mut self, near: f32, far: f32) {
-        self.near = near;
-        self.far = far;
-        self.generate_matrix();
     }
 
     pub fn set_aspect_ratio(&mut self, aspect_ratio: f32) {

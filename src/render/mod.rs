@@ -1,6 +1,4 @@
 pub mod camera;
-// TODO: clean this up in a renderer package
-pub mod chunk_renderer;
 mod display;
 pub mod models;
 pub mod renderer;

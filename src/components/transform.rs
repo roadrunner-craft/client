@@ -1,6 +1,5 @@
-use crate::math::matrix::m4;
+use crate::math::matrix::{m4, Matrix};
 use crate::math::vector::v3;
-use crate::utils::traits::Matrix;
 
 pub struct Transform {
     position: v3,
