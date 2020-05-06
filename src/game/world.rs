@@ -15,10 +15,10 @@ impl World {
         };
 
         w.chunks.insert(Point { x: 0, y: 0 }, Chunk::new());
-        w.chunks.insert(Point { x: 1, y: 0 }, Chunk::new());
-        w.chunks.insert(Point { x: 0, y: 1 }, Chunk::new());
-        w.chunks.insert(Point { x: 0, y: -1 }, Chunk::new());
-        w.chunks.insert(Point { x: -1, y: 0 }, Chunk::new());
+        //       w.chunks.insert(Point { x: 1, y: 0 }, Chunk::new());
+        //     w.chunks.insert(Point { x: 0, y: 1 }, Chunk::new());
+        //   w.chunks.insert(Point { x: 0, y: -1 }, Chunk::new());
+        // w.chunks.insert(Point { x: -1, y: 0 }, Chunk::new());
         w
     }
 
@@ -64,13 +64,14 @@ impl World {
         }
     }
 
+    // TODO: handle the case where the chunk is not in the hashmap
     pub fn get_chunk_group(&self, x: isize, y: isize) -> ChunkGroup {
         ChunkGroup {
             current: &self.chunks.get(&Point { x: 0, y: 0 }).unwrap(),
-            north: &self.chunks.get(&Point { x: 0, y: 1 }).unwrap(),
-            south: &self.chunks.get(&Point { x: 0, y: -1 }).unwrap(),
-            east: &self.chunks.get(&Point { x: -1, y: 0 }).unwrap(),
-            west: &self.chunks.get(&Point { x: 1, y: 0 }).unwrap(),
+            north: self.chunks.get(&Point { x: 0, y: 1 }),
+            south: self.chunks.get(&Point { x: 0, y: -1 }),
+            east: self.chunks.get(&Point { x: -1, y: 0 }),
+            west: self.chunks.get(&Point { x: 1, y: 0 }),
         }
     }
 }
