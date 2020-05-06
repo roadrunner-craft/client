@@ -97,16 +97,13 @@ impl AtlasGenerator {
             }
         }
 
-        // TODO: remove this
-        if true {
-            image::save_buffer(
-                "./atlas.png",
-                img.as_slice(),
-                img_size as u32,
-                img_size as u32,
-                image::ColorType::Rgba8,
-            );
-        }
+        // image::save_buffer(
+        //     "./atlas.png",
+        //     img.as_slice(),
+        //     img_size as u32,
+        //     img_size as u32,
+        //     image::ColorType::Rgba8,
+        // );
 
         (img, img_size as u32)
     }
