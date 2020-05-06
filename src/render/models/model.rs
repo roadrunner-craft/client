@@ -10,17 +10,16 @@ use std::vec::Vec;
 pub struct Model {
     vao: GLuint,
     vbo_count: GLuint,
-    indices_count: usize,
+    index_count: usize,
     buffers: Vec<GLuint>,
 }
 
-// TODO: make sure data is passed around by ref to not copy huge models around
 impl Model {
-    pub fn new(vertices: Vec<v3>, indices: Vec<GLuint>) -> Model {
+    pub fn new(vertices: &Vec<v3>, indices: &Vec<GLuint>) -> Model {
         let mut model = Model {
             vao: 0,
             vbo_count: 0,
-            indices_count: indices.len(),
+            index_count: indices.len(),
             buffers: Vec::new(),
         };
 
@@ -28,26 +27,30 @@ impl Model {
             gl::GenVertexArrays(1, &mut model.vao);
         }
 
-        model.bind();
-
-        model.add_vbo(3, &vertices);
-        model.add_ebo(&indices);
+        model.add_vbo(3, vertices);
+        model.add_ebo(indices);
         model
     }
 
-    pub fn new_textured(vertices: Vec<v3>, uv: Vec<v2>, indices: Vec<GLuint>) -> Model {
-        let mut model = Model::new(vertices, indices);
+    pub fn new_textured(vertices: Vec<v3>, uv: Vec<v2>, indices: Vec<GLuint>) -> Self {
+        let mut model = Model::new(&vertices, &indices);
 
-        model.add_vbo(2, &uv);
+        model.add_uv(&uv);
         model
     }
 
-    pub fn get_indices_count(&self) -> usize {
-        self.indices_count
+    pub fn add_uv(&mut self, uv: &Vec<v2>) {
+        self.add_vbo(2, &uv);
+    }
+
+    pub fn index_count(&self) -> usize {
+        self.index_count
     }
 
     pub fn add_vbo<T>(&mut self, dimension: i32, data: &Vec<T>) {
         let mut vbo: GLuint = 0;
+
+        self.bind();
 
         unsafe {
             gl::GenBuffers(1, &mut vbo);
@@ -70,10 +73,11 @@ impl Model {
             gl::EnableVertexAttribArray(self.vbo_count);
         }
 
+        self.buffers.push(vbo);
         self.vbo_count += 1;
     }
 
-    fn add_ebo(&self, indices: &Vec<GLuint>) {
+    fn add_ebo(&mut self, indices: &Vec<GLuint>) {
         let mut ebo: GLuint = 0;
 
         unsafe {
@@ -87,6 +91,8 @@ impl Model {
                 gl::STATIC_DRAW,
             );
         }
+
+        self.buffers.push(ebo);
     }
 }
 

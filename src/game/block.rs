@@ -1,7 +1,5 @@
 use crate::game::models::BlockProperties;
 
-use serde::Deserialize;
-
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -30,5 +28,13 @@ impl BlockDatabase {
 
     pub fn get(&self, id: u8) -> Option<&BlockProperties> {
         self.map.get(&id)
+    }
+
+    pub fn is_opaque(&self, id: u8) -> bool {
+        if let Some(p) = self.get(id) {
+            return p.opaque;
+        } else {
+            return false;
+        }
     }
 }

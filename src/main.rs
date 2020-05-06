@@ -32,7 +32,9 @@ fn main() {
     let size = display.context.window().inner_size();
     let aspect_ratio = size.width as f32 / size.height as f32;
 
-    let mut renderer = Renderer::init(size.width, size.height);
+    let mut renderer = Renderer::default();
+    renderer.set_size(size.width as i32, size.height as i32);
+
     let mut camera = PerspectiveCamera::new(70.0, 0.1, 1024.0, aspect_ratio);
     let mut input_handler = InputHandler::default();
     let mut game = Game::new();
@@ -48,7 +50,7 @@ fn main() {
         Event::WindowEvent { event, .. } => match event {
             WindowEvent::Resized(size) => {
                 camera.set_aspect_ratio(size.width as f32 / size.height as f32);
-                renderer.set_size(size.width, size.height);
+                renderer.set_size(size.width as i32, size.height as i32);
             }
             WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
             WindowEvent::CursorMoved { position, .. } => input_handler.process_cursor(position),
