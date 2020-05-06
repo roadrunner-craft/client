@@ -1,5 +1,5 @@
 use crate::math::vector::{v2, v3};
-use crate::utils::traits::Bindable;
+use crate::utils::Bindable;
 
 use gl::types::{GLsizeiptr, GLuint};
 use std::mem;
@@ -27,27 +27,21 @@ impl Model {
             gl::GenVertexArrays(1, &mut model.vao);
         }
 
-        model.add_vbo(3, vertices);
+        model.add_vbo(vertices);
         model.add_ebo(indices);
         model
     }
 
-    pub fn new_textured(vertices: Vec<v3>, uv: Vec<v2>, indices: Vec<GLuint>) -> Self {
-        let mut model = Model::new(&vertices, &indices);
-
-        model.add_uv(&uv);
-        model
-    }
-
+    #[allow(dead_code)]
     pub fn add_uv(&mut self, uv: &Vec<v2>) {
-        self.add_vbo(2, &uv);
+        self.add_vbo(&uv);
     }
 
     pub fn index_count(&self) -> usize {
         self.index_count
     }
 
-    pub fn add_vbo<T>(&mut self, dimension: i32, data: &Vec<T>) {
+    pub fn add_vbo<T>(&mut self, data: &Vec<T>) {
         let mut vbo: GLuint = 0;
 
         self.bind();
@@ -64,7 +58,7 @@ impl Model {
 
             gl::VertexAttribPointer(
                 self.vbo_count,
-                dimension,
+                (mem::size_of::<T>() / 4) as i32,
                 gl::FLOAT,
                 gl::FALSE,
                 0,

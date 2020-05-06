@@ -1,4 +1,4 @@
-use crate::utils::traits::Bindable;
+use crate::utils::Bindable;
 
 use gl::types::GLuint;
 use image::DynamicImage;

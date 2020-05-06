@@ -1,24 +1,19 @@
 use crate::game::block::Block;
 use crate::game::chunk::{Chunk, ChunkGroup};
-use crate::utils::point::Point;
-
-use std::collections::HashMap;
+use crate::game::chunk::{ChunkGrid, ChunkGridCoordinate};
 
 pub struct World {
-    pub chunks: HashMap<Point, Chunk>,
+    pub chunks: ChunkGrid,
 }
 
 impl World {
     pub fn new() -> Self {
         let mut w = World {
-            chunks: HashMap::new(),
+            chunks: ChunkGrid::new(),
         };
 
-        w.chunks.insert(Point { x: 0, y: 0 }, Chunk::new());
-        //       w.chunks.insert(Point { x: 1, y: 0 }, Chunk::new());
-        //     w.chunks.insert(Point { x: 0, y: 1 }, Chunk::new());
-        //   w.chunks.insert(Point { x: 0, y: -1 }, Chunk::new());
-        // w.chunks.insert(Point { x: -1, y: 0 }, Chunk::new());
+        w.chunks
+            .insert(ChunkGridCoordinate::new(0, 0), Chunk::new());
         w
     }
 
@@ -64,14 +59,14 @@ impl World {
         }
     }
 
-    // TODO: handle the case where the chunk is not in the hashmap
-    pub fn get_chunk_group(&self, x: isize, y: isize) -> ChunkGroup {
+    // TODO: handle the case where the current chunk is not in the hashmap
+    pub fn get_chunk_group(&self, x: i64, z: i64) -> ChunkGroup {
         ChunkGroup {
-            current: &self.chunks.get(&Point { x: 0, y: 0 }).unwrap(),
-            north: self.chunks.get(&Point { x: 0, y: 1 }),
-            south: self.chunks.get(&Point { x: 0, y: -1 }),
-            east: self.chunks.get(&Point { x: -1, y: 0 }),
-            west: self.chunks.get(&Point { x: 1, y: 0 }),
+            current: &self.chunks.get(&ChunkGridCoordinate::new(x, z)).unwrap(),
+            north: self.chunks.get(&ChunkGridCoordinate::new(x, z + 1)),
+            south: self.chunks.get(&ChunkGridCoordinate::new(x, z - 1)),
+            east: self.chunks.get(&ChunkGridCoordinate::new(x - 1, z)),
+            west: self.chunks.get(&ChunkGridCoordinate::new(x + 1, z)),
         }
     }
 }

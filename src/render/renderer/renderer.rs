@@ -1,7 +1,6 @@
 use crate::game::Game;
-use crate::input::InputHandler;
 use crate::render::camera::Camera;
-use crate::render::chunk_renderer::ChunkRenderer;
+use crate::render::renderer::ChunkRenderer;
 use crate::render::Display;
 
 #[derive(Default)]
@@ -14,10 +13,6 @@ impl Renderer {
         unsafe {
             gl::Viewport(0, 0, width, height);
         }
-    }
-
-    pub fn update(&mut self, input: &InputHandler) {
-        self.chunk_renderer.update(input);
     }
 
     pub fn draw<C: Camera>(&mut self, display: &Display, camera: &C, game: &Game) {

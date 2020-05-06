@@ -3,6 +3,8 @@ use std::ops;
 use crate::math::vector::v3;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[allow(non_camel_case_types)]
+#[repr(C)]
 pub struct q {
     w: f32,
     x: f32,

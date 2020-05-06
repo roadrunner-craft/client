@@ -1,10 +1,8 @@
-use super::orthographic::OrthographicProjection;
 use super::perspective::PerspectiveProjection;
 use crate::input::InputHandler;
-use crate::math::matrix::m4;
+use crate::math::matrix::{m4, Matrix};
 use crate::math::vector::v3;
 use crate::render::camera::ViewMatrix;
-use crate::utils::traits::Matrix;
 
 use scancode::Scancode;
 
@@ -25,7 +23,8 @@ pub struct PerspectiveCamera {
 impl PerspectiveCamera {
     pub fn new(fov: f32, near: f32, far: f32, aspect_ratio: f32) -> PerspectiveCamera {
         Self {
-            view: ViewMatrix::default(),
+            // TODO: change this to take the position as a parameter or add a method
+            view: ViewMatrix::new_position(0.0, 30.0, 0.0),
             projection: PerspectiveProjection::new(fov, near, far, aspect_ratio),
             speed: SPEED,
         }
@@ -97,46 +96,6 @@ impl PerspectiveCamera {
 }
 
 impl Camera for PerspectiveCamera {
-    fn get_projection(&self) -> &m4 {
-        self.projection.get_matrix()
-    }
-
-    fn get_view(&self) -> &m4 {
-        self.view.get_matrix()
-    }
-}
-
-pub struct OrthographicCamera {
-    view: ViewMatrix,
-    projection: OrthographicProjection,
-}
-
-impl OrthographicCamera {
-    pub fn new(
-        left: f32,
-        right: f32,
-        top: f32,
-        bottom: f32,
-        near: f32,
-        far: f32,
-    ) -> OrthographicCamera {
-        Self {
-            view: ViewMatrix::default(),
-            projection: OrthographicProjection::new(left, right, top, bottom, near, far),
-        }
-    }
-
-    // TODO: maybe use a v2 as position ?
-    pub fn set_position(&mut self, x: f32, y: f32, z: f32) {
-        self.view.set_position(v3 {
-            x: -x,
-            y: -y,
-            z: -z,
-        });
-    }
-}
-
-impl Camera for OrthographicCamera {
     fn get_projection(&self) -> &m4 {
         self.projection.get_matrix()
     }

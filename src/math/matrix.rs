@@ -1,6 +1,10 @@
 use std::fmt;
 use std::ops;
 
+pub trait Matrix {
+    fn get_matrix(&self) -> &m4;
+}
+
 #[allow(non_camel_case_types)]
 #[derive(Default, Copy, Clone)]
 pub struct m4(pub [[f32; 4]; 4]);

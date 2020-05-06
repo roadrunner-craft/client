@@ -1,5 +1,5 @@
 pub mod atlas;
+mod bindable;
 pub mod c;
-pub mod direction;
-pub mod point;
-pub mod traits;
+
+pub use self::bindable::Bindable;

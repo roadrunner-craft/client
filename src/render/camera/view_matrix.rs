@@ -1,6 +1,5 @@
-use crate::math::matrix::m4;
+use crate::math::matrix::{m4, Matrix};
 use crate::math::vector::v3;
-use crate::utils::traits::Matrix;
 
 // TODO: merge this class with the transformation component
 pub struct ViewMatrix {
@@ -18,17 +17,6 @@ impl ViewMatrix {
                 y: 0.0,
                 z: 0.0,
             },
-            m: None,
-        };
-
-        view.generate_matrix();
-        view
-    }
-
-    pub fn new(position: v3, rotation: v3) -> Self {
-        let mut view = Self {
-            position,
-            rotation,
             m: None,
         };
 
@@ -108,100 +96,6 @@ impl ViewMatrix {
         ]);
 
         self.m = Some(m);
-
-        return;
-
-        // let xaxis = v3 {
-        //     x: cos_x * cos_y,
-        //     y: cos_x * sin_y * sin_z - sin_x * cos_z,
-        //     z: cos_x * sin_y * cos_z + sin_x * sin_z,
-        // };
-        // let yaxis = v3 {
-        //     x: sin_x * cos_y,
-        //     y: sin_x * sin_y * sin_z + cos_x * cos_z,
-        //     z: sin_x * sin_y * cos_z - cos_x * sin_z,
-        // };
-        // let zaxis = v3 {
-        //     x: -sin_y,
-        //     y: cos_y * sin_z,
-        //     z: cos_y * cos_z,
-        // };
-
-        // let xaxis = v3 {
-        //     x: cos_y,
-        //     y: 0.0,
-        //     z: -sin_y,
-        // };
-        // let yaxis = v3 {
-        //     x: sin_y * sin_x,
-        //     y: cos_x,
-        //     z: cos_y * sin_x,
-        // };
-        // let zaxis = v3 {
-        //     x: sin_y * cos_x,
-        //     y: -sin_x,
-        //     z: cos_x * cos_y,
-        // };
-
-        // let m03 = v3::dot(xaxis, self.position);
-        // let m13 = v3::dot(yaxis, self.position);
-        // let m23 = v3::dot(zaxis, self.position);
-
-        // self.m = Some(m4([
-        //     [xaxis.x, xaxis.y, xaxis.z, m03],
-        //     [yaxis.x, yaxis.y, yaxis.z, m13],
-        //     [zaxis.x, zaxis.y, zaxis.z, m23],
-        //     [0.0, 0.0, 0.0, 1.0],
-        // ]));
-
-        // println!("{:?}", self.rotation);
-
-        // // could probably do this cleaner with the roll value and extract this behavior into an
-        // // FPS camera component
-        // let mut front = v3 {
-        //     x: cos_y * cos_x,
-        //     y: sin_x,
-        //     z: sin_y * cos_x,
-        // };
-        // front.normalize();
-
-        // let mut right = v3::cross(
-        //     front,
-        //     v3 {
-        //         x: 0.0,
-        //         y: 1.0,
-        //         z: 0.0,
-        //     },
-        // );
-        // right.normalize();
-
-        // let mut up = v3::cross(right, front);
-        // up.normalize();
-
-        // self.look_at(self.position, self.position - front, up);
-    }
-
-    pub fn look_at(&mut self, eye: v3, target: v3, up: v3) {
-        let mut f = target - eye;
-        f.normalize();
-
-        let mut u = up.normalized();
-
-        let mut r = v3::cross(f, u);
-        r.normalize();
-
-        u = v3::cross(r, f);
-
-        let m03 = -v3::dot(r, eye);
-        let m13 = -v3::dot(u, eye);
-        let m23 = v3::dot(f, eye);
-
-        self.m = Some(m4([
-            [r.x, r.y, r.z, m03],
-            [u.x, u.y, u.z, m13],
-            [-f.x, -f.y, -f.z, m23],
-            [0.0, 0.0, 0.0, 1.0],
-        ]));
     }
 }
 

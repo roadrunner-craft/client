@@ -1,4 +1,4 @@
-use crate::utils::c::cstr_of_size;
+use crate::utils::c::cstr_with_size;
 use crate::utils::c::str2cstr;
 use gl::types::{GLchar, GLint, GLuint};
 
@@ -80,7 +80,7 @@ fn handle_error(id: GLuint) -> Option<String> {
         gl::GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut length);
     }
 
-    let error = cstr_of_size(length as usize);
+    let error = cstr_with_size(length as usize);
 
     unsafe {
         gl::GetShaderInfoLog(

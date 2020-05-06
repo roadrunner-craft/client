@@ -3,7 +3,7 @@ use crate::game::chunk::ChunkGroup;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use crate::math::vector::v3;
 use crate::render::models::Model;
-use crate::utils::traits::Bindable;
+use crate::utils::Bindable;
 
 use gl::types::GLuint;
 
@@ -265,7 +265,7 @@ impl ChunkMesh {
 
         if !mesh.vertices.is_empty() {
             mesh.model = Some(Model::new(&mesh.vertices, &mesh.indices));
-            mesh.model.as_mut().unwrap().add_vbo(1, &mesh.vertices_info);
+            mesh.model.as_mut().unwrap().add_vbo(&mesh.vertices_info);
         }
         mesh
     }

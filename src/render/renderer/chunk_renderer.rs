@@ -1,37 +1,23 @@
+use crate::game::chunk::ChunkGridCoordinate;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_WIDTH};
 use crate::game::texture::TextureDatabase;
 use crate::game::Game;
-use crate::input::InputHandler;
 use crate::math::vector::v2;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
 use crate::render::Texture;
 use crate::utils::atlas::AtlasGenerator;
-use crate::utils::traits::Bindable;
+use crate::utils::Bindable;
 
 use gl::types::GLint;
+use std::collections::HashMap;
 use std::ptr;
-
-struct ChunkRenderable {
-    position: v2,
-    mesh: ChunkMesh,
-}
-
-impl ChunkRenderable {
-    fn get_mesh(&self) -> &ChunkMesh {
-        &self.mesh
-    }
-
-    fn get_position(&self) -> v2 {
-        self.position
-    }
-}
 
 pub struct ChunkRenderer {
     program: ShaderProgram,
     atlas: Texture,
-    renderables: Vec<ChunkRenderable>,
+    meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     temp: bool,
 }
 
@@ -102,12 +88,10 @@ impl ChunkRenderer {
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
             atlas: Texture::from_image(&img, img_size),
-            renderables: Vec::new(),
+            meshes: HashMap::new(),
             temp: false,
         }
     }
-
-    pub fn update(&mut self, input: &InputHandler) {}
 
     pub fn draw<C: Camera>(&mut self, camera: &C, game: &Game) {
         self.program.enable();
@@ -121,32 +105,32 @@ impl ChunkRenderer {
             self.temp = true;
 
             let chunks = game.world.get_chunk_group(0, 0);
-            self.renderables.push(ChunkRenderable {
-                mesh: ChunkMesh::generate(&chunks, &game.block_database),
-                position: v2 { x: 0.0, y: 0.0 },
-            });
+            self.meshes.insert(
+                ChunkGridCoordinate::new(0, 0),
+                ChunkMesh::generate(&chunks, &game.block_database),
+            );
         }
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
 
-            for renderable in self.renderables.iter_mut() {
-                renderable.get_mesh().bind();
+            for (coords, mesh) in self.meshes.iter_mut() {
+                mesh.bind();
 
                 let position = v2 {
-                    x: CHUNK_WIDTH as f32 * renderable.get_position().x,
-                    y: CHUNK_DEPTH as f32 * renderable.get_position().y,
+                    x: CHUNK_WIDTH as f32 * coords.x as f32,
+                    y: CHUNK_DEPTH as f32 * coords.z as f32,
                 };
                 self.program.set_uniform_v2("chunk_position", position);
 
                 gl::DrawElements(
                     gl::TRIANGLES,
-                    renderable.get_mesh().index_count() as GLint,
+                    mesh.index_count() as GLint,
                     gl::UNSIGNED_INT,
                     ptr::null(),
                 );
 
-                renderable.mesh.unbind();
+                mesh.unbind();
             }
         }
     }
