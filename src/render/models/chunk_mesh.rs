@@ -213,10 +213,10 @@ impl ChunkMesh {
             for y in 0..CHUNK_HEIGHT {
                 for z in 0..CHUNK_DEPTH {
                     let x = x as i8;
-                    let y = y as u8;
+                    let y = y as i16;
                     let z = z as i8;
 
-                    let block = chunks.get_block(x, y, z);
+                    let block = chunks.get_block(x, y, z).unwrap();
 
                     if block.id == 0 {
                         continue;
@@ -229,34 +229,34 @@ impl ChunkMesh {
                             z: z as f32,
                         };
 
-                        if !block_database.is_opaque(chunks.get_block(x, y, z - 1).id) {
+                        let mut block = chunks.get_block(x, y, z - 1);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
                             mesh.add_face(FRONT_FACE, position, properties.texture.front);
                         }
 
-                        if !block_database.is_opaque(chunks.get_block(x, y, z + 1).id) {
+                        block = chunks.get_block(x, y, z + 1);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
                             mesh.add_face(BACK_FACE, position, properties.texture.back);
                         }
 
-                        if !block_database.is_opaque(chunks.get_block(x - 1, y, z).id) {
+                        block = chunks.get_block(x - 1, y, z);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
                             mesh.add_face(LEFT_FACE, position, properties.texture.left);
                         }
 
-                        if !block_database.is_opaque(chunks.get_block(x + 1, y, z).id) {
+                        block = chunks.get_block(x + 1, y, z);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
                             mesh.add_face(RIGHT_FACE, position, properties.texture.right);
                         }
 
-                        if y as usize == (CHUNK_HEIGHT - 1) {
+                        block = chunks.get_block(x, y + 1, z);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
                             mesh.add_face(TOP_FACE, position, properties.texture.top);
-                        } else if y == 0 {
-                            mesh.add_face(BOTTOM_FACE, position, properties.texture.bottom);
-                        } else {
-                            if !block_database.is_opaque(chunks.get_block(x, y + 1, z).id) {
-                                mesh.add_face(TOP_FACE, position, properties.texture.top);
-                            }
+                        }
 
-                            if !block_database.is_opaque(chunks.get_block(x, y - 1, z).id) {
-                                mesh.add_face(BOTTOM_FACE, position, properties.texture.bottom);
-                            }
+                        block = chunks.get_block(x, y - 1, z);
+                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                            mesh.add_face(BOTTOM_FACE, position, properties.texture.bottom);
                         }
                     }
                 }
