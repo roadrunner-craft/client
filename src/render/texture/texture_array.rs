@@ -111,11 +111,17 @@ impl TextureArray {
 
 impl Bindable for TextureArray {
     fn bind(&self) {
-        unsafe { gl::BindTexture(gl::TEXTURE_2D_ARRAY, self.id) }
+        unsafe {
+            gl::ActiveTexture(gl::TEXTURE1);
+            gl::BindTexture(gl::TEXTURE_2D_ARRAY, self.id)
+        }
     }
 
     fn unbind(&self) {
-        unsafe { gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0) }
+        unsafe {
+            gl::ActiveTexture(gl::TEXTURE1);
+            gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0)
+        }
     }
 }
 

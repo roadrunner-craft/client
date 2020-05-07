@@ -86,6 +86,7 @@
     },
     "18": {
         "name": "minecraft:leaves",
+        "opaque": false,
         "texture": {
             "front": 10,
             "back": 10,

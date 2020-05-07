@@ -82,11 +82,17 @@ impl Texture {
 
 impl Bindable for Texture {
     fn bind(&self) {
-        unsafe { gl::BindTexture(gl::TEXTURE_2D, self.id) }
+        unsafe {
+            gl::ActiveTexture(gl::TEXTURE0);
+            gl::BindTexture(gl::TEXTURE_2D, self.id)
+        }
     }
 
     fn unbind(&self) {
-        unsafe { gl::BindTexture(gl::TEXTURE_2D, 0) }
+        unsafe {
+            gl::ActiveTexture(gl::TEXTURE0);
+            gl::BindTexture(gl::TEXTURE_2D, 0)
+        }
     }
 }
 
