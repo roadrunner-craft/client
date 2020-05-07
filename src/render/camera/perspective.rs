@@ -18,7 +18,6 @@ impl PerspectiveProjection {
             aspect_ratio,
         };
 
-        projection.m[3][3] = 0.0;
         projection.generate_matrix();
         projection
     }
@@ -38,6 +37,7 @@ impl PerspectiveProjection {
         self.m[2][2] = (self.far + self.near) / frustum_length;
         self.m[3][2] = 1.0;
         self.m[2][3] = (-2.0 * self.far * self.near) / frustum_length;
+        self.m[3][3] = 0.0;
     }
 }
 
