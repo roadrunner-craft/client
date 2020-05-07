@@ -1,4 +1,3 @@
-use glutin::dpi::PhysicalPosition;
 use std::ops;
 
 #[derive(Debug, Copy, Clone, Default)]
@@ -19,23 +18,14 @@ impl ops::AddAssign for CursorDelta {
 #[derive(Debug, Default)]
 pub struct CursorHandler {
     delta: CursorDelta,
-    old_position: Option<PhysicalPosition<f64>>,
 }
 
 impl CursorHandler {
-    pub fn process(&mut self, position: PhysicalPosition<f64>) {
-        if self.old_position == None {
-            self.old_position = Some(position);
-            return;
-        }
-
-        let added_delta = CursorDelta {
-            x: position.x - self.old_position.unwrap().x,
-            y: position.y - self.old_position.unwrap().y,
+    pub fn process(&mut self, delta: (f64, f64)) {
+        self.delta += CursorDelta {
+            x: delta.0,
+            y: delta.1,
         };
-
-        self.old_position = Some(position);
-        self.delta += added_delta;
     }
 
     pub fn get_delta(&self) -> &CursorDelta {

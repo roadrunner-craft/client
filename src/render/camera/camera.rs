@@ -1,10 +1,10 @@
+use glutin::event::VirtualKeyCode;
+
 use super::perspective::PerspectiveProjection;
 use crate::input::InputHandler;
 use crate::math::matrix::{m4, Matrix};
 use crate::math::vector::v3;
 use crate::render::camera::ViewMatrix;
-
-use scancode::Scancode;
 
 const SPEED: f32 = 7.0;
 const SENSITIVITY: f32 = 0.2;
@@ -54,27 +54,27 @@ impl PerspectiveCamera {
         let mut yaxis = 0.0;
         let mut zaxis = 0.0;
 
-        if input.is_key_pressed(Scancode::W) {
+        if input.is_key_pressed(VirtualKeyCode::W) {
             zaxis += 1.0;
         }
 
-        if input.is_key_pressed(Scancode::S) {
+        if input.is_key_pressed(VirtualKeyCode::S) {
             zaxis -= 1.0;
         }
 
-        if input.is_key_pressed(Scancode::A) {
+        if input.is_key_pressed(VirtualKeyCode::A) {
             xaxis -= 1.0;
         }
 
-        if input.is_key_pressed(Scancode::D) {
+        if input.is_key_pressed(VirtualKeyCode::D) {
             xaxis += 1.0;
         }
 
-        if input.is_key_pressed(Scancode::Space) {
+        if input.is_key_pressed(VirtualKeyCode::Space) {
             yaxis += 1.0;
         }
 
-        if input.is_key_pressed(Scancode::LeftShift) {
+        if input.is_key_pressed(VirtualKeyCode::LShift) {
             yaxis -= 1.0;
         }
 

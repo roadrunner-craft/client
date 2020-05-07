@@ -1,25 +1,24 @@
-use glutin::event::{ElementState, KeyboardInput};
-use scancode::Scancode;
+use glutin::event::{ElementState, KeyboardInput, VirtualKeyCode};
 use std::collections::HashSet;
 
 #[derive(Debug, Default)]
 pub struct KeyboardHandler {
-    pressed: HashSet<u32>,
+    pressed: HashSet<VirtualKeyCode>,
 }
 
 impl KeyboardHandler {
     pub fn process(&mut self, input: KeyboardInput) {
-        if let Some(scancode) = Scancode::new(input.scancode as u8) {
-            // println!("{:?}", scancode);
+        if let Some(keycode) = input.virtual_keycode {
+            // println!("{:?}", keycode);
 
             match input.state {
-                ElementState::Pressed => self.pressed.insert(scancode as u32),
-                ElementState::Released => self.pressed.remove(&(scancode as u32)),
+                ElementState::Pressed => self.pressed.insert(keycode),
+                ElementState::Released => self.pressed.remove(&(keycode)),
             };
         }
     }
 
-    pub fn is_pressed(&self, key: Scancode) -> bool {
-        self.pressed.contains(&(key as u32))
+    pub fn is_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.pressed.contains(&(keycode))
     }
 }

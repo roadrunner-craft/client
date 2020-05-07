@@ -1,15 +1,14 @@
-use glutin::dpi::Size;
+use glutin::dpi::{PhysicalSize, Size};
 use glutin::event_loop::EventLoop;
-use glutin::monitor::MonitorHandle;
-use glutin::window::{Fullscreen, WindowBuilder};
+use glutin::window::WindowBuilder;
 use glutin::{Api, ContextBuilder, GlProfile, GlRequest, PossiblyCurrent, WindowedContext};
 
 pub struct Display {
-    pub context: WindowedContext<PossiblyCurrent>,
-    monitor: MonitorHandle,
+    context: WindowedContext<PossiblyCurrent>,
 }
 
 impl Display {
+    #[allow(unused_must_use)]
     pub fn new(title: &'static str, event_loop: &EventLoop<()>) -> Self {
         let monitor = event_loop.available_monitors().nth(0).unwrap();
         let psize = monitor.size();
@@ -17,8 +16,8 @@ impl Display {
 
         let window_builder = WindowBuilder::new()
             .with_title(title)
-            //           .with_maximized(false)
-            //         .with_resizable(true)
+            .with_maximized(false)
+            .with_resizable(true)
             .with_inner_size(size);
         let context_builder = ContextBuilder::new()
             .with_srgb(true)
@@ -32,21 +31,31 @@ impl Display {
             .unwrap();
         let context = unsafe { context.make_current().unwrap() };
 
+        context.window().set_cursor_grab(true);
+        context.window().set_cursor_visible(false);
+
         gl::load_with(|symbol| context.get_proc_address(symbol));
 
-        let psize = context.window().inner_size();
-        unsafe {
-            gl::Viewport(0, 0, psize.width as i32, psize.height as i32);
-        }
-
-        Display { context, monitor }
+        Display { context }
     }
 
-    pub fn set_fullscreen(&self, value: bool) {
-        self.context.window().set_fullscreen(if value {
-            Some(Fullscreen::Borderless(self.monitor.clone()))
-        } else {
-            None
-        });
+    pub fn resize(&self, size: PhysicalSize<u32>) {
+        self.context.resize(size);
     }
+
+    pub fn swap_buffers(&self) {
+        self.context.swap_buffers().unwrap();
+    }
+
+    pub fn request_redraw(&self) {
+        self.context.window().request_redraw();
+    }
+
+    //pub fn set_fullscreen(&self, value: bool) {
+    //    self.context.window().set_fullscreen(if value {
+    //        Some(Fullscreen::Borderless(self.monitor.clone()))
+    //    } else {
+    //        None
+    //    });
+    //}
 }
