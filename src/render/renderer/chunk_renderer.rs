@@ -6,17 +6,19 @@ use crate::math::vector::v2;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
-use crate::render::Texture;
-use crate::utils::atlas::AtlasGenerator;
+use crate::render::texture::TextureArray;
 use crate::utils::Bindable;
 
 use gl::types::GLint;
 use std::collections::HashMap;
+use std::path::Path;
 use std::ptr;
+
+const TEXTURE_RESOLUTION: u32 = 16;
 
 pub struct ChunkRenderer {
     program: ShaderProgram,
-    atlas: Texture,
+    textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     temp: bool,
 }
@@ -30,6 +32,7 @@ impl ChunkRenderer {
             layout (location=1) in uint info;
             out vec2 uv;
             out float light;
+            flat out uint texture_id;
 
             vec2 uvs[4] = vec2[4](
                 vec2(0.0f, 0.0f),
@@ -41,26 +44,13 @@ impl ChunkRenderer {
             uniform vec2 chunk_position;
             uniform mat4 view;
             uniform mat4 projection;
-            uniform float texture_size;
-
-            vec2 atlas_uv(vec2 uv, uint texture_id) {
-                float tile_size = 16;
-                float tile_per_row = texture_size / tile_size;
-                float atlas_index = texture_id - 1;
-
-                vec2 new_uv;
-                new_uv.x = mod(atlas_index, tile_per_row) / tile_per_row + uv.x * 16 / texture_size;
-                new_uv.y = floor(atlas_index / tile_per_row) / tile_per_row + uv.y * 16 / texture_size;
-
-                return new_uv;
-            }
 
             void main() {
                 uint uv_index = info & 3u;
-                uint texture_id = info >> 4u;
 
-                uv = atlas_uv(uvs[uv_index], texture_id);
+                uv = uvs[uv_index];
                 light = ((info >> 2u & 3u) + 2) / 5.0 ;
+                texture_id = info >> 4u;
 
                 vec2 position_abs = chunk_position + position.xz;
                 gl_Position = projection * view * vec4(position_abs.x, position.y, position_abs.y, 1.0);
@@ -73,21 +63,29 @@ impl ChunkRenderer {
 
             in vec2 uv;
             in float light;
+            flat in uint texture_id;
             out vec4 color;
 
-            uniform sampler2D diffuseTexture;
+            uniform sampler2DArray diffuseTextures;
 
             void main() {
-                color = light * texture(diffuseTexture, uv);
+                color = light * texture(diffuseTextures, vec3(uv, texture_id - 1));
             }
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
 
-        let (img, img_size) = AtlasGenerator::generate(TextureDatabase::new());
+        let database = TextureDatabase::new();
+        let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32);
+
+        for (i, file) in database.iter() {
+            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(format!("res/textures/block/{}.png", file));
+            textures.add_file(&path, (*i as u32) - 1);
+        }
 
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
-            atlas: Texture::from_image(&img, img_size),
+            textures,
             meshes: HashMap::new(),
             temp: false,
         }
@@ -99,7 +97,7 @@ impl ChunkRenderer {
         self.program
             .set_uniform_m4("projection", camera.get_projection());
         self.program
-            .set_uniform_float("texture_size", self.atlas.size as f32);
+            .set_uniform_texture("diffuseTextures", self.textures.id());
 
         if !self.temp {
             self.temp = true;
@@ -113,6 +111,8 @@ impl ChunkRenderer {
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
+
+            self.textures.bind();
 
             for (coords, mesh) in self.meshes.iter_mut() {
                 mesh.bind();

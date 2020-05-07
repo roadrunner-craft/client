@@ -1,6 +1,8 @@
 use crate::utils::c::cstr_with_size;
 use crate::utils::c::str2cstr;
+
 use gl::types::{GLchar, GLint, GLuint};
+use std::ptr;
 
 #[derive(Debug, Copy, Clone)]
 struct Shader {}
@@ -10,7 +12,7 @@ impl Shader {
         let src = str2cstr(src);
 
         unsafe {
-            gl::ShaderSource(id, 1, &src.as_ptr(), std::ptr::null());
+            gl::ShaderSource(id, 1, &src.as_ptr(), ptr::null());
             gl::CompileShader(id);
         }
 
@@ -83,12 +85,7 @@ fn handle_error(id: GLuint) -> Option<String> {
     let error = cstr_with_size(length as usize);
 
     unsafe {
-        gl::GetShaderInfoLog(
-            id,
-            length,
-            std::ptr::null_mut(),
-            error.as_ptr() as *mut GLchar,
-        );
+        gl::GetShaderInfoLog(id, length, ptr::null_mut(), error.as_ptr() as *mut GLchar);
     }
 
     return Some(error.to_string_lossy().into_owned());
