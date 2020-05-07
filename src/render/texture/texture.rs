@@ -1,6 +1,6 @@
 use crate::utils::Bindable;
 
-use gl::types::GLuint;
+use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
 use std::ffi::c_void;
 use std::path::Path;
@@ -9,8 +9,8 @@ static mut DEFAULT_TEXTURE_ID: GLuint = 0;
 static mut DEFAULT_TEXTURE_SIZE: u32 = 0;
 
 pub struct Texture {
-    pub id: GLuint,
-    pub size: u32,
+    id: GLuint,
+    size: u32,
 }
 
 impl Texture {
@@ -20,7 +20,7 @@ impl Texture {
             Some(path) => match image::open(path) {
                 Err(err) => {
                     println!("<texture> Could not load image {}: {}", path, err);
-                    return Texture::default();
+                    return Self::default();
                 }
                 Ok(img) => {
                     let img = match img {
@@ -31,10 +31,10 @@ impl Texture {
                     let width = img.width();
                     if width != img.height() {
                         println!("<texture> Image aspect ratio must be 1: {}", path);
-                        return Texture::default();
+                        return Self::default();
                     }
 
-                    return Texture::from_image(&img.into_raw(), width);
+                    return Self::from_image(&img.into_raw(), width);
                 }
             },
         }
@@ -47,6 +47,11 @@ impl Texture {
         }
     }
 
+    #[allow(dead_code)]
+    pub fn id(&self) -> GLuint {
+        self.id
+    }
+
     fn generate_texture(img: &Vec<u8>, size: u32) -> GLuint {
         unsafe {
             let mut id: GLuint = 0;
@@ -56,19 +61,19 @@ impl Texture {
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
-                gl::RGBA as i32,
-                size as i32,
-                size as i32,
+                gl::RGBA as GLsizei,
+                size as GLsizei,
+                size as GLsizei,
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
                 img.as_ptr() as *const c_void,
             );
 
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
 
             id
         }

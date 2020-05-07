@@ -1,4 +1,3 @@
-pub mod atlas;
 mod bindable;
 pub mod c;
 

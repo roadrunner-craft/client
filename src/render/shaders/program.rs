@@ -6,6 +6,7 @@ use crate::utils::c::str2cstr;
 
 use gl::types::{GLchar, GLint, GLuint};
 use std::mem;
+use std::ptr;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ShaderProgram {
@@ -123,12 +124,7 @@ fn handle_error(id: GLuint) -> Option<String> {
     let error = cstr_with_size(length as usize);
 
     unsafe {
-        gl::GetProgramInfoLog(
-            id,
-            length,
-            std::ptr::null_mut(),
-            error.as_ptr() as *mut GLchar,
-        );
+        gl::GetProgramInfoLog(id, length, ptr::null_mut(), error.as_ptr() as *mut GLchar);
     }
 
     return Some(error.to_string_lossy().into_owned());
