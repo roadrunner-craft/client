@@ -8,7 +8,6 @@ mod utils;
 extern crate gl;
 extern crate glutin;
 extern crate image;
-extern crate scancode;
 extern crate serde;
 extern crate serde_json;
 
@@ -18,7 +17,7 @@ use crate::render::camera::PerspectiveCamera;
 use crate::render::renderer::Renderer;
 use crate::render::Display;
 
-use glutin::event::{Event, WindowEvent};
+use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
 use std::time::Instant;
 
@@ -29,11 +28,8 @@ fn main() {
     let event_loop = EventLoop::new();
 
     let display = Display::new(PKG_NAME, &event_loop);
-    let size = display.context.window().inner_size();
-    let aspect_ratio = size.width as f32 / size.height as f32;
-
     let mut renderer = Renderer::default();
-    let mut camera = PerspectiveCamera::new(70.0, 0.1, 1024.0, aspect_ratio);
+    let mut camera = PerspectiveCamera::new(70.0, 0.1, 1024.0, 1.0);
     let mut input_handler = InputHandler::default();
 
     // TODO: remove the need for an init method
@@ -48,16 +44,24 @@ fn main() {
         Event::LoopDestroyed => return,
         Event::WindowEvent { event, .. } => match event {
             WindowEvent::Resized(size) => {
+                display.resize(size);
                 camera.set_aspect_ratio(size.width as f32 / size.height as f32);
             }
+            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                display.resize(*new_inner_size);
+                camera.set_aspect_ratio(new_inner_size.width as f32 / new_inner_size.height as f32);
+            }
             WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
-            WindowEvent::CursorMoved { position, .. } => input_handler.process_cursor(position),
             WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+            _ => (),
+        },
+        Event::DeviceEvent { event, .. } => match event {
+            DeviceEvent::MouseMotion { delta } => input_handler.process_cursor(delta),
             _ => (),
         },
         Event::RedrawRequested(_) => {
             renderer.draw(&camera, &game);
-            display.context.swap_buffers().unwrap();
+            display.swap_buffers();
         }
         Event::MainEventsCleared => {
             let time_delta = last_time.elapsed().as_secs_f32();
@@ -73,7 +77,7 @@ fn main() {
             camera.update(&input_handler, &time_delta);
             game.update(&time_delta);
             input_handler.clear_cursor_delta();
-            display.context.window().request_redraw();
+            display.request_redraw();
         }
         _ => (),
     });
