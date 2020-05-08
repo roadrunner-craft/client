@@ -1,5 +1,5 @@
 [package]
-name = "minecraft_rs"
+name = "Xehoscraft_rs"
 version = "0.1.0"
 authors = ["Alexandre Frigon <alexandre.frigon.1@gmail.com>"]
 description = "A Minecraft clone written in rust"
