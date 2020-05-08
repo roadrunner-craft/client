@@ -49,7 +49,7 @@ impl ChunkRenderer {
                 uint uv_index = info & 3u;
 
                 uv = uvs[uv_index];
-                light = ((info >> 2u & 3u) + 2) / 5.0 ;
+                light = float((info >> 2u & 3u) + 2) / 5.0 ;
                 texture_id = info >> 4u;
 
                 vec2 position_abs = chunk_position + position.xz;
@@ -120,15 +120,20 @@ impl ChunkRenderer {
         if !self.temp {
             self.temp = true;
 
-            let chunks = game.world.get_chunk_group(0, 0);
-            self.meshes.insert(
-                ChunkGridCoordinate::new(0, 0),
-                ChunkMesh::generate(&chunks, &game.block_database),
-            );
+            for x in -3..3 {
+                for y in -3..3 {
+                    let chunks = game.world.get_chunk_group(x, y);
+                    self.meshes.insert(
+                        ChunkGridCoordinate::new(x, y),
+                        ChunkMesh::generate(&chunks, &game.block_database),
+                    );
+                }
+            }
         }
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
+            gl::Enable(gl::CULL_FACE);
 
             self.textures.bind();
 

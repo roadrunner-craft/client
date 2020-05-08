@@ -8,6 +8,7 @@ mod utils;
 extern crate gl;
 extern crate glutin;
 extern crate image;
+extern crate noise;
 extern crate serde;
 extern crate serde_json;
 

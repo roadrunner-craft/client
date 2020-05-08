@@ -32,7 +32,7 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0e60b75072ecd4168020818c0107f2857bb6c4e64252d8d3983f6263b40a5c3"
 dependencies = [
- "num-traits",
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -272,6 +272,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb1f6b1ce1c140482ea30ddd3335fc0024ac7ee112895426e0a629a6c20adfe3"
 
 [[package]]
+name = "enum_primitive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be4551092f4d519593039259a9ed8daedf0da12e5109c5280338073eaeb81180"
+dependencies = [
+ "num-traits 0.1.43",
+]
+
+[[package]]
 name = "foreign-types"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,6 +294,12 @@ name = "foreign-types-shared"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
+
+[[package]]
+name = "fuchsia-cprng"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 
 [[package]]
 name = "fuchsia-zircon"
@@ -301,6 +316,16 @@ name = "fuchsia-zircon-sys"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dcaa9ae7725d12cdb85b3ad99a434db70b468c09ded17e012d86b5c1010f7a7"
+
+[[package]]
+name = "gif"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2e41945ba23db3bf51b24756d73d81acb4f28d85c3dccc32c6fae904438c25f"
+dependencies = [
+ "color_quant",
+ "lzw",
+]
 
 [[package]]
 name = "gif"
@@ -426,20 +451,46 @@ dependencies = [
 
 [[package]]
 name = "image"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "545f000e8aa4e569e93f49c446987133452e0091c2494ac3efd3606aa3d309f2"
+dependencies = [
+ "byteorder",
+ "enum_primitive",
+ "gif 0.9.2",
+ "jpeg-decoder",
+ "num-iter",
+ "num-rational 0.1.42",
+ "num-traits 0.1.43",
+ "png 0.11.0",
+ "scoped_threadpool",
+]
+
+[[package]]
+name = "image"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef4e336ec01a678e7ab692914c641181528e8656451e6252f8f9e33728882eaf"
 dependencies = [
  "bytemuck",
  "byteorder",
- "gif",
+ "gif 0.10.3",
  "jpeg-decoder",
  "num-iter",
- "num-rational",
- "num-traits",
- "png",
+ "num-rational 0.2.3",
+ "num-traits 0.2.11",
+ "png 0.15.3",
  "scoped_threadpool",
  "tiff",
+]
+
+[[package]]
+name = "inflate"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f5f9f47468e9a76a6452271efadc88fe865a82be91fe75e6c0c57b87ccea59d4"
+dependencies = [
+ "adler32",
 ]
 
 [[package]]
@@ -532,7 +583,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5cc7ad3d82c845bdb5dde34ffdcc7a5fb4d2996e1e1ee0f19c33bc80e15196b9"
 dependencies = [
- "num-traits",
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -599,7 +650,8 @@ version = "0.1.0"
 dependencies = [
  "gl",
  "glutin",
- "image",
+ "image 0.23.0",
+ "noise",
  "serde",
  "serde_json",
 ]
@@ -681,13 +733,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "noise"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "337525774dd8a197b613a01ea88058ef0ed023e5ed1e4b7e93de478e1f2bf770"
+dependencies = [
+ "image 0.18.0",
+ "rand",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f6ea62e9d81a77cd3ee9a2a5b9b609447857f3d358704331e4ef39eb247fcba"
 dependencies = [
  "autocfg 1.0.0",
- "num-traits",
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -698,7 +760,17 @@ checksum = "dfb0800a0291891dd9f4fe7bd9c19384f98f7fbe0cd0f39a2c6b88b9868bbc00"
 dependencies = [
  "autocfg 1.0.0",
  "num-integer",
- "num-traits",
+ "num-traits 0.2.11",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.1.42"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee314c74bd753fc86b4780aa9475da469155f3848473a261d2d18e35245a784e"
+dependencies = [
+ "num-integer",
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -709,7 +781,16 @@ checksum = "da4dc79f9e6c81bef96148c8f6b8e72ad4541caa4a24373e900a36da07de03a3"
 dependencies = [
  "autocfg 1.0.0",
  "num-integer",
- "num-traits",
+ "num-traits 0.2.11",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.1.43"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92e5113e9fd4cc14ded8e499429f396a20f98c772a47cc8622a736e1ec843c31"
+dependencies = [
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -746,7 +827,7 @@ version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18869315e81473c951eb56ad5558bbc56978562d3ecfb87abb7a1e944cea4518"
 dependencies = [
- "num-traits",
+ "num-traits 0.2.11",
 ]
 
 [[package]]
@@ -796,6 +877,18 @@ checksum = "05da548ad6865900e60eaba7f589cc0783590a92e940c26953ff81ddbab2d677"
 
 [[package]]
 name = "png"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0b0cabbbd20c2d7f06dbf015e06aad59b6ca3d9ed14848783e98af9aaf19925"
+dependencies = [
+ "bitflags",
+ "deflate",
+ "inflate 0.3.4",
+ "num-iter",
+]
+
+[[package]]
+name = "png"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef859a23054bbfee7811284275ae522f0434a3c8e7f4b74bd4a35ae7e1c4a283"
@@ -803,7 +896,7 @@ dependencies = [
  "bitflags",
  "crc32fast",
  "deflate",
- "inflate",
+ "inflate 0.4.5",
 ]
 
 [[package]]
@@ -841,6 +934,34 @@ checksum = "4c1f4b0efa5fc5e8ceb705136bfee52cfdb6a4e3509f770b478cd6ed434232a7"
 dependencies = [
  "proc-macro2 1.0.12",
 ]
+
+[[package]]
+name = "rand"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c618c47cd3ebd209790115ab837de41425723956ad3ce2e6a7f09890947cacb9"
+dependencies = [
+ "cloudabi",
+ "fuchsia-cprng",
+ "libc",
+ "rand_core 0.3.1",
+ "winapi 0.3.8",
+]
+
+[[package]]
+name = "rand_core"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a6fdeb83b075e8266dcc8762c22776f6877a63111121f5f8c7411e5be7eed4b"
+dependencies = [
+ "rand_core 0.4.2",
+]
+
+[[package]]
+name = "rand_core"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c33a3c44ca05fa6f1807d8e6743f3824e8509beca625669633be0acbdf509dc"
 
 [[package]]
 name = "raw-window-handle"
