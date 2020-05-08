@@ -42,7 +42,7 @@ impl Noise {
         let mut frequency: f64 = 1.0;
         let mut amplitude: f64 = 1.0;
 
-        for octave in 0..self.options.octaves {
+        for _ in 0..self.options.octaves {
             let sample_x = x as f64 * frequency / self.options.scale;
             let sample_y = y as f64 * frequency / self.options.scale;
 

@@ -69,7 +69,7 @@ impl ChunkRenderer {
             uniform sampler2DArray diffuseTextures;
 
             void main() {
-                if (texture_id == 2 || texture_id == 10 || texture_id == 4) {
+                if (texture_id == 2 || texture_id == 10) {
                     vec4 cheapColorMapOutput = vec4(0.492, 0.762, 0.348, 1.0); // jungle
                     //vec4 cheapColorMapOutput = vec4(0.73, 0.71, 0.395, 1.0); // desert
 
