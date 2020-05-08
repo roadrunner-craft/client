@@ -1,11 +1,11 @@
-use crate::math::matrix::{m4, Matrix};
+use crate::math::matrix::{M4, Matrix};
 use crate::math::vector::v3;
 
 // TODO: merge this class with the transformation component
 pub struct ViewMatrix {
     position: v3,
     rotation: v3,
-    m: Option<m4>,
+    m: Option<M4>,
 }
 
 impl ViewMatrix {
@@ -64,31 +64,31 @@ impl ViewMatrix {
             ),
         );
 
-        let mut m = m4::identity();
+        let mut m = M4::identity();
 
-        // TODO: reduce this into a single m4 assignment
-        m = m * m4([
+        // TODO: reduce this into a single M4 assignment
+        m = m * M4([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, cx, sx, 0.0],
             [0.0, -sx, cx, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
 
-        m = m * m4([
+        m = m * M4([
             [cy, 0.0, -sy, 0.0],
             [0.0, 1.0, 0.0, 0.0],
             [sy, 0.0, cy, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
 
-        m = m * m4([
+        m = m * M4([
             [cz, sz, 0.0, 0.0],
             [-sz, cz, 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
 
-        m = m * m4([
+        m = m * M4([
             [1.0, 0.0, 0.0, -self.position.x],
             [0.0, 1.0, 0.0, -self.position.y],
             [0.0, 0.0, 1.0, -self.position.z],
@@ -106,7 +106,7 @@ impl Default for ViewMatrix {
 }
 
 impl Matrix for ViewMatrix {
-    fn get_matrix(&self) -> &m4 {
+    fn get_matrix(&self) -> &M4 {
         &self.m.as_ref().unwrap()
     }
 }
