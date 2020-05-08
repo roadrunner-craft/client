@@ -1,6 +1,7 @@
 pub mod block;
 pub mod chunk;
 mod game;
+pub mod generation;
 pub mod models;
 pub mod texture;
 mod world;

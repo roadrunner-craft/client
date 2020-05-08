@@ -1,6 +1,7 @@
 use crate::game::block::Block;
-use crate::game::chunk::{Chunk, ChunkGroup};
+use crate::game::chunk::{Chunk, ChunkGroup, CHUNK_DEPTH, CHUNK_WIDTH};
 use crate::game::chunk::{ChunkGrid, ChunkGridCoordinate};
+use crate::game::generation::HeightMap;
 
 pub struct World {
     pub chunks: ChunkGrid,
@@ -12,51 +13,71 @@ impl World {
             chunks: ChunkGrid::new(),
         };
 
-        w.chunks
-            .insert(ChunkGridCoordinate::new(0, 0), Chunk::new());
+        for x in -3..3 {
+            for y in -3..3 {
+                w.chunks
+                    .insert(ChunkGridCoordinate::new(x, y), Chunk::new());
+            }
+        }
         w
     }
 
     pub fn init(&mut self) {
-        for chunk in self.chunks.values_mut() {
-            for i in 0..5 {
-                chunk.set_layer(i, Block { id: 7 });
-            }
+        let height_map = HeightMap::new(50..75, 12923874);
 
-            for i in 5..20 {
-                chunk.set_layer(i, Block { id: 1 });
-            }
+        for (coords, chunk) in self.chunks.iter_mut() {
+            for x in 0..CHUNK_WIDTH {
+                for z in 0..CHUNK_DEPTH {
+                    let absx = x as i64 + coords.x * CHUNK_WIDTH as i64;
+                    let absz = z as i64 + coords.z * CHUNK_DEPTH as i64;
 
-            for i in 20..23 {
-                chunk.set_layer(i, Block { id: 3 });
-            }
+                    let height = height_map.get_height(absx, absz) as usize;
 
-            chunk.set_layer(23, Block { id: 2 });
+                    for y in 0..5 {
+                        chunk.blocks[x][y][z] = Block { id: 7 };
+                    }
 
-            for i in 0..2 {
-                for j in 0..5 {
-                    for k in 0..5 {
-                        chunk.blocks[6 + j][27 + i][6 + k] = Block { id: 18 };
+                    for y in 5..(height - 3) {
+                        chunk.blocks[x][y][z] = Block { id: 1 };
+                    }
+
+                    for y in (height - 3)..height {
+                        let id = if height < 59 { 12 } else { 3 };
+                        chunk.blocks[x][y][z] = Block { id };
+                    }
+
+                    let id = if height < 59 { 12 } else { 2 };
+                    chunk.blocks[x][height][z] = Block { id };
+
+                    if height < 58 {
+                        for y in height..59 {
+                            chunk.blocks[x][y][z] = Block { id: 9 };
+                        }
                     }
                 }
             }
-
-            for j in 1..4 {
-                for k in 1..4 {
-                    chunk.blocks[6 + j][29][6 + k] = Block { id: 18 };
-                }
-            }
-
-            chunk.blocks[8][30][8] = Block { id: 18 };
-            chunk.blocks[7][30][8] = Block { id: 18 };
-            chunk.blocks[9][30][8] = Block { id: 18 };
-            chunk.blocks[8][30][7] = Block { id: 18 };
-            chunk.blocks[8][30][9] = Block { id: 18 };
-
-            for i in 24..30 {
-                chunk.blocks[8][i][8] = Block { id: 17 };
-            }
         }
+
+        // const size = 512;
+        // let height_map = HeightMap::new(0..255, 1239874);
+
+        // let mut img = Vec::new();
+        // img.resize(size * size, 255);
+
+        // for y in 0..size {
+        //     for x in 0..size {
+        //         let index = y * size + x;
+        //         img[index as usize] = height_map.get_height(x, y) as u8;
+        //     }
+        // }
+
+        // image::save_buffer(
+        //     "./noise.png",
+        //     img.as_slice(),
+        //     size,
+        //     size,
+        //     image::ColorType::L8,
+        // );
     }
 
     // TODO: handle the case where the current chunk is not in the hashmap
