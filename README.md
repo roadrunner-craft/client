@@ -1,3 +1,3 @@
 # roadrunner
 
-cargo run bitch
+`cargo run` bitch
