@@ -60,7 +60,7 @@ fn main() {
             _ => (),
         },
         Event::RedrawRequested(_) => {
-            renderer.draw(&camera, &game);
+            renderer.draw(&camera);
             display.swap_buffers();
         }
         Event::MainEventsCleared => {
@@ -75,7 +75,8 @@ fn main() {
 
             // should be a loop to updage a list of game objects
             camera.update(&input_handler, &time_delta);
-            game.update(&time_delta);
+            game.update(&input_handler, &time_delta, &camera);
+            renderer.update(&game);
             input_handler.clear_cursor_delta();
             display.request_redraw();
         }

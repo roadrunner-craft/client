@@ -1,5 +1,7 @@
 use crate::game::block::BlockDatabase;
 use crate::game::World;
+use crate::input::InputHandler;
+use crate::render::camera::{Camera, PerspectiveCamera};
 
 pub struct Game {
     pub world: World,
@@ -14,5 +16,8 @@ impl Game {
         }
     }
 
-    pub fn update(&mut self, _time_delta: &f32) {}
+    pub fn update(&mut self, input: &InputHandler, _time_delta: &f32, camera: &PerspectiveCamera) {
+        self.world
+            .update(input, camera.get_transform().get_position());
+    }
 }

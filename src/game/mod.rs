@@ -4,7 +4,7 @@ mod game;
 pub mod generation;
 pub mod models;
 pub mod texture;
-mod world;
+pub mod world;
 
 pub use self::game::Game;
 pub use self::world::World;
