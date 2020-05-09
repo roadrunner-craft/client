@@ -45,7 +45,7 @@ impl M4 {
         m
     }
 
-    pub fn row_echelon_form(&mut self) -> &mut Self {
+    pub fn to_row_echelon_form(&mut self) -> &mut Self {
         for d in 0..self.dimensions() {
             for y in d + 1..self.dimensions() {
                 if self[d][d] == 0.0 {
@@ -70,7 +70,7 @@ impl M4 {
     #[allow(dead_code)]
     pub fn determinant(&self) -> f32 {
         let mut m = self.clone();
-        m.row_echelon_form();
+        m.to_row_echelon_form();
 
         let mut det: f32 = m[0][0];
         for d in 1..self.dimensions() {
@@ -202,6 +202,140 @@ mod tests {
             [4.0, 8.0, 12.0, 16.0],
         ]);
 
-        assert_eq!(expects, matrix.transpose(), "Did not transpose matrix");
+        matrix.transpose();
+        assert_eq!(expects, matrix, "Did not transpose matrix");
+    }
+
+    #[test]
+    fn transposed_returns_transposed_matrix() {
+        let expects = super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ]);
+
+        let matrix = super::M4([
+            [1.0, 5.0, 9.0, 13.0],
+            [2.0, 6.0, 10.0, 14.0],
+            [3.0, 7.0, 11.0, 15.0],
+            [4.0, 8.0, 12.0, 16.0],
+        ]);
+
+        assert_eq!(expects, matrix.transposed(), "Did not return transposed matrix");
+    }
+
+    #[test]
+    fn to_row_echelon_form_returns_row_echelon_form_matrix() {
+        let expects = &mut super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [0.0, 4.0, 8.0, 12.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0],
+        ]);
+
+        let matrix = &mut super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ]);
+
+        matrix.to_row_echelon_form();
+        assert_eq!(expects, matrix, "Did not return correct echelon form matrix");
+    }
+
+    #[test]
+    fn determinant_returns_correct_value() {
+        let expects = -160.0;
+        let matrix = super::M4([
+            [1.0, 6.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 11.0],
+        ]);
+
+        assert_eq!(expects, matrix.determinant(), "Did not return correct determinant");
+    }
+
+    #[test]
+    fn index_returns_correct_row() {
+        let expects = [9.0, 10.0, 11.0, 12.0];
+        let matrix = super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ]);
+
+        assert_eq!(expects, matrix[2], "Did not return correct row");
+    }
+
+    #[test]
+    fn indexMut_updates_correct_row() {
+        let expects = &mut super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ]);
+
+        let matrix = &mut super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ]);
+
+        let new_row = [9.0, 10.0, 11.0, 12.0];
+        matrix[2] = new_row;
+
+        assert_eq!(expects, matrix, "Did not update correct row");
+    }
+
+    #[test]
+    fn mul_returns_product_of_matrices() {
+        let expects = super::M4([
+            [110.0, 128.0, 138.0, 132.0],
+            [202.0, 248.0, 254.0, 240.0],
+            [314.0, 392.0, 398.0, 380.0],
+            [361.0, 466.0, 467.0, 465.0]
+        ]);
+
+        let matrix1 = super::M4([
+            [1.0, 6.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 11.0]
+        ]);
+
+        let matrix2 = super::M4([
+            [1.0, 6.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 11.0]
+        ]);
+
+
+        assert_eq!(expects, matrix1 * matrix2, "Did not return correct product of matrices");
+    }
+
+    #[test]
+    fn neg_returns_negative_of_matrix() {
+        let expects = super::M4([
+            [-1.0, -2.0, -3.0, -4.0],
+            [-5.0, -6.0, -7.0, -8.0],
+            [-9.0, -10.0, -11.0, -12.0],
+            [-13.0, -14.0, -15.0, -11.0]
+        ]);
+
+        let matrix = super::M4([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 11.0]
+        ]);
+
+        assert_eq!(expects, -matrix, "Did not correctly negate matrix");
     }
 }
