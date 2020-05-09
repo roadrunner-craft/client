@@ -1,7 +1,6 @@
 use std::fmt;
 use std::ops;
 
-#[allow(non_camel_case_types)]
 #[derive(Default, Copy, Clone, PartialEq)]
 pub struct Matrix4(pub [[f32; 4]; 4]);
 
