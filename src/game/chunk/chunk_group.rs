@@ -7,9 +7,26 @@ pub struct ChunkGroup<'c> {
     pub south: Option<&'c Chunk>,
     pub east: Option<&'c Chunk>,
     pub west: Option<&'c Chunk>,
+    count: usize,
 }
 
-impl ChunkGroup<'_> {
+impl<'c> ChunkGroup<'c> {
+    pub fn new(
+        current: &'c Chunk,
+        north: Option<&'c Chunk>,
+        south: Option<&'c Chunk>,
+        east: Option<&'c Chunk>,
+        west: Option<&'c Chunk>,
+    ) -> Self {
+        Self {
+            current,
+            north,
+            south,
+            east,
+            west,
+            count: 0,
+        }
+    }
     pub fn get_block(&self, x: i8, y: i16, z: i8) -> Option<Block> {
         if y < 0 || y > CHUNK_HEIGHT as i16 {
             return None;
@@ -38,5 +55,19 @@ impl ChunkGroup<'_> {
         }
 
         return Some(self.current.get_blocks()[x][y][z]);
+    }
+}
+
+impl<'c> Iterator for ChunkGroup<'c> {
+    type Item = Option<&'c Chunk>;
+    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
+        self.count += 1;
+        match self.count {
+            1 => Some(self.north),
+            2 => Some(self.south),
+            3 => Some(self.east),
+            4 => Some(self.west),
+            _ => None,
+        }
     }
 }

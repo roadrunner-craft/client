@@ -20,6 +20,22 @@ impl ChunkGridCoordinate {
             z: (z / 16.0).floor() as i64,
         }
     }
+
+    pub fn north(&self) -> ChunkGridCoordinate {
+        ChunkGridCoordinate::new(self.x, self.z + 1)
+    }
+
+    pub fn south(&self) -> ChunkGridCoordinate {
+        ChunkGridCoordinate::new(self.x, self.z - 1)
+    }
+
+    pub fn east(&self) -> ChunkGridCoordinate {
+        ChunkGridCoordinate::new(self.x - 1, self.z)
+    }
+
+    pub fn west(&self) -> ChunkGridCoordinate {
+        ChunkGridCoordinate::new(self.x + 1, self.z)
+    }
 }
 
 pub type ChunkGrid = HashMap<ChunkGridCoordinate, Chunk>;
