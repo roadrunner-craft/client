@@ -1,7 +1,7 @@
-use crate::math::matrix::{m4, Matrix};
+use crate::math::matrix::{Matrix4, Matrix};
 
 pub struct PerspectiveProjection {
-    m: m4,
+    m: Matrix4,
     fov: f32,
     near: f32,
     far: f32,
@@ -11,7 +11,7 @@ pub struct PerspectiveProjection {
 impl PerspectiveProjection {
     pub fn new(fov: f32, near: f32, far: f32, aspect_ratio: f32) -> Self {
         let mut projection = Self {
-            m: m4::identity(),
+            m: Matrix4::identity(),
             fov,
             near,
             far,
@@ -42,7 +42,7 @@ impl PerspectiveProjection {
 }
 
 impl Matrix for PerspectiveProjection {
-    fn get_matrix(&self) -> &m4 {
+    fn get_matrix(&self) -> &Matrix4 {
         &self.m
     }
 }
