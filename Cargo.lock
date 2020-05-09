@@ -650,7 +650,7 @@ dependencies = [
 [[package]]
 name = "math"
 version = "0.1.1"
-source = "git+https://github.com/afrigon/roadrunner-math#7a1847d9d0ed9d1ce2dfb8d03f6e9bc96bfab7ce"
+source = "git+https://github.com/afrigon/roadrunner-math#c7f2a7e3880cc1d55cb8331f2cb51119344ea338"
 dependencies = [
  "noise",
 ]
