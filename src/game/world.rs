@@ -7,6 +7,8 @@ use crate::input::InputHandler;
 use glutin::event::VirtualKeyCode;
 use math::vector::Vector3;
 
+pub type WorldCoordinate = Vector3;
+
 pub struct World {
     pub chunks: ChunkGrid,
     pub render_distance: i64,
