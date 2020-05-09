@@ -1,11 +1,10 @@
-use crate::math::noise::Noise;
-
+use math::noise::LayeredNoise;
 use std::ops::Range;
 
 pub struct HeightMap {
     height: f64,
     range: Range<u8>,
-    noise: Noise,
+    noise: LayeredNoise,
 }
 
 impl HeightMap {
@@ -13,7 +12,7 @@ impl HeightMap {
         Self {
             height: (range.end - range.start) as f64,
             range,
-            noise: Noise::new(6, 75.0, 0.40, 1.87, seed),
+            noise: LayeredNoise::new(6, 75.0, 0.40, 1.87, seed),
         }
     }
 

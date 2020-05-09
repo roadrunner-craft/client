@@ -1,10 +1,10 @@
-use glutin::event::VirtualKeyCode;
-
-use super::perspective::PerspectiveProjection;
 use crate::input::InputHandler;
-use crate::math::matrix::{Matrix4, Matrix};
-use crate::math::vector::v3;
+use crate::render::camera::perspective::PerspectiveProjection;
 use crate::render::camera::ViewMatrix;
+
+use glutin::event::VirtualKeyCode;
+use math::matrix::{Matrix, Matrix4};
+use math::vector::Vector3;
 
 const SPEED: f32 = 9.0;
 const SENSITIVITY: f32 = 0.2;
@@ -33,7 +33,7 @@ impl PerspectiveCamera {
     pub fn update<'a>(&mut self, input: &InputHandler, time_delta: &f32) {
         // TODO: move this code into a player entity
         let cursor_delta = input.get_cursor_delta();
-        let camera_delta = v3 {
+        let camera_delta = Vector3 {
             x: cursor_delta.y as f32,
             y: cursor_delta.x as f32,
             z: 0.0,
@@ -80,7 +80,7 @@ impl PerspectiveCamera {
 
         let angle = self.view.get_euler_angles().y.to_radians();
 
-        let mut delta = v3 {
+        let mut delta = Vector3 {
             x: xaxis * angle.cos() + zaxis * angle.sin(),
             y: yaxis,
             z: -xaxis * angle.sin() + zaxis * angle.cos(),
