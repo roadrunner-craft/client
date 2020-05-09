@@ -1,5 +1,5 @@
 [package]
-name = "minecraft_rs"
+name = "roadrunner"
 version = "0.1.0"
 authors = ["Alexandre Frigon <alexandre.frigon.1@gmail.com>"]
 description = "A Minecraft clone written in rust"
@@ -17,8 +17,8 @@ math = { git = "https://github.com/afrigon/roadrunner-math" }
 
 
 [package.metadata.bundle]
-name = "Minecraft"
-identifier = "app.frigon.minecraft"
+name = "Roadrunner"
+identifier = "app.frigon.roadrunner"
 version = "0.1.0"
 icon = ["icon/128x128.png", "icon/128x128@2x.png"]
 resources = ["res"]
