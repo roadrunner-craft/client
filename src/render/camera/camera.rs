@@ -3,7 +3,7 @@ use crate::render::camera::perspective::PerspectiveProjection;
 use crate::render::camera::ViewMatrix;
 
 use glutin::event::VirtualKeyCode;
-use math::matrix::{Matrix, Matrix4};
+use math::matrix::Matrix4;
 use math::vector::Vector3;
 
 const SPEED: f32 = 9.0;

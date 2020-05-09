@@ -1,4 +1,4 @@
-use math::matrix::{Matrix, Matrix4};
+use math::matrix::Matrix4;
 use math::vector::Vector3;
 
 pub struct Transform {
@@ -43,112 +43,53 @@ impl Transform {
         t
     }
 
-    //#[allow(dead_code)]
-    //pub fn new(position: Vector3, rotation: Vector3, scale: Vector3) -> Self {
-    //    let ((cos_x, sin_x), (cos_y, sin_y), (cos_z, sin_z)) = (
-    //        (rotation.z.to_radians().cos(), rotation.z.to_radians().sin()),
-    //        (rotation.y.to_radians().cos(), rotation.y.to_radians().sin()),
-    //        (rotation.x.to_radians().cos(), rotation.x.to_radians().sin()),
-    //    );
-
-    //    let m11 = cos_x * cos_y * scale.x;
-    //    let m12 = cos_x * sin_y * sin_z - sin_x * cos_z;
-    //    let m13 = cos_x * sin_y * cos_z + sin_x * sin_z;
-    //    let m21 = sin_x * cos_y;
-    //    let m22 = sin_x * sin_y * sin_z + cos_x * cos_z * scale.y;
-    //    let m23 = sin_x * sin_y * cos_z - cos_x * sin_z;
-    //    let m31 = -sin_y;
-    //    let m32 = cos_y * sin_z;
-    //    let m33 = cos_y * cos_z * scale.z;
-
-    //    Self {
-    //        m: Matrix4([
-    //            [m11, m12, m13, position.x],
-    //            [m21, m22, m23, position.y],
-    //            [m31, m32, m33, position.z],
-    //            [0.0, 0.0, 0.0, 1.0],
-    //        ]),
-    //        scale: scale,
-    //    }
-    //}
-
-    #[allow(dead_code)]
     pub fn get_position(&self) -> Vector3 {
         self.position
     }
 
-    #[allow(dead_code)]
     pub fn set_position(&mut self, value: Vector3) -> &mut Self {
         self.position = value;
         self.generate_matrix();
         self
     }
 
-    #[allow(dead_code)]
     pub fn get_scale(&self) -> Vector3 {
         self.scale
     }
 
-    #[allow(dead_code)]
     pub fn set_scale(&mut self, value: Vector3) -> &mut Self {
         self.scale = value;
         self.generate_matrix();
         self
     }
 
-    #[allow(dead_code)]
     pub fn get_euler_angles(&self) -> Vector3 {
-        // https://www.gregslabaugh.net/publications/euler.pdf
         self.rotation
-
-        //let tetha;
-        //let psi;
-        //let phi;
-
-        //if self.m[2][0].abs() != 1.0 {
-        //    tetha = -self.m[2][0].asin();
-        //    let tcos = tetha.cos();
-
-        //    psi = (self.m[2][1] / tcos).atan2((self.m[2][2] / self.scale.z) / tcos);
-        //    phi = (self.m[1][0] / tcos).atan2((self.m[0][0] / self.scale.x) / tcos);
-        //} else {
-        //    phi = 0.0;
-        //    if self.m[2][0] == -1.0 {
-        //        tetha = PI / 2.0;
-        //        psi = phi + self.m[0][1].atan2(self.m[0][2]);
-        //    } else {
-        //        tetha = -PI / 2.0;
-        //        psi = -phi + (-self.m[0][1]).atan2(-self.m[0][2]);
-        //    }
-        //}
-
-        //return Vector3 {
-        //    x: tetha.to_degrees(),
-        //    y: psi.to_degrees(),
-        //    z: phi.to_degrees(),
-        //};
     }
 
-    #[allow(dead_code)]
     pub fn set_euler_angles(&mut self, value: Vector3) -> &mut Self {
         self.rotation = value;
         self.generate_matrix();
         self
     }
 
+    pub fn get_matrix(&self) -> &Matrix4 {
+        &self.m.as_ref().unwrap()
+    }
+
     fn generate_matrix(&mut self) {
         let ((cos_x, sin_x), (cos_y, sin_y), (cos_z, sin_z)) = (
             (
-                self.rotation.z.to_radians().cos(),
-                self.rotation.z.to_radians().sin(),
+                self.rotation.x.to_radians().cos(),
+                self.rotation.x.to_radians().sin(),
             ),
             (
                 self.rotation.y.to_radians().cos(),
                 self.rotation.y.to_radians().sin(),
             ),
             (
-                self.rotation.x.to_radians().cos(),
-                self.rotation.x.to_radians().sin(),
+                self.rotation.z.to_radians().cos(),
+                self.rotation.z.to_radians().sin(),
             ),
         );
 
@@ -178,11 +119,5 @@ impl Transform {
 impl Default for Transform {
     fn default() -> Self {
         Self::new_position(0.0, 0.0, 0.0)
-    }
-}
-
-impl Matrix for Transform {
-    fn get_matrix(&self) -> &Matrix4 {
-        &self.m.as_ref().unwrap()
     }
 }
