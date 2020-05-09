@@ -37,7 +37,11 @@ impl World {
                         chunk.blocks[x][y][z] = Block { id: 7 };
                     }
 
-                    for y in 5..(height - 3) {
+                    for y in 5..10 {
+                        chunk.blocks[x][y][z] = Block { id: 4 };
+                    }
+
+                    for y in 10..(height - 3) {
                         chunk.blocks[x][y][z] = Block { id: 1 };
                     }
 
