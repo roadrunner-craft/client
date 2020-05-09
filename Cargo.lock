@@ -620,6 +620,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "math"
+version = "0.1.0"
+source = "git+https://github.com/afrigon/roadrunner-math#8779357c9ec6dc1977dce15b8747df57a92b784e"
+
+[[package]]
 name = "maybe-uninit"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -651,6 +656,7 @@ dependencies = [
  "gl",
  "glutin",
  "image 0.23.0",
+ "math",
  "noise",
  "serde",
  "serde_json",
