@@ -1,11 +1,11 @@
-use crate::math::matrix::{m4, Matrix};
+use crate::math::matrix::{Matrix4, Matrix};
 use crate::math::vector::v3;
 
 pub struct Transform {
     position: v3,
     rotation: v3,
     scale: v3,
-    m: Option<m4>,
+    m: Option<Matrix4>,
 }
 
 impl Transform {
@@ -62,7 +62,7 @@ impl Transform {
     //    let m33 = cos_y * cos_z * scale.z;
 
     //    Self {
-    //        m: m4([
+    //        m: Matrix4([
     //            [m11, m12, m13, position.x],
     //            [m21, m22, m23, position.y],
     //            [m31, m32, m33, position.z],
@@ -166,7 +166,7 @@ impl Transform {
         let m13 = self.position.y;
         let m23 = self.position.z;
 
-        self.m = Some(m4([
+        self.m = Some(Matrix4([
             [m00, m01, m02, m03],
             [m10, m11, m12, m13],
             [m20, m21, m22, m23],
@@ -182,7 +182,7 @@ impl Default for Transform {
 }
 
 impl Matrix for Transform {
-    fn get_matrix(&self) -> &m4 {
+    fn get_matrix(&self) -> &Matrix4 {
         &self.m.as_ref().unwrap()
     }
 }
