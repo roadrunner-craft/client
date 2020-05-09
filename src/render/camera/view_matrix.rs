@@ -1,4 +1,4 @@
-use math::matrix::{Matrix, Matrix4};
+use math::matrix::Matrix4;
 use math::vector::Vector3;
 
 // TODO: merge this class with the transformation component
@@ -24,28 +24,28 @@ impl ViewMatrix {
         view
     }
 
-    #[allow(dead_code)]
     pub fn get_position(&self) -> Vector3 {
         self.position
     }
 
-    #[allow(dead_code)]
     pub fn set_position(&mut self, value: Vector3) -> &mut Self {
         self.position = value;
         self.generate_matrix();
         self
     }
 
-    #[allow(dead_code)]
     pub fn get_euler_angles(&self) -> Vector3 {
         self.rotation
     }
 
-    #[allow(dead_code)]
     pub fn set_euler_angles(&mut self, value: Vector3) -> &mut Self {
         self.rotation = value;
         self.generate_matrix();
         self
+    }
+
+    pub fn get_matrix(&self) -> &Matrix4 {
+        &self.m.as_ref().unwrap()
     }
 
     fn generate_matrix(&mut self) {
@@ -102,11 +102,5 @@ impl ViewMatrix {
 impl Default for ViewMatrix {
     fn default() -> Self {
         Self::new_position(0.0, 0.0, 0.0)
-    }
-}
-
-impl Matrix for ViewMatrix {
-    fn get_matrix(&self) -> &Matrix4 {
-        &self.m.as_ref().unwrap()
     }
 }

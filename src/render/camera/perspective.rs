@@ -1,4 +1,4 @@
-use math::matrix::{Matrix, Matrix4};
+use math::matrix::Matrix4;
 
 pub struct PerspectiveProjection {
     m: Matrix4,
@@ -27,6 +27,10 @@ impl PerspectiveProjection {
         self.generate_matrix();
     }
 
+    pub fn get_matrix(&self) -> &Matrix4 {
+        &self.m
+    }
+
     fn generate_matrix(&mut self) {
         let y_scale = 1.0 / (self.fov.to_radians() / 2.0).tan();
         let x_scale = y_scale / self.aspect_ratio;
@@ -38,11 +42,5 @@ impl PerspectiveProjection {
         self.m[3][2] = 1.0;
         self.m[2][3] = (-2.0 * self.far * self.near) / frustum_length;
         self.m[3][3] = 0.0;
-    }
-}
-
-impl Matrix for PerspectiveProjection {
-    fn get_matrix(&self) -> &Matrix4 {
-        &self.m
     }
 }
