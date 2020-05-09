@@ -2,7 +2,6 @@ use crate::game::chunk::ChunkGridCoordinate;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_WIDTH};
 use crate::game::texture::TextureDatabase;
 use crate::game::Game;
-use crate::math::vector::v2;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
@@ -10,6 +9,7 @@ use crate::render::texture::TextureArray;
 use crate::utils::Bindable;
 
 use gl::types::GLint;
+use math::vector::Vector2;
 use std::collections::HashMap;
 use std::path::Path;
 use std::ptr;
@@ -137,8 +137,8 @@ impl ChunkRenderer {
 
             self.textures.bind();
 
-            for (coords, mesh) in self.meshes.ite() {
-                let position = v2 {
+            for (coords, mesh) in self.meshes.iter() {
+                let position = Vector2 {
                     x: CHUNK_WIDTH as f32 * coords.x as f32,
                     y: CHUNK_DEPTH as f32 * coords.z as f32,
                 };
