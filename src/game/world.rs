@@ -3,6 +3,7 @@ use crate::game::chunk::{Chunk, ChunkGroup, CHUNK_DEPTH, CHUNK_WIDTH};
 use crate::game::chunk::{ChunkGrid, ChunkGridCoordinate};
 use crate::game::generation::HeightMap;
 use crate::input::InputHandler;
+
 use glutin::event::VirtualKeyCode;
 use math::vector::Vector3;
 
@@ -109,10 +110,11 @@ impl World {
             // (un?)load chunks as the player moves
             let player_chunk = ChunkGridCoordinate::from_world_coordinate(player_position);
             let range = self.render_distance;
-            let near =
+            let is_near =
                 |middle, point| -> bool { (middle - range..middle + range).contains(&point) };
-            self.chunks
-                .retain(|coord, _| near(player_chunk.x, coord.x) && near(player_chunk.z, coord.z));
+            self.chunks.retain(|coord, _| {
+                is_near(player_chunk.x, coord.x) && is_near(player_chunk.z, coord.z)
+            });
             for x in player_chunk.x - self.render_distance..player_chunk.x + self.render_distance {
                 for z in
                     player_chunk.z - self.render_distance..player_chunk.z + self.render_distance
@@ -157,5 +159,3 @@ impl World {
         }
     }
 }
-
-pub type WorldCoordinate = Vector3;

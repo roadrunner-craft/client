@@ -8,7 +8,11 @@ Yet another blocky game :)
 
 ## Build
 
-`cargo build`
+    # install the bundle command
+    cargo install cargo-bundle
+
+    # build for a release
+    cargo bundle --release
 
 ## Features
 
