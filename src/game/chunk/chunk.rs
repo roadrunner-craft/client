@@ -1,5 +1,4 @@
 use crate::game::block::Block;
-//use crate::math::vector::v2;
 
 pub const CHUNK_WIDTH: usize = 16;
 pub const CHUNK_DEPTH: usize = 16;
@@ -14,7 +13,6 @@ pub struct Chunk {
 impl Chunk {
     pub fn new() -> Self {
         Self {
-            //      position,
             blocks: vec![vec![vec![Block { id: 0 }; CHUNK_DEPTH]; CHUNK_HEIGHT]; CHUNK_HEIGHT],
         }
     }

@@ -1,14 +1,13 @@
 mod components;
 mod game;
 mod input;
-mod math;
 mod render;
 mod utils;
 
 extern crate gl;
 extern crate glutin;
 extern crate image;
-extern crate noise;
+extern crate math;
 extern crate serde;
 extern crate serde_json;
 
