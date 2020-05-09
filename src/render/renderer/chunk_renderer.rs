@@ -20,7 +20,6 @@ pub struct ChunkRenderer {
     program: ShaderProgram,
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
-    temp: bool,
 }
 
 impl ChunkRenderer {
@@ -105,31 +104,30 @@ impl ChunkRenderer {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
             textures,
             meshes: HashMap::new(),
-            temp: false,
         }
     }
 
-    pub fn draw<C: Camera>(&mut self, camera: &C, game: &Game) {
+    pub fn update(&mut self, game: &Game) {
+        let size = game.world.size;
+        for x in -size..size {
+            for y in -size..size {
+                let idx = ChunkGridCoordinate::new(x, y);
+                if !self.meshes.contains_key(&idx) {
+                    let chunks = game.world.get_chunk_group(x, y);
+                    self.meshes
+                        .insert(idx, ChunkMesh::generate(&chunks, &game.block_database));
+                }
+            }
+        }
+    }
+
+    pub fn draw<C: Camera>(&mut self, camera: &C) {
         self.program.enable();
         self.program.set_uniform_m4("view", camera.get_view());
         self.program
             .set_uniform_m4("projection", camera.get_projection());
         self.program
             .set_uniform_texture("diffuseTextures", self.textures.id());
-
-        if !self.temp {
-            self.temp = true;
-
-            for x in -3..3 {
-                for y in -3..3 {
-                    let chunks = game.world.get_chunk_group(x, y);
-                    self.meshes.insert(
-                        ChunkGridCoordinate::new(x, y),
-                        ChunkMesh::generate(&chunks, &game.block_database),
-                    );
-                }
-            }
-        }
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
