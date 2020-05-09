@@ -1,35 +1,35 @@
 use crate::game::block::BlockDatabase;
 use crate::game::chunk::ChunkGroup;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
-use crate::math::vector::v3;
 use crate::render::models::Model;
 use crate::utils::Bindable;
 
 use gl::types::GLuint;
+use math::vector::Vector3;
 
 struct Face {
-    vertices: [v3; 4],
+    vertices: [Vector3; 4],
     light: u8,
 }
 
 const FRONT_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: -0.5,
@@ -40,22 +40,22 @@ const FRONT_FACE: Face = Face {
 
 const BACK_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: 0.5,
@@ -66,22 +66,22 @@ const BACK_FACE: Face = Face {
 
 const RIGHT_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: -0.5,
@@ -92,22 +92,22 @@ const RIGHT_FACE: Face = Face {
 
 const LEFT_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: 0.5,
@@ -118,22 +118,22 @@ const LEFT_FACE: Face = Face {
 
 const TOP_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 1.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 1.0,
             z: -0.5,
@@ -144,22 +144,22 @@ const TOP_FACE: Face = Face {
 
 const BOTTOM_FACE: Face = Face {
     vertices: [
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: -0.5,
         },
-        v3 {
+        Vector3 {
             x: 0.5,
             y: 0.0,
             z: 0.5,
         },
-        v3 {
+        Vector3 {
             x: -0.5,
             y: 0.0,
             z: 0.5,
@@ -171,14 +171,14 @@ const BOTTOM_FACE: Face = Face {
 #[derive(Default)]
 pub struct ChunkMesh {
     model: Option<Model>,
-    vertices: Vec<v3>,
+    vertices: Vec<Vector3>,
     vertices_info: Vec<GLuint>,
     vertex_count: GLuint,
     indices: Vec<GLuint>,
 }
 
 impl ChunkMesh {
-    fn add_face(&mut self, face: Face, position: v3, texture_id: u8) {
+    fn add_face(&mut self, face: Face, position: Vector3, texture_id: u8) {
         for i in 0..4 {
             self.vertices.push(face.vertices[i] + position);
 
@@ -223,7 +223,7 @@ impl ChunkMesh {
                     }
 
                     if let Some(properties) = block_database.get(block.id) {
-                        let position = v3 {
+                        let position = Vector3 {
                             x: x as f32,
                             y: y as f32,
                             z: z as f32,
