@@ -1,9 +1,9 @@
+use crate::components::Transform;
 use crate::input::InputHandler;
 use crate::render::camera::perspective::PerspectiveProjection;
-use crate::render::camera::ViewMatrix;
 
 use glutin::event::VirtualKeyCode;
-use math::matrix::{Matrix, Matrix4};
+use math::matrix::Matrix4;
 use math::vector::Vector3;
 
 const SPEED: f32 = 9.0;
@@ -15,7 +15,7 @@ pub trait Camera {
 }
 
 pub struct PerspectiveCamera {
-    pub view: ViewMatrix,
+    transform: Transform,
     projection: PerspectiveProjection,
     speed: f32,
 }
@@ -24,7 +24,7 @@ impl PerspectiveCamera {
     pub fn new(fov: f32, near: f32, far: f32, aspect_ratio: f32) -> PerspectiveCamera {
         Self {
             // TODO: change this to take the position as a parameter or add a method
-            view: ViewMatrix::new_position(0.0, 64.5, 0.0),
+            transform: Transform::new_position(0.0, -64.5, 0.0),
             projection: PerspectiveProjection::new(fov, near, far, aspect_ratio),
             speed: SPEED,
         }
@@ -38,7 +38,7 @@ impl PerspectiveCamera {
             y: cursor_delta.x as f32,
             z: 0.0,
         } * SENSITIVITY;
-        let mut camera_angles = self.view.get_euler_angles() + camera_delta;
+        let mut camera_angles = self.transform.get_euler_angles() + camera_delta;
 
         if camera_angles.x > 90.0 {
             camera_angles.x = 90.0;
@@ -48,7 +48,7 @@ impl PerspectiveCamera {
 
         camera_angles.y %= 360.0;
 
-        self.view.set_euler_angles(camera_angles);
+        self.transform.set_euler_angles(camera_angles);
 
         let mut xaxis = 0.0;
         let mut yaxis = 0.0;
@@ -78,7 +78,7 @@ impl PerspectiveCamera {
             yaxis -= 1.0;
         }
 
-        let angle = self.view.get_euler_angles().y.to_radians();
+        let angle = self.transform.get_euler_angles().y.to_radians();
 
         let mut delta = Vector3 {
             x: xaxis * angle.cos() + zaxis * angle.sin(),
@@ -87,7 +87,8 @@ impl PerspectiveCamera {
         };
         delta = delta * (self.speed * time_delta);
 
-        self.view.set_position(self.view.get_position() + delta);
+        self.transform
+            .set_position(self.transform.get_position() - delta);
     }
 
     pub fn set_aspect_ratio(&mut self, aspect_ratio: f32) {
@@ -101,6 +102,6 @@ impl Camera for PerspectiveCamera {
     }
 
     fn get_view(&self) -> &Matrix4 {
-        self.view.get_matrix()
+        self.transform.get_matrix()
     }
 }
