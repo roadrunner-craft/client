@@ -26,3 +26,6 @@ copyright = "Copyright (c) Alexandre Frigon 2020. All rights reserved."
 category = "Games"
 short_description = "A Minecraft clone written in rust"
 
+[features]
+default = []
+chunk_loading = []
