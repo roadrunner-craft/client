@@ -1,10 +1,10 @@
-use crate::math::matrix::m4;
-use crate::math::vector::{v2, v3};
 use crate::render::shaders::{FragmentShader, VertexShader};
 use crate::utils::c::cstr_with_size;
 use crate::utils::c::str2cstr;
 
 use gl::types::{GLchar, GLint, GLuint};
+use math::matrix::Matrix4;
+use math::vector::{Vector2, Vector3};
 use std::mem;
 use std::ptr;
 
@@ -68,17 +68,17 @@ impl ShaderProgram {
     }
 
     #[allow(dead_code)]
-    pub fn set_uniform_v2(&self, name: &str, value: v2) {
+    pub fn set_uniform_v2(&self, name: &str, value: Vector2) {
         unsafe { gl::Uniform2f(self.get_uniform_location(name), value.x, value.y) }
     }
 
     #[allow(dead_code)]
-    pub fn set_uniform_v3(&self, name: &str, value: v3) {
+    pub fn set_uniform_v3(&self, name: &str, value: Vector3) {
         unsafe { gl::Uniform3f(self.get_uniform_location(name), value.x, value.y, value.z) }
     }
 
     #[allow(dead_code)]
-    pub fn set_uniform_m4(&self, name: &str, value: &m4) {
+    pub fn set_uniform_m4(&self, name: &str, value: &Matrix4) {
         unsafe {
             gl::UniformMatrix4fv(
                 self.get_uniform_location(name),

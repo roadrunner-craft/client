@@ -37,6 +37,17 @@
             "bottom": 3
         }
     },
+    "4": {
+        "name": "minecraft:cobblestone",
+        "texture": {
+            "front": 12,
+            "back": 12,
+            "left": 12,
+            "right": 12,
+            "top": 12,
+            "bottom": 12
+        }
+    },
     "7": {
         "name": "minecraft:bedrock",
         "texture": {

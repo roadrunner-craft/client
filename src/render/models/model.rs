@@ -1,7 +1,7 @@
-use crate::math::vector::{v2, v3};
 use crate::utils::Bindable;
 
 use gl::types::{GLsizeiptr, GLuint};
+use math::vector::{Vector2, Vector3};
 use std::mem;
 use std::ptr;
 use std::vec::Vec;
@@ -15,7 +15,7 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new(vertices: &Vec<v3>, indices: &Vec<GLuint>) -> Model {
+    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Model {
         let mut model = Model {
             vao: 0,
             vbo_count: 0,
@@ -33,7 +33,7 @@ impl Model {
     }
 
     #[allow(dead_code)]
-    pub fn add_uv(&mut self, uv: &Vec<v2>) {
+    pub fn add_uv(&mut self, uv: &Vec<Vector2>) {
         self.add_vbo(&uv);
     }
 
