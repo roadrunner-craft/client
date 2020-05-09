@@ -1,7 +1,7 @@
 mod m4;
-pub use self::m4::M4;
+pub use self::m4::Matrix4;
 
 pub trait Matrix {
-    fn get_matrix(&self) -> &M4;
+    fn get_matrix(&self) -> &Matrix4;
 }
 

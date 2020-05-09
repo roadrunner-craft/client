@@ -2,7 +2,7 @@ use glutin::event::VirtualKeyCode;
 
 use super::perspective::PerspectiveProjection;
 use crate::input::InputHandler;
-use crate::math::matrix::{M4, Matrix};
+use crate::math::matrix::{Matrix4, Matrix};
 use crate::math::vector::v3;
 use crate::render::camera::ViewMatrix;
 
@@ -10,8 +10,8 @@ const SPEED: f32 = 9.0;
 const SENSITIVITY: f32 = 0.2;
 
 pub trait Camera {
-    fn get_view(&self) -> &M4;
-    fn get_projection(&self) -> &M4;
+    fn get_view(&self) -> &Matrix4;
+    fn get_projection(&self) -> &Matrix4;
 }
 
 pub struct PerspectiveCamera {
@@ -96,11 +96,11 @@ impl PerspectiveCamera {
 }
 
 impl Camera for PerspectiveCamera {
-    fn get_projection(&self) -> &M4 {
+    fn get_projection(&self) -> &Matrix4 {
         self.projection.get_matrix()
     }
 
-    fn get_view(&self) -> &M4 {
+    fn get_view(&self) -> &Matrix4 {
         self.view.get_matrix()
     }
 }

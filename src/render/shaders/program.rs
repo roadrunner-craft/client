@@ -1,4 +1,4 @@
-use crate::math::matrix::M4;
+use crate::math::matrix::Matrix4;
 use crate::math::vector::{v2, v3};
 use crate::render::shaders::{FragmentShader, VertexShader};
 use crate::utils::c::cstr_with_size;
@@ -78,7 +78,7 @@ impl ShaderProgram {
     }
 
     #[allow(dead_code)]
-    pub fn set_uniform_m4(&self, name: &str, value: &M4) {
+    pub fn set_uniform_m4(&self, name: &str, value: &Matrix4) {
         unsafe {
             gl::UniformMatrix4fv(
                 self.get_uniform_location(name),
