@@ -681,18 +681,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "minecraft_rs"
-version = "0.1.0"
-dependencies = [
- "gl",
- "glutin",
- "image 0.23.4",
- "math",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "miniz_oxide"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1037,6 +1025,18 @@ name = "redox_syscall"
 version = "0.1.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
+
+[[package]]
+name = "roadrunner"
+version = "0.1.0"
+dependencies = [
+ "gl",
+ "glutin",
+ "image 0.23.4",
+ "math",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "rusttype"
