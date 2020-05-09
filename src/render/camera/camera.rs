@@ -15,7 +15,7 @@ pub trait Camera {
 }
 
 pub struct PerspectiveCamera {
-    view: ViewMatrix,
+    pub view: ViewMatrix,
     projection: PerspectiveProjection,
     speed: f32,
 }

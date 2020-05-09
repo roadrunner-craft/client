@@ -74,9 +74,8 @@ fn main() {
             }
 
             // should be a loop to updage a list of game objects
-            println!("world size: {}", game.world.size);
             camera.update(&input_handler, &time_delta);
-            game.update(&input_handler, &time_delta);
+            game.update(&input_handler, &time_delta, &camera);
             renderer.update(&game);
             input_handler.clear_cursor_delta();
             display.request_redraw();

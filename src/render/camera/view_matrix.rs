@@ -1,9 +1,10 @@
+use crate::game::world::WorldCoordinate;
 use math::matrix::{Matrix, Matrix4};
 use math::vector::Vector3;
 
 // TODO: merge this class with the transformation component
 pub struct ViewMatrix {
-    position: Vector3,
+    pub position: WorldCoordinate,
     rotation: Vector3,
     m: Option<Matrix4>,
 }

@@ -4,10 +4,11 @@ use crate::game::chunk::{ChunkGrid, ChunkGridCoordinate};
 use crate::game::generation::HeightMap;
 use crate::input::InputHandler;
 use glutin::event::VirtualKeyCode;
+use math::vector::Vector3;
 
 pub struct World {
     pub chunks: ChunkGrid,
-    pub size: i64,
+    pub render_distance: i64,
     height_map: HeightMap,
 }
 
@@ -15,7 +16,7 @@ impl World {
     pub fn new() -> Self {
         World {
             chunks: ChunkGrid::new(),
-            size: 7,
+            render_distance: 3,
             height_map: HeightMap::new(50..75, 12923874),
         }
     }
@@ -61,8 +62,8 @@ impl World {
         chunk
     }
 
-    pub fn load_chunk(&mut self, x: i64, y: i64) {
-        let coords = ChunkGridCoordinate::new(x, y);
+    pub fn load_chunk(&mut self, x: i64, z: i64) {
+        let coords = ChunkGridCoordinate::new(x, z);
         if !self.chunks.contains_key(&coords) {
             let chunk = self.generate_chunk(coords);
             self.chunks.insert(coords, chunk);
@@ -75,8 +76,8 @@ impl World {
     }
 
     pub fn init(&mut self) {
-        for x in -self.size..self.size {
-            for y in -self.size..self.size {
+        for x in -self.render_distance..self.render_distance {
+            for y in -self.render_distance..self.render_distance {
                 self.load_chunk(x, y);
             }
         }
@@ -103,25 +104,44 @@ impl World {
         // );
     }
 
-    pub fn update(&mut self, input: &InputHandler) {
+    pub fn update(&mut self, input: &InputHandler, player_position: WorldCoordinate) {
+        if cfg!(feature = "chunk_loading") {
+            // (un?)load chunks as the player moves
+            let player_chunk = ChunkGridCoordinate::from_world_coordinate(player_position);
+            let range = self.render_distance;
+            let near =
+                |middle, point| -> bool { (middle - range..middle + range).contains(&point) };
+            self.chunks
+                .retain(|coord, _| near(player_chunk.x, coord.x) && near(player_chunk.z, coord.z));
+            for x in player_chunk.x - self.render_distance..player_chunk.x + self.render_distance {
+                for z in
+                    player_chunk.z - self.render_distance..player_chunk.z + self.render_distance
+                {
+                    self.load_chunk(x, z);
+                }
+            }
+        }
+
+        // increment render distance
         if input.is_key_pressed(VirtualKeyCode::K) {
-            self.size += 1;
-            for x in -self.size..self.size {
-                for y in -self.size..self.size {
+            self.render_distance += 1;
+            for x in -self.render_distance..self.render_distance {
+                for y in -self.render_distance..self.render_distance {
                     self.load_chunk(x, y);
                 }
             }
         }
 
+        // decrement render distance
         if input.is_key_pressed(VirtualKeyCode::J) {
-            if self.size > 1 {
-                for i in -self.size..self.size {
-                    self.unload_chunk(self.size - 1, i);
-                    self.unload_chunk(-self.size, i);
-                    self.unload_chunk(i, self.size - 1);
-                    self.unload_chunk(i, -self.size);
+            if self.render_distance > 1 {
+                for i in -self.render_distance..self.render_distance {
+                    self.unload_chunk(self.render_distance - 1, i);
+                    self.unload_chunk(-self.render_distance, i);
+                    self.unload_chunk(i, self.render_distance - 1);
+                    self.unload_chunk(i, -self.render_distance);
                 }
-                self.size -= 1;
+                self.render_distance -= 1;
             }
         }
     }
@@ -137,3 +157,5 @@ impl World {
         }
     }
 }
+
+pub type WorldCoordinate = Vector3;
