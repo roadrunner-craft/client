@@ -25,7 +25,7 @@ impl World {
     }
 
     pub fn generate_chunk(&self, coords: ChunkGridCoordinate) -> Chunk {
-        let mut chunk = Chunk::new();
+        let mut chunk = Chunk::new(coords);
 
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_DEPTH {
@@ -152,12 +152,13 @@ impl World {
 
     // TODO: handle the case where the current chunk is not in the hashmap
     pub fn get_chunk_group(&self, x: i64, z: i64) -> ChunkGroup {
-        ChunkGroup {
-            current: &self.chunks.get(&ChunkGridCoordinate::new(x, z)).unwrap(),
-            north: self.chunks.get(&ChunkGridCoordinate::new(x, z + 1)),
-            south: self.chunks.get(&ChunkGridCoordinate::new(x, z - 1)),
-            east: self.chunks.get(&ChunkGridCoordinate::new(x - 1, z)),
-            west: self.chunks.get(&ChunkGridCoordinate::new(x + 1, z)),
-        }
+        let coords = ChunkGridCoordinate::new(x, z);
+        ChunkGroup::new(
+            self.chunks.get(&coords).unwrap(),
+            self.chunks.get(&coords.north()),
+            self.chunks.get(&coords.south()),
+            self.chunks.get(&coords.east()),
+            self.chunks.get(&coords.west()),
+        )
     }
 }
