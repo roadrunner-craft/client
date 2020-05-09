@@ -108,15 +108,14 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, game: &Game) {
-        let size = game.world.size;
-        for x in -size..size {
-            for y in -size..size {
-                let idx = ChunkGridCoordinate::new(x, y);
-                if !self.meshes.contains_key(&idx) {
-                    let chunks = game.world.get_chunk_group(x, y);
-                    self.meshes
-                        .insert(idx, ChunkMesh::generate(&chunks, &game.block_database));
-                }
+        self.meshes
+            .retain(|coords, _| game.world.chunks.contains_key(coords));
+
+        for coords in game.world.chunks.keys() {
+            if !self.meshes.contains_key(&coords) {
+                let chunks = game.world.get_chunk_group(coords.x, coords.z);
+                self.meshes
+                    .insert(*coords, ChunkMesh::generate(&chunks, &game.block_database));
             }
         }
     }

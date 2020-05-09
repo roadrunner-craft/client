@@ -8,18 +8,19 @@ use glutin::event::VirtualKeyCode;
 pub struct World {
     pub chunks: ChunkGrid,
     pub size: i64,
+    height_map: HeightMap,
 }
 
 impl World {
     pub fn new() -> Self {
         World {
             chunks: ChunkGrid::new(),
-            size: 3,
+            size: 7,
+            height_map: HeightMap::new(50..75, 12923874),
         }
     }
 
     pub fn generate_chunk(&self, coords: ChunkGridCoordinate) -> Chunk {
-        let height_map = HeightMap::new(50..75, 12923874);
         let mut chunk = Chunk::new();
 
         for x in 0..CHUNK_WIDTH {
@@ -27,7 +28,7 @@ impl World {
                 let absx = x as i64 + coords.x * CHUNK_WIDTH as i64;
                 let absz = z as i64 + coords.z * CHUNK_DEPTH as i64;
 
-                let height = height_map.get_height(absx, absz) as usize;
+                let height = self.height_map.get_height(absx, absz) as usize;
 
                 for y in 0..5 {
                     chunk.blocks[x][y][z] = Block { id: 7 };
@@ -56,12 +57,23 @@ impl World {
         chunk
     }
 
+    pub fn load_chunk(&mut self, x: i64, y: i64) {
+        let coords = ChunkGridCoordinate::new(x, y);
+        if !self.chunks.contains_key(&coords) {
+            let chunk = self.generate_chunk(coords);
+            self.chunks.insert(coords, chunk);
+        }
+    }
+
+    pub fn unload_chunk(&mut self, x: i64, y: i64) {
+        let coords = ChunkGridCoordinate::new(x, y);
+        self.chunks.remove(&coords);
+    }
+
     pub fn init(&mut self) {
         for x in -self.size..self.size {
             for y in -self.size..self.size {
-                let coords = ChunkGridCoordinate::new(x, y);
-                let chunk = self.generate_chunk(coords);
-                self.chunks.insert(coords, chunk);
+                self.load_chunk(x, y);
             }
         }
 
@@ -92,12 +104,20 @@ impl World {
             self.size += 1;
             for x in -self.size..self.size {
                 for y in -self.size..self.size {
-                    let coords = ChunkGridCoordinate::new(x, y);
-                    if !self.chunks.contains_key(&coords) {
-                        let chunk = self.generate_chunk(coords);
-                        self.chunks.insert(coords, chunk);
-                    }
+                    self.load_chunk(x, y);
                 }
+            }
+        }
+
+        if input.is_key_pressed(VirtualKeyCode::J) {
+            if self.size > 1 {
+                for i in -self.size..self.size {
+                    self.unload_chunk(self.size - 1, i);
+                    self.unload_chunk(-self.size, i);
+                    self.unload_chunk(i, self.size - 1);
+                    self.unload_chunk(i, -self.size);
+                }
+                self.size -= 1;
             }
         }
     }
