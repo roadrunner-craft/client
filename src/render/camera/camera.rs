@@ -12,6 +12,7 @@ const SENSITIVITY: f32 = 0.2;
 pub trait Camera {
     fn get_view(&self) -> &Matrix4;
     fn get_projection(&self) -> &Matrix4;
+    fn get_transform(&self) -> &Transform;
 }
 
 pub struct PerspectiveCamera {
@@ -103,5 +104,9 @@ impl Camera for PerspectiveCamera {
 
     fn get_view(&self) -> &Matrix4 {
         self.transform.get_matrix()
+    }
+
+    fn get_transform(&self) -> &Transform {
+        &self.transform
     }
 }
