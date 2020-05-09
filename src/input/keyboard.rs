@@ -7,11 +7,18 @@ pub struct KeyboardHandler {
 }
 
 impl KeyboardHandler {
-    pub fn process(&mut self, input: KeyboardInput) {
-        if let Some(keycode) = input.virtual_keycode {
+    pub fn process(
+        &mut self,
+        KeyboardInput {
+            virtual_keycode,
+            state,
+            ..
+        }: KeyboardInput,
+    ) {
+        if let Some(keycode) = virtual_keycode {
             // println!("{:?}", keycode);
 
-            match input.state {
+            match state {
                 ElementState::Pressed => self.pressed.insert(keycode),
                 ElementState::Released => self.pressed.remove(&(keycode)),
             };
