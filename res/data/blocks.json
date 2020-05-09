@@ -84,6 +84,39 @@
             "bottom": 5
         }
     },
+    "14": {
+        "name": "minecraft:gold_ore",
+        "texture": {
+            "front": 15,
+            "back": 15,
+            "left": 15,
+            "right": 15,
+            "top": 15,
+            "bottom": 15
+        }
+    },
+    "15": {
+        "name": "minecraft:iron_ore",
+        "texture": {
+            "front": 14,
+            "back": 14,
+            "left": 14,
+            "right": 14,
+            "top": 14,
+            "bottom": 14
+        }
+    },
+    "16": {
+        "name": "minecraft:coal_ore",
+        "texture": {
+            "front": 13,
+            "back": 13,
+            "left": 13,
+            "right": 13,
+            "top": 13,
+            "bottom": 13
+        }
+    },
     "17": {
         "name": "minecraft:log",
         "texture": {
@@ -105,6 +138,50 @@
             "right": 10,
             "top": 10,
             "bottom": 10
+        }
+    },
+    "21": {
+        "name": "minecraft:lapis_ore",
+        "texture": {
+            "front": 16,
+            "back": 16,
+            "left": 16,
+            "right": 16,
+            "top": 16,
+            "bottom": 16
+        }
+    },
+    "56": {
+        "name": "minecraft:diamond_ore",
+        "texture": {
+            "front": 18,
+            "back": 18,
+            "left": 18,
+            "right": 18,
+            "top": 18,
+            "bottom": 18
+        }
+    },
+    "73": {
+        "name": "minecraft:redstone_ore",
+        "texture": {
+            "front": 17,
+            "back": 17,
+            "left": 17,
+            "right": 17,
+            "top": 17,
+            "bottom": 17
+        }
+    },
+    "129": {
+        "name": "minecraft:emerald_ore",
+        "texture": {
+            "front": 19,
+            "back": 19,
+            "left": 19,
+            "right": 19,
+            "top": 19,
+            "bottom": 19
         }
     }
 }
