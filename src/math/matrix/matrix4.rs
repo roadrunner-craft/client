@@ -147,7 +147,6 @@ impl fmt::Debug for Matrix4 {
 
 #[cfg(test)]
 mod tests {
-
     #[test]
     fn zero_creates_zero_matrix() {
         let expects = super::Matrix4([
@@ -187,14 +186,14 @@ mod tests {
 
     #[test]
     fn transpose_transposes_matrix() {
-        let expects = &mut super::Matrix4([
+        let expects = super::Matrix4([
             [1.0, 2.0, 3.0, 4.0],
             [5.0, 6.0, 7.0, 8.0],
             [9.0, 10.0, 11.0, 12.0],
             [13.0, 14.0, 15.0, 16.0],
         ]);
 
-        let matrix = &mut super::Matrix4([
+        let mut matrix = super::Matrix4([
             [1.0, 5.0, 9.0, 13.0],
             [2.0, 6.0, 10.0, 14.0],
             [3.0, 7.0, 11.0, 15.0],
@@ -226,14 +225,14 @@ mod tests {
 
     #[test]
     fn to_row_echelon_form_returns_row_echelon_form_matrix() {
-        let expects = &mut super::Matrix4([
+        let expects = super::Matrix4([
             [1.0, 2.0, 3.0, 4.0],
             [0.0, 4.0, 8.0, 12.0],
             [0.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 0.0],
         ]);
 
-        let matrix = &mut super::Matrix4([
+        let mut matrix = super::Matrix4([
             [1.0, 2.0, 3.0, 4.0],
             [5.0, 6.0, 7.0, 8.0],
             [9.0, 10.0, 11.0, 12.0],
@@ -271,15 +270,15 @@ mod tests {
     }
 
     #[test]
-    fn indexMut_updates_correct_row() {
-        let expects = &mut super::Matrix4([
+    fn index_mut_updates_correct_row() {
+        let expects = super::Matrix4([
             [1.0, 2.0, 3.0, 4.0],
             [5.0, 6.0, 7.0, 8.0],
             [9.0, 10.0, 11.0, 12.0],
             [13.0, 14.0, 15.0, 16.0],
         ]);
 
-        let matrix = &mut super::Matrix4([
+        let mut matrix = super::Matrix4([
             [1.0, 2.0, 3.0, 4.0],
             [5.0, 6.0, 7.0, 8.0],
             [0.0, 0.0, 0.0, 0.0],
