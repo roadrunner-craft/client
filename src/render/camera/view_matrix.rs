@@ -1,18 +1,18 @@
-use crate::math::matrix::{Matrix4, Matrix};
-use crate::math::vector::v3;
+use math::matrix::{Matrix, Matrix4};
+use math::vector::Vector3;
 
 // TODO: merge this class with the transformation component
 pub struct ViewMatrix {
-    position: v3,
-    rotation: v3,
+    position: Vector3,
+    rotation: Vector3,
     m: Option<Matrix4>,
 }
 
 impl ViewMatrix {
     pub fn new_position(x: f32, y: f32, z: f32) -> Self {
         let mut view = Self {
-            position: v3 { x, y, z },
-            rotation: v3 {
+            position: Vector3 { x, y, z },
+            rotation: Vector3 {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
@@ -25,24 +25,24 @@ impl ViewMatrix {
     }
 
     #[allow(dead_code)]
-    pub fn get_position(&self) -> v3 {
+    pub fn get_position(&self) -> Vector3 {
         self.position
     }
 
     #[allow(dead_code)]
-    pub fn set_position(&mut self, value: v3) -> &mut Self {
+    pub fn set_position(&mut self, value: Vector3) -> &mut Self {
         self.position = value;
         self.generate_matrix();
         self
     }
 
     #[allow(dead_code)]
-    pub fn get_euler_angles(&self) -> v3 {
+    pub fn get_euler_angles(&self) -> Vector3 {
         self.rotation
     }
 
     #[allow(dead_code)]
-    pub fn set_euler_angles(&mut self, value: v3) -> &mut Self {
+    pub fn set_euler_angles(&mut self, value: Vector3) -> &mut Self {
         self.rotation = value;
         self.generate_matrix();
         self

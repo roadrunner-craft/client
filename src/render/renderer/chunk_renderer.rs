@@ -2,7 +2,6 @@ use crate::game::chunk::ChunkGridCoordinate;
 use crate::game::chunk::{CHUNK_DEPTH, CHUNK_WIDTH};
 use crate::game::texture::TextureDatabase;
 use crate::game::Game;
-use crate::math::vector::v2;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
@@ -10,6 +9,7 @@ use crate::render::texture::TextureArray;
 use crate::utils::Bindable;
 
 use gl::types::GLint;
+use math::vector::Vector2;
 use std::collections::HashMap;
 use std::path::Path;
 use std::ptr;
@@ -69,7 +69,7 @@ impl ChunkRenderer {
             uniform sampler2DArray diffuseTextures;
 
             void main() {
-                if (texture_id == 2 || texture_id == 10) {
+                if (texture_id == 2 || texture_id == 10 || texture_id == 4) {
                     vec4 cheapColorMapOutput = vec4(0.492, 0.762, 0.348, 1.0); // jungle
                     //vec4 cheapColorMapOutput = vec4(0.73, 0.71, 0.395, 1.0); // desert
 
@@ -137,8 +137,8 @@ impl ChunkRenderer {
 
             self.textures.bind();
 
-            for (coords, mesh) in self.meshes.iter_mut() {
-                let position = v2 {
+            for (coords, mesh) in self.meshes.iter() {
+                let position = Vector2 {
                     x: CHUNK_WIDTH as f32 * coords.x as f32,
                     y: CHUNK_DEPTH as f32 * coords.z as f32,
                 };
