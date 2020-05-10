@@ -6,7 +6,7 @@ use glutin::event::VirtualKeyCode;
 use math::matrix::Matrix4;
 use math::vector::Vector3;
 
-const SPEED: f32 = 9.0;
+const SPEED: f64 = 9.0;
 const SENSITIVITY: f32 = 0.2;
 
 pub trait Camera {
@@ -18,7 +18,7 @@ pub trait Camera {
 pub struct PerspectiveCamera {
     transform: Transform,
     projection: PerspectiveProjection,
-    speed: f32,
+    speed: f64,
 }
 
 impl PerspectiveCamera {
@@ -31,7 +31,7 @@ impl PerspectiveCamera {
         }
     }
 
-    pub fn update<'a>(&mut self, input: &InputHandler, time_delta: &f32) {
+    pub fn update<'a>(&mut self, input: &InputHandler, time_delta: f64) {
         // TODO: move this code into a player entity
         let cursor_delta = input.get_cursor_delta();
         let camera_delta = Vector3 {
@@ -86,7 +86,7 @@ impl PerspectiveCamera {
             y: yaxis,
             z: -xaxis * angle.sin() + zaxis * angle.cos(),
         };
-        delta = delta * (self.speed * time_delta);
+        delta = delta * (self.speed * time_delta) as f32;
 
         self.transform
             .set_position(self.transform.get_position() - delta);

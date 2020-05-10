@@ -1,16 +1,17 @@
-use crate::game::chunk::ChunkGridCoordinate;
-use crate::game::chunk::{CHUNK_DEPTH, CHUNK_WIDTH};
-use crate::game::texture::TextureDatabase;
-use crate::game::Game;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
 use crate::render::texture::TextureArray;
+use crate::texture::TextureDatabase;
 use crate::utils::Bindable;
 
+use core::block::BlockRegistry;
+use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_WIDTH};
+use core::Game;
 use gl::types::GLint;
 use math::vector::Vector2;
 use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
 use std::ptr;
 
@@ -20,6 +21,7 @@ pub struct ChunkRenderer {
     program: ShaderProgram,
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
+    block_registry: BlockRegistry,
 }
 
 impl ChunkRenderer {
@@ -100,10 +102,18 @@ impl ChunkRenderer {
             textures.add_file(&path, (*i as u32) - 1);
         }
 
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("res/data/blocks.json");
+        let path = path.to_str().unwrap();
+
+        let data =
+            fs::read_to_string(path).expect("<block_database> Could not read data from file");
+        let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
+
         Self {
             program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
             textures,
             meshes: HashMap::new(),
+            block_registry,
         }
     }
 
@@ -115,10 +125,10 @@ impl ChunkRenderer {
         // add new loaded chunk's meshes
         for coords in game.world.chunks.keys() {
             if !self.meshes.contains_key(&coords) {
-                let chunkgroup = game.world.get_chunk_group(coords.x, coords.z);
+                let chunk_group = game.world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
-                    ChunkMesh::generate(&chunkgroup, &game.block_database),
+                    ChunkMesh::generate(&chunk_group, &self.block_registry),
                 );
             }
         }

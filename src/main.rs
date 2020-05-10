@@ -1,9 +1,10 @@
 mod components;
-mod game;
 mod input;
 mod render;
+mod texture;
 mod utils;
 
+extern crate core;
 extern crate gl;
 extern crate glutin;
 extern crate image;
@@ -11,12 +12,12 @@ extern crate math;
 extern crate serde;
 extern crate serde_json;
 
-use crate::game::Game;
 use crate::input::InputHandler;
 use crate::render::camera::PerspectiveCamera;
 use crate::render::renderer::Renderer;
 use crate::render::Display;
 
+use core::Game;
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
 use std::time::Instant;
@@ -32,9 +33,8 @@ fn main() {
     let mut camera = PerspectiveCamera::new(70.0, 0.1, 1024.0, 1.0);
     let mut input_handler = InputHandler::default();
 
-    // TODO: remove the need for an init method
     let mut game = Game::new();
-    game.world.init();
+    game.add_player(String::from("xehos"));
 
     let mut fps: u32 = 0;
     let mut last_time = Instant::now();
@@ -64,7 +64,7 @@ fn main() {
             display.swap_buffers();
         }
         Event::MainEventsCleared => {
-            let time_delta = last_time.elapsed().as_secs_f32();
+            let time_delta = last_time.elapsed().as_secs_f64();
             last_time = Instant::now();
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
@@ -73,9 +73,8 @@ fn main() {
                 last_fps_update = Instant::now();
             }
 
-            // should be a loop to updage a list of game objects
-            camera.update(&input_handler, &time_delta);
-            game.update(&input_handler, &time_delta, &camera);
+            camera.update(&input_handler, time_delta);
+            game.update(time_delta);
             renderer.update(&game);
             input_handler.clear_cursor_delta();
             display.request_redraw();

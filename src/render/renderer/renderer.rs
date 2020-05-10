@@ -1,6 +1,7 @@
-use crate::game::Game;
 use crate::render::camera::Camera;
 use crate::render::renderer::ChunkRenderer;
+
+use core::Game;
 
 #[derive(Default)]
 pub struct Renderer {
