@@ -17,7 +17,7 @@ pub struct Player {
 impl Player {
     pub fn new(position: WorldCoordinate) -> Self {
         let mut p = Self {
-            camera: PerspectiveCamera::new(70.0, 0.1, 1024.0, 1.0),
+            camera: PerspectiveCamera::new(70.0, 0.1, 1024.0),
             velocity: Vector3::zero(),
         };
 

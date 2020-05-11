@@ -15,10 +15,10 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(fov: f32, near: f32, far: f32, aspect_ratio: f32) -> PerspectiveCamera {
+    pub fn new(fov: f32, near: f32, far: f32) -> PerspectiveCamera {
         Self {
             transform: Transform::default(),
-            projection: PerspectiveProjection::new(fov, near, far, aspect_ratio),
+            projection: PerspectiveProjection::new(fov, near, far),
         }
     }
 
