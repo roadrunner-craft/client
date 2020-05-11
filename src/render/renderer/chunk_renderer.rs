@@ -7,7 +7,7 @@ use crate::utils::Bindable;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_WIDTH};
-use core::Game;
+use core::world::World;
 use gl::types::GLint;
 use math::vector::Vector2;
 use std::collections::HashMap;
@@ -117,15 +117,15 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn update(&mut self, game: &Game) {
+    pub fn update(&mut self, world: &World) {
         // remove unloaded chunks' meshes
         self.meshes
-            .retain(|coords, _| game.world.chunks.contains_key(coords));
+            .retain(|coords, _| world.chunks.contains_key(coords));
 
         // add new loaded chunk's meshes
-        for coords in game.world.chunks.keys() {
+        for coords in world.chunks.keys() {
             if !self.meshes.contains_key(&coords) {
-                let chunk_group = game.world.get_chunk_group(*coords);
+                let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
                     ChunkMesh::generate(&chunk_group, &self.block_registry),
