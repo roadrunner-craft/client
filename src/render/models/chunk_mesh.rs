@@ -1,8 +1,8 @@
-use crate::game::block::BlockDatabase;
-use crate::game::chunk::ChunkGroup;
-use crate::game::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use crate::render::models::Model;
 use crate::utils::Bindable;
+use core::block::BlockRegistry;
+use core::chunk::ChunkGroup;
+use core::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 
 use gl::types::GLuint;
 use math::vector::Vector3;
@@ -206,7 +206,7 @@ impl ChunkMesh {
         }
     }
 
-    pub fn generate(chunks: &ChunkGroup, block_database: &BlockDatabase) -> ChunkMesh {
+    pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> ChunkMesh {
         let mut mesh = ChunkMesh::default();
 
         for x in 0..CHUNK_WIDTH {
@@ -222,7 +222,7 @@ impl ChunkMesh {
                         continue;
                     }
 
-                    if let Some(properties) = block_database.get(block.id) {
+                    if let Some(properties) = block_database.properties(block.id) {
                         let position = Vector3 {
                             x: x as f32,
                             y: y as f32,
