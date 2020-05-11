@@ -1,7 +1,7 @@
 use crate::render::camera::Camera;
 use crate::render::renderer::ChunkRenderer;
 
-use core::Game;
+use core::world::World;
 
 #[derive(Default)]
 pub struct Renderer {
@@ -9,8 +9,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn update(&mut self, game: &Game) {
-        self.chunk_renderer.update(game);
+    pub fn update(&mut self, world: &World) {
+        self.chunk_renderer.update(world);
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {
