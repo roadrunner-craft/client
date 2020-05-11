@@ -77,7 +77,7 @@ fn main() {
             }
 
             player.update(time_delta, &input_handler);
-            world.update(player.position());
+            world.load_around(vec![player.position()]);
             renderer.update(&world);
             input_handler.clear_cursor_delta();
             display.request_redraw();
