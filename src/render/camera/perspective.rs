@@ -9,13 +9,13 @@ pub struct PerspectiveProjection {
 }
 
 impl PerspectiveProjection {
-    pub fn new(fov: f32, near: f32, far: f32, aspect_ratio: f32) -> Self {
+    pub fn new(fov: f32, near: f32, far: f32) -> Self {
         let mut projection = Self {
             m: Matrix4::identity(),
             fov,
             near,
             far,
-            aspect_ratio,
+            aspect_ratio: 1.0,
         };
 
         projection.generate_matrix();
