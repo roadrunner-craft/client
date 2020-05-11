@@ -128,6 +128,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dbbb57365263e881e805dc77d94697c9118fd94d8da011240555aa7b23445bd"
 
 [[package]]
+name = "core"
+version = "0.1.0"
+dependencies = [
+ "math",
+ "serde",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -650,7 +658,6 @@ dependencies = [
 [[package]]
 name = "math"
 version = "0.1.1"
-source = "git+https://github.com/roadrunner-craft/math#c7f2a7e3880cc1d55cb8331f2cb51119344ea338"
 dependencies = [
  "noise",
 ]
@@ -1030,6 +1037,7 @@ checksum = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 name = "roadrunner"
 version = "0.1.0"
 dependencies = [
+ "core",
  "gl",
  "glutin",
  "image 0.23.4",
