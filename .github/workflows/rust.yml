@@ -13,7 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Clone core
+      run: git clone https://github.com/roadrunner-craft/core ../core
+    - name: Clone math
+      run: git clone https://github.com/roadrunner-craft/math ../math
     - name: Build
-      run: cargo build --verbose --manifest-path .github/Cargo.toml
+      run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose --manifest-path .github/Cargo.toml
+      run: cargo test --verbose
