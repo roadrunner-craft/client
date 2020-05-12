@@ -11,10 +11,11 @@ use core::world::{World, LOAD_DISTANCE};
 use gl::types::GLint;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::ptr;
+use std::vec::Vec;
 
 const TEXTURE_RESOLUTION: u32 = 16;
 const FOG: Vector3 = Vector3 {
@@ -151,12 +152,22 @@ impl ChunkRenderer {
 
     pub fn update(&mut self, world: &World) {
         // remove unloaded chunks' meshes
-        self.meshes
-            .retain(|coords, _| world.chunks.contains_key(coords));
+        let new_chunks = world
+            .chunks
+            .keys()
+            .filter(|coords| !self.meshes.contains_key(coords))
+            .collect::<Vec<&ChunkGridCoordinate>>();
+
+        self.meshes.retain(|coords, _| {
+            world.chunks.contains_key(coords)
+                && new_chunks
+                    .iter()
+                    .all(|other| !ChunkGridCoordinate::are_neighbours(coords, other))
+        });
 
         // add new loaded chunk's meshes
-        for coords in world.chunks.keys() {
-            if !self.meshes.contains_key(&coords) {
+        for (coords, _) in world.chunks.iter() {
+            if !self.meshes.contains_key(coords) {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
