@@ -7,15 +7,20 @@ use crate::utils::Bindable;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_WIDTH};
-use core::world::World;
+use core::world::{World, LOAD_DISTANCE};
 use gl::types::GLint;
-use math::vector::Vector2;
+use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::ptr;
 
 const TEXTURE_RESOLUTION: u32 = 16;
+const FOG: Vector3 = Vector3 {
+    x: 0.62,
+    y: 0.76,
+    z: 1.0,
+};
 
 pub struct ChunkRenderer {
     program: ShaderProgram,
@@ -31,6 +36,8 @@ impl ChunkRenderer {
 
             layout (location=0) in vec3 position;
             layout (location=1) in uint info;
+
+            out vec3 world_position;
             out vec2 uv;
             out float light;
             flat out uint texture_id;
@@ -53,8 +60,9 @@ impl ChunkRenderer {
                 light = float((info >> 2u & 3u) + 2) / 5.0 ;
                 texture_id = info >> 4u;
 
-                vec2 position_abs = chunk_position + position.xz;
-                gl_Position = projection * view * vec4(position_abs.x, position.y, position_abs.y, 1.0);
+                world_position = vec3(chunk_position.x, 0, chunk_position.y) + position;
+                
+                gl_Position = projection * view * vec4(world_position, 1.0);
             }
         "#;
         let vertex = VertexShader::compile(vertex_src).unwrap();
@@ -62,12 +70,32 @@ impl ChunkRenderer {
         let fragment_src: &'static str = r#"
             #version 410 core
 
+            in vec3 world_position;
             in vec2 uv;
             in float light;
             flat in uint texture_id;
+
             out vec4 color;
 
-            uniform sampler2DArray diffuseTextures;
+            uniform sampler2DArray diffuse_textures;
+            uniform vec3 camera_position;
+            uniform vec3 fog_color;
+            uniform uint render_distance;
+            
+            vec4 get_color(uint id) {
+                return light * texture(diffuse_textures, vec3(uv, id));
+            }
+
+            vec4 apply_fog(vec4 diffuse) {
+                float fog_max = max(32.0, float((render_distance - 2) * 16));
+                float fog_min = max(0.0, fog_max - 64.0);
+
+                float distance = length(camera_position - world_position);
+                float fog = (distance - fog_min) / (fog_max - fog_min);
+                fog = max(0.0, min(fog, 1.0));
+
+                return (1.0 - fog) * diffuse + fog * vec4(fog_color, 1.0);
+            }
 
             void main() {
                 if (texture_id == 2 || texture_id == 10 || texture_id == 4) {
@@ -75,21 +103,25 @@ impl ChunkRenderer {
                     //vec4 cheapColorMapOutput = vec4(0.73, 0.71, 0.395, 1.0); // desert
 
                     if (texture_id == 4) {
-                        color = light * texture(diffuseTextures, vec3(uv, 11 - 1));
-                        color *= cheapColorMapOutput;
-                        if (color.w == 0.0) {
-                            color = light * texture(diffuseTextures, vec3(uv, texture_id - 1));
-                        }
-                        return;
-                    }
+                        color = get_color(10) * cheapColorMapOutput;
 
-                    color = light * texture(diffuseTextures, vec3(uv, texture_id - 1));
-                    color *= cheapColorMapOutput;
+                        if (color.w == 0.0) {
+                            color = get_color(texture_id - 1);
+                        }
+                    } else {
+                        color = get_color(texture_id - 1) * cheapColorMapOutput;
+                    }
+                    
+                    color = apply_fog(color);
 
                     return;
                 }
-                color = light * texture(diffuseTextures, vec3(uv, texture_id - 1));
-            }
+
+                color = apply_fog(get_color(texture_id - 1));
+
+                if (color.a < 0.01)
+                    discard;
+                }
         "#;
         let fragment = FragmentShader::compile(fragment_src).unwrap();
 
@@ -140,7 +172,12 @@ impl ChunkRenderer {
         self.program
             .set_uniform_m4("projection", camera.get_projection());
         self.program
-            .set_uniform_texture("diffuseTextures", self.textures.id());
+            .set_uniform_texture("diffuse_textures", self.textures.id());
+        self.program
+            .set_uniform_v3("camera_position", camera.position());
+        self.program.set_uniform_v3("fog_color", FOG);
+        self.program
+            .set_uniform_u32("render_distance", LOAD_DISTANCE as u32);
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
