@@ -27,7 +27,7 @@ impl PerspectiveProjection {
         self.generate_matrix();
     }
 
-    pub fn get_matrix(&self) -> &Matrix4 {
+    pub fn matrix(&self) -> &Matrix4 {
         &self.m
     }
 
