@@ -6,9 +6,10 @@ use crate::texture::TextureDatabase;
 use crate::utils::Bindable;
 
 use core::block::BlockRegistry;
-use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_WIDTH};
+use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
 use gl::types::GLint;
+use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
 use std::fs;
@@ -166,11 +167,9 @@ impl ChunkRenderer {
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {
-        let projection_view = *camera.get_projection() * *camera.get_view();
-
         self.program.enable();
         self.program
-            .set_uniform_m4("projection_view", &projection_view);
+            .set_uniform_m4("projection_view", camera.projection_view());
         self.program
             .set_uniform_texture("diffuse_textures", self.textures.id());
         self.program
@@ -190,6 +189,20 @@ impl ChunkRenderer {
                     x: CHUNK_WIDTH as f32 * coords.x as f32,
                     y: CHUNK_DEPTH as f32 * coords.z as f32,
                 };
+
+                let chunk_volume = AABB::new(Volume::new(
+                    position.x as i64,
+                    0,
+                    position.y as i64,
+                    CHUNK_WIDTH as i64,
+                    CHUNK_HEIGHT as i64,
+                    CHUNK_DEPTH as i64,
+                ));
+
+                if !camera.frustum().contains(&chunk_volume) {
+                    continue;
+                }
+
                 self.program.set_uniform_v2("chunk_position", position);
 
                 mesh.bind();
