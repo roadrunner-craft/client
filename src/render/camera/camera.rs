@@ -7,6 +7,7 @@ use math::vector::Vector3;
 pub trait Camera {
     fn get_view(&self) -> &Matrix4;
     fn get_projection(&self) -> &Matrix4;
+    fn position(&self) -> Vector3;
 }
 
 pub struct PerspectiveCamera {
@@ -24,10 +25,6 @@ impl PerspectiveCamera {
 
     pub fn set_position(&mut self, position: Vector3) {
         self.transform.set_position(-position);
-    }
-
-    pub fn position(&self) -> Vector3 {
-        -self.transform.position()
     }
 
     pub fn set_euler_angles(&mut self, rotation: Vector3) {
@@ -50,5 +47,9 @@ impl Camera for PerspectiveCamera {
 
     fn get_view(&self) -> &Matrix4 {
         self.transform.get_matrix()
+    }
+
+    fn position(&self) -> Vector3 {
+        -self.transform.position()
     }
 }

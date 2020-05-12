@@ -1,5 +1,5 @@
 use crate::input::InputHandler;
-use crate::render::camera::PerspectiveCamera;
+use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
