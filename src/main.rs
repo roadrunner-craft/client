@@ -35,7 +35,7 @@ fn main() {
     let mut world = World::new();
     let mut player = Player::new(WorldCoordinate {
         x: 0.0,
-        y: 140.0,
+        y: 150.0,
         z: 0.0,
     });
 
