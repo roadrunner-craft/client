@@ -88,7 +88,7 @@ impl ChunkRenderer {
 
             vec4 apply_fog(vec4 diffuse) {
                 float fog_max = max(32.0, float((render_distance - 2) * 16));
-                float fog_min = max(0.0, fog_max - 64.0);
+                float fog_min = max(16.0, fog_max - 64.0);
 
                 float distance = length(camera_position - world_position);
                 float fog = (distance - fog_min) / (fog_max - fog_min);
