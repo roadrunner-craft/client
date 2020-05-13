@@ -3,12 +3,17 @@ use crate::render::renderer::ChunkRenderer;
 
 use core::world::World;
 
-#[derive(Default)]
 pub struct Renderer {
     chunk_renderer: ChunkRenderer,
 }
 
 impl Renderer {
+    pub fn new() -> Self {
+        Self {
+            chunk_renderer: ChunkRenderer::new(),
+        }
+    }
+
     pub fn update(&mut self, world: &World) {
         self.chunk_renderer.update(world);
     }

@@ -1,4 +1,4 @@
-use crate::utils::Bindable;
+use crate::utils::{Bindable, Identifiable};
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -106,6 +106,14 @@ impl TextureArray {
                 img.as_ptr() as *const c_void,
             );
         }
+    }
+}
+
+impl Identifiable for TextureArray {
+    type Id = gl::types::GLuint;
+
+    fn id(&self) -> Self::Id {
+        self.id
     }
 }
 

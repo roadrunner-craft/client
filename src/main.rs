@@ -14,8 +14,8 @@ extern crate serde_json;
 
 use crate::input::InputHandler;
 use crate::player::Player;
+use crate::render::display::Display;
 use crate::render::renderer::Renderer;
-use crate::render::Display;
 
 use core::world::{World, WorldCoordinate};
 use glutin::event::{DeviceEvent, Event, WindowEvent};
@@ -29,7 +29,7 @@ fn main() {
     let event_loop = EventLoop::new();
 
     let display = Display::new(PKG_NAME, &event_loop);
-    let mut renderer = Renderer::default();
+    let mut renderer = Renderer::new();
     let mut input_handler = InputHandler::default();
 
     let mut world = World::new();
