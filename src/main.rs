@@ -3,6 +3,7 @@ mod player;
 mod render;
 mod texture;
 mod utils;
+mod traits;
 
 extern crate core;
 extern crate gl;

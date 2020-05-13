@@ -1,5 +1,6 @@
 use crate::input::InputHandler;
 use crate::render::camera::{Camera, PerspectiveCamera};
+use crate::traits::InputObserver;
 
 use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
@@ -92,5 +93,12 @@ impl Player {
         delta = delta * (SPEED * time_delta) as f32;
 
         self.set_position(self.position() + delta);
+    }
+}
+
+impl InputObserver for Player {
+
+    fn handle_input(&self) {
+        println!("Hellow");
     }
 }
