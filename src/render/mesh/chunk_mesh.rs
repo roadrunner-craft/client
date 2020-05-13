@@ -1,4 +1,4 @@
-use crate::render::models::Model;
+use crate::render::mesh::Mesh;
 use crate::utils::Bindable;
 use core::block::BlockRegistry;
 use core::chunk::ChunkGroup;
@@ -170,7 +170,7 @@ const BOTTOM_FACE: Face = Face {
 
 #[derive(Default)]
 pub struct ChunkMesh {
-    model: Option<Model>,
+    mesh: Option<Mesh>,
     vertices: Vec<Vector3>,
     vertices_info: Vec<GLuint>,
     vertex_count: GLuint,
@@ -198,11 +198,9 @@ impl ChunkMesh {
         self.vertex_count += 4;
     }
 
-    pub fn index_count(&self) -> usize {
-        if let Some(ref model) = self.model {
-            return model.index_count();
-        } else {
-            return 0;
+    pub fn draw(&self) {
+        if let Some(ref mesh) = self.mesh {
+            return mesh.draw();
         }
     }
 
@@ -264,8 +262,8 @@ impl ChunkMesh {
         }
 
         if !mesh.vertices.is_empty() {
-            mesh.model = Some(Model::new(&mesh.vertices, &mesh.indices));
-            mesh.model.as_mut().unwrap().add_vbo(&mesh.vertices_info);
+            mesh.mesh = Some(Mesh::new(&mesh.vertices, &mesh.indices));
+            mesh.mesh.as_mut().unwrap().add_vbo(&mesh.vertices_info);
         }
         mesh
     }
@@ -273,14 +271,14 @@ impl ChunkMesh {
 
 impl Bindable for ChunkMesh {
     fn bind(&self) {
-        if let Some(ref model) = self.model {
-            model.bind();
+        if let Some(ref mesh) = self.mesh {
+            mesh.bind();
         }
     }
 
     fn unbind(&self) {
-        if let Some(ref model) = self.model {
-            model.unbind();
+        if let Some(ref mesh) = self.mesh {
+            mesh.unbind();
         }
     }
 }

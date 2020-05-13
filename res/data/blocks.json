@@ -151,6 +151,17 @@
             "bottom": 16
         }
     },
+    "45": {
+        "name": "minecraft:brick_block",
+        "texture": {
+            "front": 24,
+            "back": 24,
+            "left": 24,
+            "right": 24,
+            "top": 24,
+            "bottom": 24
+        }
+    },
     "56": {
         "name": "minecraft:diamond_ore",
         "texture": {
@@ -171,6 +182,17 @@
             "right": 17,
             "top": 17,
             "bottom": 17
+        }
+    },
+    "80": {
+        "name": "minecraft:snow",
+        "texture": {
+            "front": 23,
+            "back": 23,
+            "left": 23,
+            "right": 23,
+            "top": 23,
+            "bottom": 23
         }
     },
     "129": {

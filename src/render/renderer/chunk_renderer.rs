@@ -1,6 +1,6 @@
 use crate::render::camera::Camera;
-use crate::render::models::chunk_mesh::ChunkMesh;
-use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
+use crate::render::mesh::chunk_mesh::ChunkMesh;
+use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 use crate::texture::TextureDatabase;
 use crate::utils::Bindable;
@@ -8,13 +8,11 @@ use crate::utils::Bindable;
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
-use gl::types::GLint;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::ptr;
 
 const TEXTURE_RESOLUTION: u32 = 16;
 const FOG: Vector3 = Vector3 {
@@ -65,7 +63,6 @@ impl ChunkRenderer {
                 gl_Position = projection_view * vec4(world_position, 1.0);
             }
         "#;
-        let vertex = VertexShader::compile(vertex_src).unwrap();
 
         let fragment_src: &'static str = r#"
             #version 410 core
@@ -94,7 +91,7 @@ impl ChunkRenderer {
                 float fog = (distance - fog_min) / (fog_max - fog_min);
                 fog = max(0.0, min(fog, 1.0));
 
-                return (1.0 - fog) * diffuse + fog * vec4(fog_color, 1.0);
+                return (1.0 - fog) * diffuse + fog * vec4(fog_color, diffuse.a);
             }
 
             void main() {
@@ -123,7 +120,6 @@ impl ChunkRenderer {
                     discard;
                 }
         "#;
-        let fragment = FragmentShader::compile(fragment_src).unwrap();
 
         let database = TextureDatabase::new();
         let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32);
@@ -141,11 +137,19 @@ impl ChunkRenderer {
             fs::read_to_string(path).expect("<block_database> Could not read data from file");
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
-        Self {
-            program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
-            textures,
-            meshes: HashMap::new(),
-            block_registry,
+        match ShaderProgram::new(vertex_src, fragment_src) {
+            Ok(program) => Self {
+                program,
+                textures,
+                meshes: HashMap::new(),
+                block_registry,
+            },
+            Err(err) => {
+                panic!(
+                    "<chunk-renderer> could not compile the shader program:\n\n{}",
+                    err
+                );
+            }
         }
     }
 
@@ -167,7 +171,7 @@ impl ChunkRenderer {
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {
-        self.program.enable();
+        self.program.use_program();
         self.program
             .set_uniform_m4("projection_view", camera.projection_view());
         self.program
@@ -205,29 +209,8 @@ impl ChunkRenderer {
 
                 self.program.set_uniform_v2("chunk_position", position);
 
-                mesh.bind();
-
-                gl::DrawElements(
-                    gl::TRIANGLES,
-                    mesh.index_count() as GLint,
-                    gl::UNSIGNED_INT,
-                    ptr::null(),
-                );
-
-                mesh.unbind();
+                mesh.draw();
             }
         }
-    }
-}
-
-impl Default for ChunkRenderer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Drop for ChunkRenderer {
-    fn drop(&mut self) {
-        self.program.delete();
     }
 }

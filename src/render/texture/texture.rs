@@ -1,4 +1,4 @@
-use crate::utils::Bindable;
+use crate::utils::{Bindable, Identifiable};
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -47,11 +47,6 @@ impl Texture {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn id(&self) -> GLuint {
-        self.id
-    }
-
     fn generate_texture(img: &Vec<u8>, size: u32) -> GLuint {
         unsafe {
             let mut id: GLuint = 0;
@@ -77,6 +72,14 @@ impl Texture {
 
             id
         }
+    }
+}
+
+impl Identifiable for Texture {
+    type Id = gl::types::GLuint;
+
+    fn id(&self) -> Self::Id {
+        self.id
     }
 }
 
