@@ -76,7 +76,7 @@ impl Texture {
         }
     }
 
-    fn unit(&self) -> GLuint {
+    pub fn unit(&self) -> GLuint {
         self.unit
     }
 }
