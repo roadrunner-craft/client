@@ -1,5 +1,5 @@
+use crate::ops::{Bindable, Drawable};
 use crate::render::mesh::Mesh;
-use crate::utils::Bindable;
 use core::block::BlockRegistry;
 use core::chunk::ChunkGroup;
 use core::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
@@ -198,12 +198,6 @@ impl ChunkMesh {
         self.vertex_count += 4;
     }
 
-    pub fn draw(&self) {
-        if let Some(ref mesh) = self.mesh {
-            return mesh.draw();
-        }
-    }
-
     pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> ChunkMesh {
         let mut mesh = ChunkMesh::default();
 
@@ -266,6 +260,14 @@ impl ChunkMesh {
             mesh.mesh.as_mut().unwrap().add_vbo(&mesh.vertices_info);
         }
         mesh
+    }
+}
+
+impl Drawable for ChunkMesh {
+    fn draw(&self) {
+        if let Some(ref mesh) = self.mesh {
+            return mesh.draw();
+        }
     }
 }
 

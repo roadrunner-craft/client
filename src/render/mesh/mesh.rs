@@ -1,4 +1,5 @@
-use crate::utils::{Bindable, Identifiable};
+use crate::ops::{Bindable, Drawable};
+use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizeiptr, GLuint};
 use math::vector::Vector3;
@@ -79,8 +80,18 @@ impl Mesh {
 
         self.buffers.push(ebo);
     }
+}
 
-    pub fn draw(&self) {
+impl Identifiable for Mesh {
+    type Id = gl::types::GLuint;
+
+    fn id(&self) -> Self::Id {
+        self.vao
+    }
+}
+
+impl Drawable for Mesh {
+    fn draw(&self) {
         self.bind();
 
         unsafe {
@@ -93,14 +104,6 @@ impl Mesh {
         }
 
         self.unbind();
-    }
-}
-
-impl Identifiable for Mesh {
-    type Id = gl::types::GLuint;
-
-    fn id(&self) -> Self::Id {
-        self.vao
     }
 }
 
