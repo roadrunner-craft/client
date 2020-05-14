@@ -11,7 +11,6 @@ use crate::render::texture::TextureArray;
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
-use gl::types::GLint;
 use glutin::event::VirtualKeyCode;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
