@@ -1,14 +1,37 @@
-use crate::utils::c::cstr_with_size;
-use crate::utils::c::str2cstr;
+use crate::utils::c::{cstr_with_size, str2cstr};
+use crate::utils::Identifiable;
 
 use gl::types::{GLchar, GLint, GLuint};
 use std::ptr;
 
-#[derive(Debug, Copy, Clone)]
-struct Shader {}
+/// https://www.khronos.org/opengl/wiki/Shader
+#[allow(dead_code)]
+pub enum ShaderType {
+    Vertex,
+    Fragment,
+    TesselationControl,
+    TesselationEvaluation,
+    Geometry,
+    Compute,
+}
+
+pub struct Shader {
+    id: GLuint,
+}
 
 impl Shader {
-    fn compile(id: GLuint, src: &'static str) -> Result<GLuint, String> {
+    pub fn compile(src: &'static str, shader_type: ShaderType) -> Result<Self, String> {
+        let id: GLuint = unsafe {
+            match shader_type {
+                ShaderType::Vertex => gl::CreateShader(gl::VERTEX_SHADER),
+                ShaderType::Fragment => gl::CreateShader(gl::FRAGMENT_SHADER),
+                ShaderType::TesselationControl => gl::CreateShader(gl::TESS_CONTROL_SHADER),
+                ShaderType::TesselationEvaluation => gl::CreateShader(gl::TESS_EVALUATION_SHADER),
+                ShaderType::Geometry => gl::CreateShader(gl::GEOMETRY_SHADER),
+                ShaderType::Compute => gl::CreateShader(gl::COMPUTE_SHADER),
+            }
+        };
+
         let src = str2cstr(src);
 
         unsafe {
@@ -20,48 +43,32 @@ impl Shader {
             return Err(err);
         }
 
-        return Ok(id);
+        Ok(Self { id })
+    }
+
+    pub fn attach(&self, program: gl::types::GLuint) {
+        unsafe {
+            gl::AttachShader(program, self.id());
+        }
+    }
+
+    pub fn detach(&self, program: gl::types::GLuint) {
+        unsafe {
+            gl::DetachShader(program, self.id());
+        }
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct VertexShader {
-    id: GLuint,
-}
+impl Identifiable for Shader {
+    type Id = gl::types::GLuint;
 
-impl VertexShader {
-    pub fn compile(src: &'static str) -> Result<Self, String> {
-        let id = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
-        Shader::compile(id, src)?;
-        return Ok(Self { id });
-    }
-
-    pub fn id(&self) -> GLuint {
+    fn id(&self) -> Self::Id {
         self.id
     }
-
-    pub fn delete(&self) {
-        unsafe { gl::DeleteShader(self.id) }
-    }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct FragmentShader {
-    id: GLuint,
-}
-
-impl FragmentShader {
-    pub fn compile(src: &'static str) -> Result<Self, String> {
-        let id = unsafe { gl::CreateShader(gl::FRAGMENT_SHADER) };
-        Shader::compile(id, src)?;
-        return Ok(Self { id });
-    }
-
-    pub fn id(&self) -> GLuint {
-        self.id
-    }
-
-    pub fn delete(&self) {
+impl Drop for Shader {
+    fn drop(&mut self) {
         unsafe { gl::DeleteShader(self.id) }
     }
 }

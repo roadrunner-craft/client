@@ -1,4 +1,4 @@
-use crate::utils::Bindable;
+use crate::ops::Bindable;
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -10,15 +10,16 @@ use std::ptr;
 pub struct TextureArray {
     id: GLuint,
     size: u32,
+    unit: GLuint,
 }
 
 impl TextureArray {
-    pub fn new(size: u32, layer_count: u32) -> Self {
+    pub fn new(size: u32, layer_count: u32, unit: GLuint) -> Self {
         let mut id: GLuint = 0;
 
         unsafe {
             gl::GenTextures(1, &mut id);
-            gl::ActiveTexture(gl::TEXTURE1);
+            gl::ActiveTexture(gl::TEXTURE0 + unit);
             gl::BindTexture(gl::TEXTURE_2D_ARRAY, id);
 
             gl::TexParameteri(
@@ -56,11 +57,7 @@ impl TextureArray {
             )
         }
 
-        Self { id, size }
-    }
-
-    pub fn id(&self) -> GLuint {
-        self.id
+        Self { id, size, unit }
     }
 
     pub fn add_file(&self, path: &Path, layer: u32) {
@@ -89,7 +86,7 @@ impl TextureArray {
 
     pub fn add_texture(&self, img: &Vec<u8>, layer: u32) {
         unsafe {
-            gl::ActiveTexture(gl::TEXTURE1);
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
             gl::BindTexture(gl::TEXTURE_2D_ARRAY, self.id);
 
             gl::TexSubImage3D(
@@ -107,19 +104,23 @@ impl TextureArray {
             );
         }
     }
+
+    pub fn unit(&self) -> GLuint {
+        self.unit
+    }
 }
 
 impl Bindable for TextureArray {
     fn bind(&self) {
         unsafe {
-            gl::ActiveTexture(gl::TEXTURE1);
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
             gl::BindTexture(gl::TEXTURE_2D_ARRAY, self.id)
         }
     }
 
     fn unbind(&self) {
         unsafe {
-            gl::ActiveTexture(gl::TEXTURE1);
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
             gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0)
         }
     }
