@@ -4,41 +4,53 @@ use crate::traits::InputObserver;
 use std::collections::HashMap;
 
 #[derive(Default)]
-pub struct InputHandler<'a> {
-    observers: HashMap<VirtualKeyCode, Vec<&'a InputObserver>>
+pub struct InputHandler {
+    observers: HashMap<VirtualKeyCode, Vec<&'static dyn InputObserver>>
 }
 
-impl<'a> InputHandler<'a> {
-    fn new() -> InputHandler<'a> {
+impl<'a> InputHandler {
+    fn new() -> InputHandler {
         InputHandler {
             observers: HashMap::new(),
         }
     }
 
-    fn attach<T: InputObserver>(&mut self, key: VirtualKeyCode, observer: &'a T) {
-        let obs = self.observers.entry(key).or_insert(Vec::new());
-        obs.push(observer);
+    pub fn attach<T: InputObserver>(&mut self, key: VirtualKeyCode, observer: &'static T) {
+        let observers = self.observers.entry(key).or_default();
+        observers.push(observer);
+    }
+
+    pub fn process_keyboard(&mut self,
+                            KeyboardInput { virtual_keycode, state, .. }: KeyboardInput) {
+
+        let maybe_observers = match virtual_keycode {
+            Some(keycode) => self.observers.get(&keycode),
+            _ => return
+        };
+
+        match maybe_observers {
+            Some(observers) => for observer in observers { observer.handle_input() },
+            _ => return
+        }
+    }
+
+
+    ///
+    pub fn process_cursor(&mut self, input: (f64, f64)) {
+        // self.cursor.process(input)
+    }
+
+    pub fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        // self.keyboard.is_pressed(keycode)
+        true
+    }
+
+    pub fn get_cursor_delta(&self) { // -> &CursorDelta {
+        // self.cursor.get_delta()
+    }
+
+    pub fn clear_cursor_delta(&mut self) {
+        // self.cursor.clear_delta()
     }
 }
 
-// impl InputHandler {
-//     pub fn process_keyboard(&mut self, input: KeyboardInput) {
-//         self.keyboard.process(input)
-//     }
-
-//     pub fn process_cursor(&mut self, input: (f64, f64)) {
-//         self.cursor.process(input)
-//     }
-
-//     pub fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
-//         self.keyboard.is_pressed(keycode)
-//     }
-
-//     pub fn get_cursor_delta(&self) -> &CursorDelta {
-//         self.cursor.get_delta()
-//     }
-
-//     pub fn clear_cursor_delta(&mut self) {
-//         self.cursor.clear_delta()
-//     }
-// }

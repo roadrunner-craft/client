@@ -39,8 +39,8 @@ impl Player {
     pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
         let cursor_delta = input.get_cursor_delta();
         let camera_delta = Vector3 {
-            x: cursor_delta.y as f32,
-            y: cursor_delta.x as f32,
+            x: 0.0, //cursor_delta.y as f32,
+            y: 0.0, // cursor_delta.x as f32,
             z: 0.0,
         } * SENSITIVITY;
         let mut camera_angles = self.camera.euler_angles() + camera_delta;

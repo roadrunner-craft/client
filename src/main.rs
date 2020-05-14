@@ -21,6 +21,7 @@ use crate::render::Display;
 use core::world::{World, WorldCoordinate};
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
+use glutin::event::{KeyboardInput, VirtualKeyCode};
 use std::time::Instant;
 
 const FPS_REFRESH_TIMEOUT: u64 = 1;
@@ -43,6 +44,8 @@ fn main() {
     let mut fps: u32 = 0;
     let mut last_time = Instant::now();
     let mut last_fps_update = Instant::now();
+
+    input_handler.attach(VirtualKeyCode::F, &player);
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::LoopDestroyed => return,
