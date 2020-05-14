@@ -1,22 +1,23 @@
-use crate::utils::Bindable;
+use crate::ops::{Bindable, Drawable};
+use crate::utils::Identifiable;
 
-use gl::types::{GLsizeiptr, GLuint};
-use math::vector::{Vector2, Vector3};
+use gl::types::{GLint, GLsizeiptr, GLuint};
+use math::vector::Vector3;
 use std::mem;
 use std::ptr;
 use std::vec::Vec;
 
 #[derive(Debug)]
-pub struct Model {
+pub struct Mesh {
     vao: GLuint,
     vbo_count: GLuint,
     index_count: usize,
     buffers: Vec<GLuint>,
 }
 
-impl Model {
-    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Model {
-        let mut model = Model {
+impl Mesh {
+    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Mesh {
+        let mut model = Mesh {
             vao: 0,
             vbo_count: 0,
             index_count: indices.len(),
@@ -30,15 +31,6 @@ impl Model {
         model.add_vbo(vertices);
         model.add_ebo(indices);
         model
-    }
-
-    #[allow(dead_code)]
-    pub fn add_uv(&mut self, uv: &Vec<Vector2>) {
-        self.add_vbo(&uv);
-    }
-
-    pub fn index_count(&self) -> usize {
-        self.index_count
     }
 
     pub fn add_vbo<T>(&mut self, data: &Vec<T>) {
@@ -90,7 +82,32 @@ impl Model {
     }
 }
 
-impl Bindable for Model {
+impl Identifiable for Mesh {
+    type Id = gl::types::GLuint;
+
+    fn id(&self) -> Self::Id {
+        self.vao
+    }
+}
+
+impl Drawable for Mesh {
+    fn draw(&self) {
+        self.bind();
+
+        unsafe {
+            gl::DrawElements(
+                gl::TRIANGLES,
+                self.index_count as GLint,
+                gl::UNSIGNED_INT,
+                ptr::null(),
+            );
+        }
+
+        self.unbind();
+    }
+}
+
+impl Bindable for Mesh {
     fn bind(&self) {
         unsafe { gl::BindVertexArray(self.vao) }
     }
@@ -100,7 +117,7 @@ impl Bindable for Model {
     }
 }
 
-impl Drop for Model {
+impl Drop for Mesh {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteBuffers(self.buffers.len() as i32, mem::transmute(&self.buffers));

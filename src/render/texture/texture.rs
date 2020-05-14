@@ -1,4 +1,4 @@
-use crate::utils::Bindable;
+use crate::ops::Bindable;
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -11,10 +11,11 @@ static mut DEFAULT_TEXTURE_SIZE: u32 = 0;
 pub struct Texture {
     id: GLuint,
     size: u32,
+    unit: GLuint,
 }
 
 impl Texture {
-    pub fn new(path: &Path) -> Self {
+    pub fn new(path: &Path, unit: GLuint) -> Self {
         match path.to_str() {
             None => Texture::default(),
             Some(path) => match image::open(path) {
@@ -34,34 +35,30 @@ impl Texture {
                         return Self::default();
                     }
 
-                    return Self::from_image(&img.into_raw(), width);
+                    return Self::from_image(&img.into_raw(), width, unit);
                 }
             },
         }
     }
 
-    pub fn from_image(img: &Vec<u8>, size: u32) -> Self {
+    pub fn from_image(img: &Vec<u8>, size: u32, unit: GLuint) -> Self {
         Texture {
-            id: Texture::generate_texture(img, size),
+            id: Texture::generate_texture(img, size, unit),
             size,
+            unit,
         }
     }
 
-    #[allow(dead_code)]
-    pub fn id(&self) -> GLuint {
-        self.id
-    }
-
-    fn generate_texture(img: &Vec<u8>, size: u32) -> GLuint {
+    fn generate_texture(img: &Vec<u8>, size: u32, unit: GLuint) -> GLuint {
         unsafe {
             let mut id: GLuint = 0;
             gl::GenTextures(1, &mut id);
-            gl::ActiveTexture(gl::TEXTURE0);
+            gl::ActiveTexture(gl::TEXTURE0 + unit);
             gl::BindTexture(gl::TEXTURE_2D, id);
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
-                gl::RGBA as GLsizei,
+                gl::RGBA as GLint,
                 size as GLsizei,
                 size as GLsizei,
                 0,
@@ -78,19 +75,23 @@ impl Texture {
             id
         }
     }
+
+    pub fn unit(&self) -> GLuint {
+        self.unit
+    }
 }
 
 impl Bindable for Texture {
     fn bind(&self) {
         unsafe {
-            gl::ActiveTexture(gl::TEXTURE0);
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
             gl::BindTexture(gl::TEXTURE_2D, self.id)
         }
     }
 
     fn unbind(&self) {
         unsafe {
-            gl::ActiveTexture(gl::TEXTURE0);
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
             gl::BindTexture(gl::TEXTURE_2D, 0)
         }
     }
@@ -103,6 +104,7 @@ impl Default for Texture {
                 return Texture {
                     id: DEFAULT_TEXTURE_ID,
                     size: DEFAULT_TEXTURE_SIZE,
+                    unit: 0,
                 };
             }
 
@@ -110,7 +112,7 @@ impl Default for Texture {
             let root = env!("CARGO_MANIFEST_DIR");
             let path = Path::new(root).join("res/textures/block/dirt.png");
 
-            let t = Texture::new(&path);
+            let t = Texture::new(&path, 0);
             DEFAULT_TEXTURE_ID = t.id;
             DEFAULT_TEXTURE_SIZE = t.size;
             t
