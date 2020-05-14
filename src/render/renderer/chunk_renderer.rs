@@ -1,3 +1,4 @@
+use crate::input::KeyboardHandler;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
@@ -9,6 +10,7 @@ use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
 use gl::types::GLint;
+use glutin::event::VirtualKeyCode;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
@@ -28,6 +30,7 @@ pub struct ChunkRenderer {
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     block_registry: BlockRegistry,
+    pub render_distance: usize,
 }
 
 impl ChunkRenderer {
@@ -146,17 +149,30 @@ impl ChunkRenderer {
             textures,
             meshes: HashMap::new(),
             block_registry,
+            render_distance: LOAD_DISTANCE as usize,
         }
     }
 
-    pub fn update(&mut self, world: &World) {
-        // remove unloaded chunks' meshes
-        self.meshes
-            .retain(|coords, _| world.chunks.contains_key(coords));
+    pub fn update(&mut self, world: &World, player: Vector3, keyboard: &KeyboardHandler) {
+        if keyboard.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
+            self.render_distance -= 1;
+        }
+        if keyboard.just_pressed(VirtualKeyCode::K) {
+            self.render_distance += 1;
+        }
+
+        let player_chunk = ChunkGridCoordinate::from_world_coordinate(player);
+        let render = Some(self.render_distance);
+        // remove unloaded or faraway chunks' meshes
+        self.meshes.retain(|coords, _| {
+            world.chunks.contains_key(coords) && player_chunk.manhattan_distance(*coords) < render
+        });
 
         // add new loaded chunk's meshes
         for coords in world.chunks.keys() {
-            if !self.meshes.contains_key(&coords) {
+            if !self.meshes.contains_key(&coords)
+                && player_chunk.manhattan_distance(*coords) < render
+            {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
@@ -176,7 +192,7 @@ impl ChunkRenderer {
             .set_uniform_v3("camera_position", camera.position());
         self.program.set_uniform_v3("fog_color", FOG);
         self.program
-            .set_uniform_u32("render_distance", LOAD_DISTANCE as u32);
+            .set_uniform_u32("render_distance", self.render_distance as u32);
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
