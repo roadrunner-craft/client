@@ -165,13 +165,24 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, world: &World) {
-        // remove unloaded chunks' meshes
-        self.meshes
-            .retain(|coords, _| world.chunks.contains_key(coords));
+        // find newly generated chunks
+        let new_chunks = world
+            .chunks
+            .keys()
+            .filter(|coords| !self.meshes.contains_key(coords))
+            .collect::<Vec<&ChunkGridCoordinate>>();
 
-        // add new loaded chunk's meshes
-        for coords in world.chunks.keys() {
-            if !self.meshes.contains_key(&coords) {
+        // remove unloaded chunk and new chunks neighbour
+        self.meshes.retain(|coords, _| {
+            world.chunks.contains_key(coords)
+                && new_chunks
+                    .iter()
+                    .all(|other| !ChunkGridCoordinate::are_neighbours(coords, other))
+        });
+
+        // generate missing geometry for loaded chunks
+        for (coords, _) in world.chunks.iter() {
+            if !self.meshes.contains_key(coords) {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
