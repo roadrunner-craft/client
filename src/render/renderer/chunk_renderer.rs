@@ -30,7 +30,7 @@ pub struct ChunkRenderer {
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     block_registry: BlockRegistry,
-    pub render_distance: usize,
+    pub render_distance: u8,
 }
 
 impl ChunkRenderer {
@@ -149,7 +149,7 @@ impl ChunkRenderer {
             textures,
             meshes: HashMap::new(),
             block_registry,
-            render_distance: LOAD_DISTANCE as usize,
+            render_distance: LOAD_DISTANCE,
         }
     }
 
@@ -157,12 +157,12 @@ impl ChunkRenderer {
         if keyboard.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
             self.render_distance -= 1;
         }
-        if keyboard.just_pressed(VirtualKeyCode::K) {
+        if keyboard.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
             self.render_distance += 1;
         }
 
         let player_chunk = ChunkGridCoordinate::from_world_coordinate(player_position);
-        let render = Some(self.render_distance);
+        let render = Some(self.render_distance as usize);
         // remove unloaded or faraway chunks' meshes
         self.meshes.retain(|coords, _| {
             world.chunks.contains_key(coords) && player_chunk.manhattan_distance(*coords) < render
