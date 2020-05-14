@@ -80,6 +80,7 @@ fn main() {
             world.load_around(vec![player.position()]);
             renderer.update(&world);
             input_handler.clear_cursor_delta();
+            input_handler.clear_keyboard_state();
             display.request_redraw();
         }
         Event::RedrawRequested(_) => {
