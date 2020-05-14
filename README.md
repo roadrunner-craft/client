@@ -1,4 +1,4 @@
-# roadrunner
+# roadrunner ![Rust](https://github.com/roadrunner-craft/client/workflows/Rust/badge.svg)
 
 Yet another blocky game :)
 
