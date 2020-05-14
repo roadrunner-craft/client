@@ -12,7 +12,7 @@ extern crate math;
 extern crate serde;
 extern crate serde_json;
 
-use crate::input::InputHandler;
+use crate::input::{CursorHandler, KeyboardHandler};
 use crate::player::Player;
 use crate::render::renderer::Renderer;
 use crate::render::Display;
@@ -30,7 +30,8 @@ fn main() {
 
     let display = Display::new(PKG_NAME, &event_loop);
     let mut renderer = Renderer::default();
-    let mut input_handler = InputHandler::default();
+    let mut keyboard_handler = KeyboardHandler::default();
+    let mut cursor_handler = CursorHandler::default();
 
     let mut world = World::new();
     let mut player = Player::new(WorldCoordinate {
@@ -58,12 +59,12 @@ fn main() {
                     .camera
                     .set_aspect_ratio(new_inner_size.width as f32 / new_inner_size.height as f32);
             }
-            WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
+            WindowEvent::KeyboardInput { input, .. } => keyboard_handler.process(input),
             WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
             _ => (),
         },
         Event::DeviceEvent { event, .. } => match event {
-            DeviceEvent::MouseMotion { delta } => input_handler.process_cursor(delta),
+            DeviceEvent::MouseMotion { delta } => cursor_handler.process(delta),
             _ => (),
         },
         Event::MainEventsCleared => {
@@ -76,11 +77,11 @@ fn main() {
                 last_fps_update = Instant::now();
             }
 
-            player.update(time_delta, &input_handler);
+            player.update(time_delta, &keyboard_handler, &cursor_handler);
             world.load_around(vec![player.position()]);
             renderer.update(&world);
-            input_handler.clear_cursor_delta();
-            input_handler.clear_keyboard_state();
+            keyboard_handler.clear_state();
+            cursor_handler.clear_delta();
             display.request_redraw();
         }
         Event::RedrawRequested(_) => {
