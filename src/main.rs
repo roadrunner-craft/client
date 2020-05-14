@@ -1,7 +1,7 @@
+mod game;
 mod input;
-mod player;
+mod ops;
 mod render;
-mod texture;
 mod utils;
 
 extern crate core;
@@ -12,8 +12,8 @@ extern crate math;
 extern crate serde;
 extern crate serde_json;
 
+use crate::game::Player;
 use crate::input::InputHandler;
-use crate::player::Player;
 use crate::render::display::Display;
 use crate::render::renderer::Renderer;
 
@@ -29,7 +29,8 @@ fn main() {
     let event_loop = EventLoop::new();
 
     let display = Display::new(PKG_NAME, &event_loop);
-    let mut renderer = Renderer::new();
+    let size = display.size();
+    let mut renderer = Renderer::new(size.0, size.1);
     let mut input_handler = InputHandler::default();
 
     let mut world = World::new();

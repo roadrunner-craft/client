@@ -8,9 +8,9 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Self {
+    pub fn new(width: usize, height: usize) -> Self {
         Self {
-            chunk_renderer: ChunkRenderer::new(),
+            chunk_renderer: ChunkRenderer::new(width, height),
         }
     }
 
