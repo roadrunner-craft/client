@@ -144,8 +144,7 @@ impl ChunkRenderer {
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
         let mut pipeline = PostProcessingPipeline::new(width, height);
-        pipeline.add(PostProcessingEffectType::StaticWave);
-        pipeline.add(PostProcessingEffectType::Inverted);
+        pipeline.add(PostProcessingEffectType::Identity);
 
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
