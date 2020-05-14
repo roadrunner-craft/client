@@ -11,8 +11,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn update(&mut self, world: &World, player: Vector3, keyboard: &KeyboardHandler) {
-        self.chunk_renderer.update(world, player, keyboard);
+    pub fn update(&mut self, world: &World, player_position: Vector3, keyboard: &KeyboardHandler) {
+        self.chunk_renderer.update(world, player_position, keyboard);
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {

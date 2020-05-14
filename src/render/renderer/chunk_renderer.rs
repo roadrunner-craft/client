@@ -153,7 +153,7 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn update(&mut self, world: &World, player: Vector3, keyboard: &KeyboardHandler) {
+    pub fn update(&mut self, world: &World, player_position: Vector3, keyboard: &KeyboardHandler) {
         if keyboard.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
             self.render_distance -= 1;
         }
@@ -161,7 +161,7 @@ impl ChunkRenderer {
             self.render_distance += 1;
         }
 
-        let player_chunk = ChunkGridCoordinate::from_world_coordinate(player);
+        let player_chunk = ChunkGridCoordinate::from_world_coordinate(player_position);
         let render = Some(self.render_distance);
         // remove unloaded or faraway chunks' meshes
         self.meshes.retain(|coords, _| {
