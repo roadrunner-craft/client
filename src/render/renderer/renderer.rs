@@ -1,5 +1,7 @@
+use crate::input::KeyboardHandler;
 use crate::render::camera::Camera;
 use crate::render::renderer::ChunkRenderer;
+use math::vector::Vector3;
 
 use core::world::World;
 
@@ -9,8 +11,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn update(&mut self, world: &World) {
-        self.chunk_renderer.update(world);
+    pub fn update(&mut self, world: &World, player: Vector3, keyboard: &KeyboardHandler) {
+        self.chunk_renderer.update(world, player, keyboard);
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {

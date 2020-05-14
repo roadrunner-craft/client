@@ -79,7 +79,7 @@ fn main() {
 
             player.update(time_delta, &keyboard_handler, &cursor_handler);
             world.load_around(vec![player.position()]);
-            renderer.update(&world);
+            renderer.update(&world, player.position(), &keyboard_handler);
             keyboard_handler.clear_state();
             cursor_handler.clear_delta();
             display.request_redraw();
