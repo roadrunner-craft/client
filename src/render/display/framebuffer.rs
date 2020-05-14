@@ -1,4 +1,4 @@
-use crate::ops::{Bindable, Drawable};
+use crate::ops::Bindable;
 use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizei, GLuint};
@@ -107,12 +107,6 @@ impl FrameBuffer {
         unsafe {
             gl::Clear(bits);
         }
-    }
-
-    pub fn draw<D: Drawable>(&self, drawable: &D) {
-        self.bind();
-        drawable.draw();
-        self.unbind();
     }
 
     pub fn unit(&self) -> GLuint {

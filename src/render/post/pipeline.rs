@@ -1,9 +1,10 @@
-use crate::ops::Bindable;
+use crate::ops::{Bindable, Drawable};
 use crate::render::display::FrameBuffer;
 use crate::render::mesh::TextureQuad;
 use crate::render::post::effects::*;
 use crate::render::post::PostProcessingEffect;
 
+#[allow(dead_code)]
 pub enum PostProcessingEffectType {
     Identity,
     StaticWave,
@@ -68,7 +69,7 @@ impl PostProcessingPipeline {
             source.bind_texture();
             target.bind();
             target.clear(true, false, false);
-            target.draw(&self.quad);
+            self.quad.draw();
         }
     }
 }
