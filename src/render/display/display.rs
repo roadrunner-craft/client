@@ -39,6 +39,11 @@ impl Display {
         Display { context }
     }
 
+    pub fn size(&self) -> (usize, usize) {
+        let size = self.context.window().inner_size();
+        (size.width as usize, size.height as usize)
+    }
+
     pub fn resize(&self, size: PhysicalSize<u32>) {
         self.context.resize(size);
     }

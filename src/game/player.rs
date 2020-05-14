@@ -3,7 +3,6 @@ use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
-use math::transform::Transform;
 use math::vector::Vector3;
 
 const SPEED: f64 = 20.0;

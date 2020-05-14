@@ -5,12 +5,17 @@ use math::vector::Vector3;
 
 use core::world::World;
 
-#[derive(Default)]
 pub struct Renderer {
     chunk_renderer: ChunkRenderer,
 }
 
 impl Renderer {
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
+            chunk_renderer: ChunkRenderer::new(width, height),
+        }
+    }
+
     pub fn update(&mut self, world: &World, player_position: Vector3, input: &InputHandler) {
         self.chunk_renderer.update(world, player_position, input);
     }
