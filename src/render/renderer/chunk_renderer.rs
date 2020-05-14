@@ -3,9 +3,7 @@ use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
 use crate::render::display::FrameBuffer;
 use crate::render::mesh::chunk_mesh::ChunkMesh;
-use crate::render::post::{
-    IdentityPostProcessing, PostProcessingEffectType, PostProcessingPipeline,
-};
+use crate::render::post::{PostProcessingEffectType, PostProcessingPipeline};
 use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 
@@ -146,7 +144,8 @@ impl ChunkRenderer {
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
         let mut pipeline = PostProcessingPipeline::new(width, height);
-        pipeline.add(PostProcessingEffectType::Identity);
+        pipeline.add(PostProcessingEffectType::StaticWave);
+        pipeline.add(PostProcessingEffectType::Inverted);
 
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {

@@ -61,30 +61,19 @@ impl FrameBuffer {
             );
 
             if depth_buffer {
-                gl::GenTextures(1, &mut depth);
-                gl::BindTexture(gl::TEXTURE_2D, depth);
-
-                gl::TexImage2D(
-                    gl::TEXTURE_2D,
-                    0,
-                    gl::DEPTH_COMPONENT24 as GLint,
+                gl::GenRenderbuffers(1, &mut depth);
+                gl::BindRenderbuffer(gl::RENDERBUFFER, depth);
+                gl::RenderbufferStorage(
+                    gl::RENDERBUFFER,
+                    gl::DEPTH_COMPONENT,
                     width as GLsizei,
                     height as GLsizei,
-                    0,
-                    gl::DEPTH_COMPONENT as GLuint,
-                    gl::FLOAT,
-                    ptr::null(),
                 );
-
-                gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as GLint);
-                gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as GLint);
-
-                gl::FramebufferTexture2D(
+                gl::FramebufferRenderbuffer(
                     gl::FRAMEBUFFER,
                     gl::DEPTH_ATTACHMENT,
-                    gl::TEXTURE_2D,
+                    gl::RENDERBUFFER,
                     depth,
-                    0,
                 );
             }
 
@@ -126,12 +115,15 @@ impl FrameBuffer {
         self.unbind();
     }
 
-    pub fn texture(&self) -> GLuint {
-        self.texture
-    }
-
     pub fn unit(&self) -> GLuint {
         self.unit
+    }
+
+    pub fn bind_texture(&self) {
+        unsafe {
+            gl::ActiveTexture(gl::TEXTURE0 + self.unit);
+            gl::BindTexture(gl::TEXTURE_2D, self.texture);
+        }
     }
 }
 

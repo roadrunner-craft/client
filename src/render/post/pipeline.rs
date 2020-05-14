@@ -1,8 +1,13 @@
+use crate::ops::Bindable;
 use crate::render::display::FrameBuffer;
-use crate::render::post::*;
+use crate::render::mesh::TextureQuad;
+use crate::render::post::effects::*;
+use crate::render::post::PostProcessingEffect;
 
 pub enum PostProcessingEffectType {
     Identity,
+    StaticWave,
+    Inverted,
 }
 
 pub struct PostProcessingPipeline {
@@ -10,6 +15,7 @@ pub struct PostProcessingPipeline {
     screen: FrameBuffer,
     swap1: FrameBuffer,
     swap2: FrameBuffer,
+    quad: TextureQuad,
 }
 
 impl PostProcessingPipeline {
@@ -19,13 +25,16 @@ impl PostProcessingPipeline {
             swap1: FrameBuffer::new(width, height, 2, false),
             swap2: FrameBuffer::new(width, height, 1, false),
             screen: FrameBuffer::empty(),
+            quad: TextureQuad::new(),
         }
     }
 
     pub fn add(&mut self, effect: PostProcessingEffectType) {
-        self.effects.push(Box::new(match effect {
-            Identity => IdentityPostProcessing::new(),
-        }));
+        self.effects.push(match effect {
+            PostProcessingEffectType::Identity => Box::new(IdentityPostProcessing::new()),
+            PostProcessingEffectType::StaticWave => Box::new(StaticWavePostProcessing::new()),
+            PostProcessingEffectType::Inverted => Box::new(InvertedPostProcessing::new()),
+        });
     }
 
     pub fn apply(&self, input: &FrameBuffer) {
@@ -54,7 +63,12 @@ impl PostProcessingPipeline {
                 target = &self.screen;
             }
 
-            self.effects[i].apply(source, target);
+            self.effects[i].prepare(source);
+
+            source.bind_texture();
+            target.bind();
+            target.clear(true, false, false);
+            target.draw(&self.quad);
         }
     }
 }

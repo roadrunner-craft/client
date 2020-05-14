@@ -1,14 +1,15 @@
 use crate::render::display::FrameBuffer;
-use crate::render::mesh::TextureQuad;
 use crate::render::post::PostProcessingEffect;
 use crate::render::shaders::ShaderProgram;
 
-pub struct IdentityPostProcessing {
+use std::time::Instant;
+
+pub struct StaticWavePostProcessing {
     program: ShaderProgram,
-    quad: TextureQuad,
+    time: Instant,
 }
 
-impl IdentityPostProcessing {
+impl StaticWavePostProcessing {
     pub fn new() -> Self {
         let vertex_src: &'static str = r#"
             #version 410 core
@@ -31,16 +32,19 @@ impl IdentityPostProcessing {
             out vec4 color;
 
             uniform sampler2D input_texture;
+            uniform float offset;
 
             void main() {
-                color = texture(input_texture, pass_uv);
+                vec2 uv = pass_uv;
+                uv.x += sin(uv.y * 8.0 * 3.14159 + offset) / 100.0;
+                color = texture(input_texture, uv);
             }
         "#;
 
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
-                quad: TextureQuad::new(),
+                time: Instant::now(),
             },
             Err(err) => panic!(
                 "<post> could not compile shaders in {}: \n\n{}\n",
@@ -51,13 +55,14 @@ impl IdentityPostProcessing {
     }
 }
 
-impl PostProcessingEffect for IdentityPostProcessing {
-    fn apply(&self, src: &FrameBuffer, dst: &FrameBuffer) {
+impl PostProcessingEffect for StaticWavePostProcessing {
+    fn prepare(&self, src: &FrameBuffer) {
         self.program.use_program();
         self.program
             .set_uniform_texture("input_texture", src.unit());
-
-        dst.clear(true, false, false);
-        dst.draw(&self.quad);
+        self.program.set_uniform_float(
+            "offset",
+            self.time.elapsed().as_secs_f32() * 2.0 * 3.14159 * 0.75,
+        );
     }
 }

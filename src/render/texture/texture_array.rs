@@ -1,5 +1,4 @@
 use crate::ops::Bindable;
-use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -61,10 +60,6 @@ impl TextureArray {
         Self { id, size, unit }
     }
 
-    pub fn id(&self) -> GLuint {
-        self.id
-    }
-
     pub fn add_file(&self, path: &Path, layer: u32) {
         if let Some(path) = path.to_str() {
             match image::open(path) {
@@ -112,14 +107,6 @@ impl TextureArray {
 
     pub fn unit(&self) -> GLuint {
         self.unit
-    }
-}
-
-impl Identifiable for TextureArray {
-    type Id = gl::types::GLuint;
-
-    fn id(&self) -> Self::Id {
-        self.id
     }
 }
 

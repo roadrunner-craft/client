@@ -1,5 +1,4 @@
 use crate::ops::Bindable;
-use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
@@ -79,14 +78,6 @@ impl Texture {
 
     fn unit(&self) -> GLuint {
         self.unit
-    }
-}
-
-impl Identifiable for Texture {
-    type Id = gl::types::GLuint;
-
-    fn id(&self) -> Self::Id {
-        self.id
     }
 }
 

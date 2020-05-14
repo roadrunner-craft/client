@@ -35,10 +35,10 @@ impl TextureQuad {
         let indices = vec![0, 3, 1, 1, 3, 2];
 
         let uvs = vec![
-            Vector2 { x: 0.0, y: 0.0 },
-            Vector2 { x: 1.0, y: 0.0 },
-            Vector2 { x: 1.0, y: 1.0 },
             Vector2 { x: 0.0, y: 1.0 },
+            Vector2 { x: 1.0, y: 1.0 },
+            Vector2 { x: 1.0, y: 0.0 },
+            Vector2 { x: 0.0, y: 0.0 },
         ];
 
         let mut mesh = Mesh::new(&vertices, &indices);
