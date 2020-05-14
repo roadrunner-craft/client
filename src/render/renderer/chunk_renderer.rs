@@ -157,7 +157,7 @@ impl ChunkRenderer {
 
         // generate missing geometry for loaded chunks
         for coords in world.chunk_updates.iter() {
-            let chunk_group = world.get_chunk_group(*coords);
+            let chunk_group = world.chunk_group(*coords);
             if let Some(mesh) = ChunkMesh::generate(&chunk_group, &self.block_registry) {
                 self.meshes.insert(*coords, mesh);
             }
