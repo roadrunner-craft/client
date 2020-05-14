@@ -15,7 +15,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::ptr;
-use std::vec::Vec;
 
 const TEXTURE_RESOLUTION: u32 = 16;
 const FOG: Vector3 = Vector3 {
