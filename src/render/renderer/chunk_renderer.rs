@@ -169,7 +169,7 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, world: &World, player_position: Vector3, input: &InputHandler) {
-        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
+        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > 2 {
             self.render_distance -= 1;
         }
         if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
@@ -189,16 +189,17 @@ impl ChunkRenderer {
         // remove unloaded chunk and new chunks neighbour
         self.meshes.retain(|coords, _| {
             world.chunks.contains_key(coords)
+                && player_chunk.manhattan_distance(*coords) < render
                 && new_chunks
                     .iter()
                     .all(|other| !ChunkGridCoordinate::are_neighbours(coords, other))
         });
 
-        println!("meshes.len() => {}", self.meshes.len());
-
         // generate missing geometry for loaded chunks
         for coords in world.chunks.keys() {
-            if !self.meshes.contains_key(coords) {
+            if !self.meshes.contains_key(coords)
+                && player_chunk.manhattan_distance(*coords) < render
+            {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
