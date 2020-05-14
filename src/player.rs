@@ -1,9 +1,9 @@
-use crate::input::CursorHandler;
-use crate::input::KeyboardHandler;
+use crate::input::InputHandler;
 use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
+use math::transform::Transform;
 use math::vector::Vector3;
 
 const SPEED: f64 = 20.0;
@@ -25,6 +25,8 @@ impl Player {
         p
     }
 
+    pub fn init(&self, input_handler: InputHandler) {}
+
     fn set_position(&mut self, position: WorldCoordinate) {
         self.camera.set_position(position);
     }
@@ -33,8 +35,8 @@ impl Player {
         self.camera.position()
     }
 
-    pub fn update(&mut self, time_delta: f64, keyboard: &KeyboardHandler, cursor: &CursorHandler) {
-        let cursor_delta = cursor.get_delta();
+    pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
+        let cursor_delta = input.get_cursor_delta();
         let camera_delta = Vector3 {
             x: cursor_delta.y as f32,
             y: cursor_delta.x as f32,
@@ -56,27 +58,27 @@ impl Player {
         let mut yaxis = 0.0;
         let mut zaxis = 0.0;
 
-        if keyboard.is_pressed(VirtualKeyCode::W) {
+        if input.is_key_pressed(VirtualKeyCode::W) {
             zaxis += 1.0;
         }
 
-        if keyboard.is_pressed(VirtualKeyCode::S) {
+        if input.is_key_pressed(VirtualKeyCode::S) {
             zaxis -= 1.0;
         }
 
-        if keyboard.is_pressed(VirtualKeyCode::A) {
+        if input.is_key_pressed(VirtualKeyCode::A) {
             xaxis -= 1.0;
         }
 
-        if keyboard.is_pressed(VirtualKeyCode::D) {
+        if input.is_key_pressed(VirtualKeyCode::D) {
             xaxis += 1.0;
         }
 
-        if keyboard.is_pressed(VirtualKeyCode::Space) {
+        if input.is_key_pressed(VirtualKeyCode::Space) {
             yaxis += 1.0;
         }
 
-        if keyboard.is_pressed(VirtualKeyCode::LShift) {
+        if input.is_key_pressed(VirtualKeyCode::LShift) {
             yaxis -= 1.0;
         }
 
