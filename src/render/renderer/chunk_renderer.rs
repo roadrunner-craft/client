@@ -1,20 +1,20 @@
+use crate::game::TextureDatabase;
+use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
-use crate::render::models::chunk_mesh::ChunkMesh;
-use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
+use crate::render::display::FrameBuffer;
+use crate::render::mesh::chunk_mesh::ChunkMesh;
+use crate::render::post::{PostProcessingEffectType, PostProcessingPipeline};
+use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
-use crate::texture::TextureDatabase;
-use crate::utils::Bindable;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
-use gl::types::GLint;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::ptr;
 
 const TEXTURE_RESOLUTION: u32 = 16;
 const FOG: Vector3 = Vector3 {
@@ -28,10 +28,12 @@ pub struct ChunkRenderer {
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     block_registry: BlockRegistry,
+    post: PostProcessingPipeline,
+    buffer: FrameBuffer,
 }
 
 impl ChunkRenderer {
-    pub fn new() -> Self {
+    pub fn new(width: usize, height: usize) -> Self {
         let vertex_src: &'static str = r#"
             #version 410 core
 
@@ -65,7 +67,6 @@ impl ChunkRenderer {
                 gl_Position = projection_view * vec4(world_position, 1.0);
             }
         "#;
-        let vertex = VertexShader::compile(vertex_src).unwrap();
 
         let fragment_src: &'static str = r#"
             #version 410 core
@@ -76,6 +77,7 @@ impl ChunkRenderer {
             flat in uint texture_id;
 
             out vec4 color;
+            //layout(location = 0) out vec4 color;
 
             uniform sampler2DArray diffuse_textures;
             uniform vec3 camera_position;
@@ -94,7 +96,7 @@ impl ChunkRenderer {
                 float fog = (distance - fog_min) / (fog_max - fog_min);
                 fog = max(0.0, min(fog, 1.0));
 
-                return (1.0 - fog) * diffuse + fog * vec4(fog_color, 1.0);
+                return (1.0 - fog) * diffuse + fog * vec4(fog_color, diffuse.a);
             }
 
             void main() {
@@ -119,14 +121,14 @@ impl ChunkRenderer {
 
                 color = apply_fog(get_color(texture_id - 1));
 
-                if (color.a < 0.01)
+                if (color.a < 0.01) {
                     discard;
                 }
+            }
         "#;
-        let fragment = FragmentShader::compile(fragment_src).unwrap();
 
         let database = TextureDatabase::new();
-        let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32);
+        let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
 
         for (i, file) in database.iter() {
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -141,11 +143,24 @@ impl ChunkRenderer {
             fs::read_to_string(path).expect("<block_database> Could not read data from file");
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
-        Self {
-            program: ShaderProgram::create_and_link(vertex, fragment).unwrap(),
-            textures,
-            meshes: HashMap::new(),
-            block_registry,
+        let mut pipeline = PostProcessingPipeline::new(width, height);
+        pipeline.add(PostProcessingEffectType::Identity);
+
+        match ShaderProgram::new(vertex_src, fragment_src) {
+            Ok(program) => Self {
+                program,
+                textures,
+                meshes: HashMap::new(),
+                block_registry,
+                post: pipeline,
+                buffer: FrameBuffer::new(width, height, 1, true),
+            },
+            Err(err) => {
+                panic!(
+                    "<chunk-renderer> could not compile the shader program:\n\n{}\n",
+                    err
+                );
+            }
         }
     }
 
@@ -167,11 +182,11 @@ impl ChunkRenderer {
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {
-        self.program.enable();
+        self.program.use_program();
         self.program
             .set_uniform_m4("projection_view", camera.projection_view());
         self.program
-            .set_uniform_texture("diffuse_textures", self.textures.id());
+            .set_uniform_texture("diffuse_textures", self.textures.unit());
         self.program
             .set_uniform_v3("camera_position", camera.position());
         self.program.set_uniform_v3("fog_color", FOG);
@@ -183,6 +198,8 @@ impl ChunkRenderer {
             gl::Enable(gl::CULL_FACE);
 
             self.textures.bind();
+            self.buffer.bind();
+            self.buffer.clear(true, true, false);
 
             for (coords, mesh) in self.meshes.iter() {
                 let position = Vector2 {
@@ -205,29 +222,10 @@ impl ChunkRenderer {
 
                 self.program.set_uniform_v2("chunk_position", position);
 
-                mesh.bind();
-
-                gl::DrawElements(
-                    gl::TRIANGLES,
-                    mesh.index_count() as GLint,
-                    gl::UNSIGNED_INT,
-                    ptr::null(),
-                );
-
-                mesh.unbind();
+                mesh.draw();
             }
+
+            self.post.apply(&self.buffer);
         }
-    }
-}
-
-impl Default for ChunkRenderer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Drop for ChunkRenderer {
-    fn drop(&mut self) {
-        self.program.delete();
     }
 }
