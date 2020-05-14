@@ -8,170 +8,44 @@ use gl::types::GLuint;
 use math::vector::Vector3;
 
 struct Face {
-    vertices: [Vector3; 4],
+    vertices: [[u8; 3]; 4],
     light: u8,
 }
 
 const FRONT_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-    ],
+    vertices: [[0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]],
     light: 2,
 };
 
 const BACK_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-    ],
+    vertices: [[1, 1, 1], [0, 1, 1], [0, 0, 1], [1, 0, 1]],
     light: 2,
 };
 
 const RIGHT_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-    ],
+    vertices: [[1, 1, 0], [1, 1, 1], [1, 0, 1], [1, 0, 0]],
     light: 1,
 };
 
 const LEFT_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-    ],
+    vertices: [[0, 1, 1], [0, 1, 0], [0, 0, 0], [0, 0, 1]],
     light: 1,
 };
 
 const TOP_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 1.0,
-            z: -0.5,
-        },
-    ],
+    vertices: [[0, 1, 1], [1, 1, 1], [1, 1, 0], [0, 1, 0]],
     light: 3,
 };
 
 const BOTTOM_FACE: Face = Face {
-    vertices: [
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: -0.5,
-        },
-        Vector3 {
-            x: 0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-        Vector3 {
-            x: -0.5,
-            y: 0.0,
-            z: 0.5,
-        },
-    ],
+    vertices: [[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]],
     light: 0,
 };
 
 #[derive(Default)]
 pub struct ChunkMesh {
     model: Option<Model>,
-    vertices: Vec<Vector3>,
+    vertices: Vec<[u8; 3]>,
     vertices_info: Vec<GLuint>,
     vertex_count: GLuint,
     indices: Vec<GLuint>,
@@ -180,7 +54,11 @@ pub struct ChunkMesh {
 impl ChunkMesh {
     fn add_face(&mut self, face: Face, position: Vector3, texture_id: u8) {
         for i in 0..4 {
-            self.vertices.push(face.vertices[i] + position);
+            let mut x = face.vertices[i];
+            x[0] += position.x as u8;
+            x[1] += position.y as u8;
+            x[2] += position.z as u8;
+            self.vertices.push(x);
 
             let info: GLuint = (texture_id as GLuint) << 4
                 | ((face.light & 0b11) << 2) as GLuint

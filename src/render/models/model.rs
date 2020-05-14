@@ -15,7 +15,7 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Model {
+    pub fn new(vertices: &Vec<[u8; 3]>, indices: &Vec<GLuint>) -> Model {
         let mut model = Model {
             vao: 0,
             vbo_count: 0,

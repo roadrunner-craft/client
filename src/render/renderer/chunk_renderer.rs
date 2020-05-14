@@ -36,7 +36,7 @@ impl ChunkRenderer {
         let vertex_src: &'static str = r#"
             #version 410 core
 
-            layout (location=0) in vec3 position;
+            layout (location=0) in uvec3 position;
             layout (location=1) in uint info;
 
             out vec3 world_position;
@@ -62,6 +62,7 @@ impl ChunkRenderer {
                 texture_id = info >> 4u;
 
                 world_position = vec3(chunk_position.x, 0, chunk_position.y) + position;
+                world_position = vec3(world_position.x - 0.5, world_position.y, world_position.z - 0.5);
                 
                 gl_Position = projection_view * vec4(world_position, 1.0);
             }
