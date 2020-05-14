@@ -170,7 +170,7 @@ const BOTTOM_FACE: Face = Face {
 
 #[derive(Default)]
 pub struct ChunkMesh {
-    model: Option<Model>,
+    model: Model,
     vertices: Vec<Vector3>,
     vertices_info: Vec<GLuint>,
     vertex_count: GLuint,
@@ -199,11 +199,7 @@ impl ChunkMesh {
     }
 
     pub fn index_count(&self) -> usize {
-        if let Some(ref model) = self.model {
-            return model.index_count();
-        } else {
-            return 0;
-        }
+        self.model.index_count()
     }
 
     pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> Option<ChunkMesh> {
@@ -264,8 +260,8 @@ impl ChunkMesh {
         }
 
         if !mesh.vertices.is_empty() {
-            mesh.model = Some(Model::new(&mesh.vertices, &mesh.indices));
-            mesh.model.as_mut().unwrap().add_vbo(&mesh.vertices_info);
+            mesh.model = Model::new(&mesh.vertices, &mesh.indices);
+            mesh.model.add_vbo(&mesh.vertices_info);
         }
         Some(mesh)
     }
@@ -273,14 +269,10 @@ impl ChunkMesh {
 
 impl Bindable for ChunkMesh {
     fn bind(&self) {
-        if let Some(ref model) = self.model {
-            model.bind();
-        }
+        self.model.bind();
     }
 
     fn unbind(&self) {
-        if let Some(ref model) = self.model {
-            model.unbind();
-        }
+        self.model.unbind();
     }
 }

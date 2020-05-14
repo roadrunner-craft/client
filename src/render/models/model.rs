@@ -6,7 +6,7 @@ use std::mem;
 use std::ptr;
 use std::vec::Vec;
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Model {
     vao: GLuint,
     vbo_count: GLuint,
