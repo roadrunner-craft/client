@@ -1,4 +1,4 @@
-use crate::input::KeyboardHandler;
+use crate::input::InputHandler;
 use crate::render::camera::Camera;
 use crate::render::models::chunk_mesh::ChunkMesh;
 use crate::render::shaders::{FragmentShader, ShaderProgram, VertexShader};
@@ -153,11 +153,11 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn update(&mut self, world: &World, player_position: Vector3, keyboard: &KeyboardHandler) {
-        if keyboard.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
+    pub fn update(&mut self, world: &World, player_position: Vector3, input: &InputHandler) {
+        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > 3 {
             self.render_distance -= 1;
         }
-        if keyboard.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
+        if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
             self.render_distance += 1;
         }
 

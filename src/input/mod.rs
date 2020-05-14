@@ -1,6 +1,6 @@
 mod cursor;
 mod input_handler;
-pub mod keyboard;
+mod keyboard;
 
 pub use self::cursor::CursorDelta;
 pub use self::cursor::CursorHandler;
