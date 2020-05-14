@@ -206,7 +206,7 @@ impl ChunkMesh {
         }
     }
 
-    pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> ChunkMesh {
+    pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> Option<ChunkMesh> {
         let mut mesh = ChunkMesh::default();
 
         for x in 0..CHUNK_WIDTH {
@@ -216,7 +216,7 @@ impl ChunkMesh {
                     let y = y as i16;
                     let z = z as i8;
 
-                    let block = chunks.get_block(x, y, z).unwrap();
+                    let block = chunks.get_block(x, y, z)?;
 
                     if block.id == 0 {
                         continue;
@@ -230,32 +230,32 @@ impl ChunkMesh {
                         };
 
                         let mut block = chunks.get_block(x, y, z - 1);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(FRONT_FACE, position, properties.texture.front);
                         }
 
                         block = chunks.get_block(x, y, z + 1);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(BACK_FACE, position, properties.texture.back);
                         }
 
                         block = chunks.get_block(x - 1, y, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(LEFT_FACE, position, properties.texture.left);
                         }
 
                         block = chunks.get_block(x + 1, y, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(RIGHT_FACE, position, properties.texture.right);
                         }
 
                         block = chunks.get_block(x, y + 1, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(TOP_FACE, position, properties.texture.top);
                         }
 
                         block = chunks.get_block(x, y - 1, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_database.is_opaque(block?.id) {
                             mesh.add_face(BOTTOM_FACE, position, properties.texture.bottom);
                         }
                     }
@@ -267,7 +267,7 @@ impl ChunkMesh {
             mesh.model = Some(Model::new(&mesh.vertices, &mesh.indices));
             mesh.model.as_mut().unwrap().add_vbo(&mesh.vertices_info);
         }
-        mesh
+        Some(mesh)
     }
 }
 
