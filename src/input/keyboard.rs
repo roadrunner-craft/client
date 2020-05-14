@@ -53,7 +53,7 @@ impl KeyboardHandler {
     }
 
     /// to call at the end of each gameloop
-    pub fn clear_state(&mut self) {
+    pub fn clear_keyboard_state(&mut self) {
         self.pressed_last_frame.clear();
         self.released_last_frame.clear()
     }

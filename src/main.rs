@@ -12,7 +12,7 @@ extern crate math;
 extern crate serde;
 extern crate serde_json;
 
-use crate::input::{CursorHandler, KeyboardHandler};
+use crate::input::InputHandler;
 use crate::player::Player;
 use crate::render::renderer::Renderer;
 use crate::render::Display;
@@ -30,8 +30,7 @@ fn main() {
 
     let display = Display::new(PKG_NAME, &event_loop);
     let mut renderer = Renderer::default();
-    let mut keyboard_handler = KeyboardHandler::default();
-    let mut cursor_handler = CursorHandler::default();
+    let mut input_handler = InputHandler::default();
 
     let mut world = World::new();
     let mut player = Player::new(WorldCoordinate {
@@ -59,12 +58,12 @@ fn main() {
                     .camera
                     .set_aspect_ratio(new_inner_size.width as f32 / new_inner_size.height as f32);
             }
-            WindowEvent::KeyboardInput { input, .. } => keyboard_handler.process(input),
+            WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
             WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
             _ => (),
         },
         Event::DeviceEvent { event, .. } => match event {
-            DeviceEvent::MouseMotion { delta } => cursor_handler.process(delta),
+            DeviceEvent::MouseMotion { delta } => input_handler.process_cursor(delta),
             _ => (),
         },
         Event::MainEventsCleared => {
@@ -77,11 +76,11 @@ fn main() {
                 last_fps_update = Instant::now();
             }
 
-            player.update(time_delta, &keyboard_handler, &cursor_handler);
+            player.update(time_delta, &input_handler);
             world.load_around(vec![player.position()]);
-            renderer.update(&world, player.position(), &keyboard_handler);
-            keyboard_handler.clear_state();
-            cursor_handler.clear_delta();
+            renderer.update(&world, player.position(), &input_handler);
+            input_handler.clear_cursor_delta();
+            input_handler.clear_keyboard_state();
             display.request_redraw();
         }
         Event::RedrawRequested(_) => {
