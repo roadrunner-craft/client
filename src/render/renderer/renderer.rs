@@ -9,8 +9,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn update(&mut self, world: &World) {
-        self.chunk_renderer.update(world);
+    pub async fn update(&mut self, world: &World) {
+        self.chunk_renderer.update(world).await;
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {

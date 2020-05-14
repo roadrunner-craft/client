@@ -206,7 +206,7 @@ impl ChunkMesh {
         }
     }
 
-    pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> ChunkMesh {
+    pub async fn generate(chunks: &ChunkGroup<'_>, block_database: &BlockRegistry) -> ChunkMesh {
         let mut mesh = ChunkMesh::default();
 
         for x in 0..CHUNK_WIDTH {

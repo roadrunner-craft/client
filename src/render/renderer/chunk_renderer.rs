@@ -150,7 +150,7 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn update(&mut self, world: &World) {
+    pub async fn update(&mut self, world: &World) {
         // find newly generated chunks
         let new_chunks = world
             .chunks
@@ -172,7 +172,7 @@ impl ChunkRenderer {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
-                    ChunkMesh::generate(&chunk_group, &self.block_registry),
+                    ChunkMesh::generate(&chunk_group, &self.block_registry).await,
                 );
             }
         }

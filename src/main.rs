@@ -18,6 +18,7 @@ use crate::render::renderer::Renderer;
 use crate::render::Display;
 
 use core::world::{World, WorldCoordinate};
+use futures::executor::block_on;
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
 use std::time::Instant;
@@ -78,7 +79,7 @@ fn main() {
 
             player.update(time_delta, &input_handler);
             world.load_around(vec![player.position()]);
-            renderer.update(&world);
+            block_on(renderer.update(&world));
             input_handler.clear_cursor_delta();
             display.request_redraw();
         }
