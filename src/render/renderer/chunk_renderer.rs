@@ -1,4 +1,5 @@
 use crate::game::TextureDatabase;
+use crate::input::InputHandler;
 use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
 use crate::render::display::FrameBuffer;
@@ -10,6 +11,7 @@ use crate::render::texture::TextureArray;
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
+use glutin::event::VirtualKeyCode;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
@@ -17,6 +19,7 @@ use std::fs;
 use std::path::Path;
 
 const TEXTURE_RESOLUTION: u32 = 16;
+const MIN_RENDER_DISTANCE: u8 = 2;
 const FOG: Vector3 = Vector3 {
     x: 0.62,
     y: 0.76,
@@ -28,6 +31,7 @@ pub struct ChunkRenderer {
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     block_registry: BlockRegistry,
+    pub render_distance: u8,
     post: PostProcessingPipeline,
     buffer: FrameBuffer,
 }
@@ -154,6 +158,7 @@ impl ChunkRenderer {
                 block_registry,
                 post: pipeline,
                 buffer: FrameBuffer::new(width, height, 1, true),
+                render_distance: LOAD_DISTANCE,
             },
             Err(err) => {
                 panic!(
@@ -164,7 +169,14 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn update(&mut self, world: &World) {
+    pub fn update(&mut self, world: &World, input: &InputHandler) {
+        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
+            self.render_distance -= 1;
+        }
+        if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
+            self.render_distance += 1;
+        }
+
         // find newly generated chunks
         let new_chunks = world
             .chunks
@@ -181,7 +193,7 @@ impl ChunkRenderer {
         });
 
         // generate missing geometry for loaded chunks
-        for (coords, _) in world.chunks.iter() {
+        for coords in world.chunks.keys() {
             if !self.meshes.contains_key(coords) {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
@@ -202,7 +214,7 @@ impl ChunkRenderer {
             .set_uniform_v3("camera_position", camera.position());
         self.program.set_uniform_v3("fog_color", FOG);
         self.program
-            .set_uniform_u32("render_distance", LOAD_DISTANCE as u32);
+            .set_uniform_u32("render_distance", self.render_distance as u32);
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
