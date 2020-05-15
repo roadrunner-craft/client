@@ -32,7 +32,7 @@ impl CursorHandler {
         &self.delta
     }
 
-    pub fn clear_delta(&mut self) {
+    pub fn clear(&mut self) {
         self.delta = CursorDelta::default();
     }
 }

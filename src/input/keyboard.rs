@@ -4,8 +4,8 @@ use std::collections::HashSet;
 #[derive(Debug, Default)]
 pub struct KeyboardHandler {
     pressed: HashSet<VirtualKeyCode>,
-    pressed_last_frame: HashSet<VirtualKeyCode>,
-    released_last_frame: HashSet<VirtualKeyCode>,
+    pressed_since_clear: HashSet<VirtualKeyCode>,
+    released_since_clear: HashSet<VirtualKeyCode>,
 }
 
 impl KeyboardHandler {
@@ -23,15 +23,15 @@ impl KeyboardHandler {
             match state {
                 ElementState::Pressed => {
                     if !self.is_pressed(keycode) {
-                        self.pressed_last_frame.insert(keycode);
+                        self.pressed_since_clear.insert(keycode);
                     }
                     self.pressed.insert(keycode);
                 }
                 ElementState::Released => {
                     if self.is_pressed(keycode) {
-                        self.released_last_frame.insert(keycode);
+                        self.released_since_clear.insert(keycode);
                     }
-                    self.pressed.remove(&(keycode));
+                    self.pressed.remove(&keycode);
                 }
             };
         }
@@ -44,17 +44,17 @@ impl KeyboardHandler {
 
     /// indicates a previously unpressed key was just pressed
     pub fn just_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.pressed_last_frame.contains(&keycode)
+        self.pressed_since_clear.contains(&keycode)
     }
 
     /// indicates a previously pressed key was just released
     pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
-        self.released_last_frame.contains(&keycode)
+        self.released_since_clear.contains(&keycode)
     }
 
     /// to call at the end of each gameloop
-    pub fn clear_keyboard_state(&mut self) {
-        self.pressed_last_frame.clear();
-        self.released_last_frame.clear()
+    pub fn clear(&mut self) {
+        self.pressed_since_clear.clear();
+        self.released_since_clear.clear()
     }
 }

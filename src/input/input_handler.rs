@@ -34,7 +34,7 @@ impl InputHandler {
     }
 
     pub fn clear(&mut self) {
-        self.cursor.clear_delta();
-        self.keyboard.clear_keyboard_state();
+        self.cursor.clear();
+        self.keyboard.clear();
     }
 }
