@@ -19,6 +19,7 @@ use std::fs;
 use std::path::Path;
 
 const TEXTURE_RESOLUTION: u32 = 16;
+const MIN_RENDER_DISTANCE: u8 = 2;
 const FOG: Vector3 = Vector3 {
     x: 0.62,
     y: 0.76,
@@ -169,7 +170,7 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, world: &World, input: &InputHandler) {
-        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > 2 {
+        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
             self.render_distance -= 1;
         }
         if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
