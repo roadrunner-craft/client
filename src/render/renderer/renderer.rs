@@ -1,7 +1,6 @@
 use crate::input::InputHandler;
 use crate::render::camera::Camera;
 use crate::render::renderer::ChunkRenderer;
-use math::vector::Vector3;
 
 use core::world::World;
 
@@ -16,8 +15,8 @@ impl Renderer {
         }
     }
 
-    pub fn update(&mut self, world: &World, player_position: Vector3, input: &InputHandler) {
-        self.chunk_renderer.update(world, player_position, input);
+    pub fn update(&mut self, world: &World, input: &InputHandler) {
+        self.chunk_renderer.update(world, input);
     }
 
     pub fn draw<C: Camera>(&mut self, camera: &C) {
