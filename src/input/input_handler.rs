@@ -21,11 +21,20 @@ impl InputHandler {
         self.keyboard.is_pressed(keycode)
     }
 
+    pub fn just_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.keyboard.just_pressed(keycode)
+    }
+
+    pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
+        self.keyboard.just_released(keycode)
+    }
+
     pub fn get_cursor_delta(&self) -> &CursorDelta {
         self.cursor.get_delta()
     }
 
-    pub fn clear_cursor_delta(&mut self) {
-        self.cursor.clear_delta()
+    pub fn clear(&mut self) {
+        self.cursor.clear();
+        self.keyboard.clear();
     }
 }
