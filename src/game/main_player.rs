@@ -8,12 +8,12 @@ use math::vector::Vector3;
 const SPEED: f64 = 20.0;
 const SENSITIVITY: f32 = 0.2;
 
-pub struct Player {
+pub struct MainPlayer {
     pub camera: PerspectiveCamera,
     velocity: Vector3,
 }
 
-impl Player {
+impl MainPlayer {
     pub fn new(position: WorldCoordinate) -> Self {
         let mut p = Self {
             camera: PerspectiveCamera::new(70.0, 0.1, 1024.0),
@@ -23,8 +23,6 @@ impl Player {
         p.set_position(position);
         p
     }
-
-    pub fn init(&self, input_handler: InputHandler) {}
 
     fn set_position(&mut self, position: WorldCoordinate) {
         self.camera.set_position(position);

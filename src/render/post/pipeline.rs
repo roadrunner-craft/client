@@ -30,6 +30,11 @@ impl PostProcessingPipeline {
         }
     }
 
+    pub fn resize(&mut self, width: usize, height: usize) {
+        self.swap1 = FrameBuffer::new(width, height, 2, false);
+        self.swap2 = FrameBuffer::new(width, height, 1, false);
+    }
+
     pub fn add(&mut self, effect: PostProcessingEffectType) {
         self.effects.push(match effect {
             PostProcessingEffectType::Identity => Box::new(IdentityPostProcessing::new()),
