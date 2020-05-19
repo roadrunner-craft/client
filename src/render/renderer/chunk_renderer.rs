@@ -1,22 +1,22 @@
 use crate::game::TextureDatabase;
-use crate::input::InputHandler;
 use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
-use crate::render::display::FrameBuffer;
 use crate::render::mesh::chunk_mesh::ChunkMesh;
-use crate::render::post::{PostProcessingEffectType, PostProcessingPipeline};
 use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
-use glutin::event::VirtualKeyCode;
 use math::container::{Volume, AABB};
 use math::vector::{Vector2, Vector3};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+// TODO: remove the dependancy to glutin from this file.
+use crate::input::InputHandler;
+use glutin::event::VirtualKeyCode;
 
 const TEXTURE_RESOLUTION: u32 = 16;
 const MIN_RENDER_DISTANCE: u8 = 2;
@@ -32,12 +32,10 @@ pub struct ChunkRenderer {
     meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
     block_registry: BlockRegistry,
     pub render_distance: u8,
-    post: PostProcessingPipeline,
-    buffer: FrameBuffer,
 }
 
 impl ChunkRenderer {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new() -> Self {
         let vertex_src: &'static str = r#"
             #version 410 core
 
@@ -147,17 +145,12 @@ impl ChunkRenderer {
             fs::read_to_string(path).expect("<block_database> Could not read data from file");
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
-        let mut pipeline = PostProcessingPipeline::new(width, height);
-        pipeline.add(PostProcessingEffectType::Identity);
-
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
                 textures,
                 meshes: HashMap::new(),
                 block_registry,
-                post: pipeline,
-                buffer: FrameBuffer::new(width, height, 1, true),
                 render_distance: LOAD_DISTANCE,
             },
             Err(err) => {
@@ -221,8 +214,6 @@ impl ChunkRenderer {
             gl::Enable(gl::CULL_FACE);
 
             self.textures.bind();
-            self.buffer.bind();
-            self.buffer.clear(true, true, false);
 
             for (coords, mesh) in self.meshes.iter() {
                 let position = Vector2 {
@@ -247,8 +238,6 @@ impl ChunkRenderer {
 
                 mesh.draw();
             }
-
-            self.post.apply(&self.buffer);
         }
     }
 }

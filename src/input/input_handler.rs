@@ -6,7 +6,6 @@ use crate::input::{CursorDelta, CursorHandler, KeyboardHandler};
 pub struct InputHandler {
     keyboard: KeyboardHandler,
     cursor: CursorHandler,
-    network: NetworkHandler,
 }
 
 impl InputHandler {
@@ -16,10 +15,6 @@ impl InputHandler {
 
     pub fn process_cursor(&mut self, input: (f64, f64)) {
         self.cursor.process(input)
-    }
-
-    pub fn process_network(&self) -> Vec<ServerEvent> {
-        self.network.process()
     }
 
     pub fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
