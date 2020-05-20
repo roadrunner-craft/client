@@ -5,7 +5,8 @@ use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
 use math::vector::Vector3;
 
-const SPEED: f64 = 20.0;
+//const SPEED: f64 = 20.0;
+const SPEED: f64 = 10.0;
 const SENSITIVITY: f32 = 0.2;
 
 pub struct MainPlayer {
@@ -30,6 +31,11 @@ impl MainPlayer {
 
     pub fn position(&self) -> Vector3 {
         self.camera.position()
+            - Vector3 {
+                x: 0.5,
+                y: 1.5,
+                z: 0.5,
+            }
     }
 
     pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
@@ -88,6 +94,6 @@ impl MainPlayer {
         };
         delta = delta * (SPEED * time_delta) as f32;
 
-        self.set_position(self.position() + delta);
+        self.set_position(self.camera.position() + delta);
     }
 }
