@@ -12,7 +12,7 @@ impl Display {
     pub fn new(title: &'static str, event_loop: &EventLoop<()>) -> Self {
         let monitor = event_loop.available_monitors().nth(0).unwrap();
         let psize = monitor.size();
-        let psize = PhysicalSize::new(4 * 400, 4 * 300);
+        let psize = PhysicalSize::new(4 * 300, 4 * 300);
         let size = Size::Physical(psize);
 
         let window_builder = WindowBuilder::new()

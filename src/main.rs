@@ -30,7 +30,7 @@ use std::io;
 use std::time::Instant;
 
 const FPS_REFRESH_TIMEOUT: u64 = 1;
-const NETWORK_REFRESH_TIMEOUT: u128 = 50;
+pub const NETWORK_REFRESH_TIMEOUT: u128 = 50;
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 fn main() -> io::Result<()> {
@@ -114,7 +114,7 @@ fn main() -> io::Result<()> {
                         }
                         ServerEvent::PlayerMoved { id, position } => {
                             if let Some(player) = players.get_mut(&id) {
-                                player.position = position;
+                                player.set_position(position);
                             };
                         }
                     };
@@ -124,18 +124,18 @@ fn main() -> io::Result<()> {
             }
 
             player.update(time_delta, &input_handler);
+
+            for (_, player) in players.iter_mut() {
+                player.update(time_delta);
+            }
+
             world.load_around(vec![player.position()]);
             renderer.update(&world, &input_handler);
             input_handler.clear();
 
             if last_network_update.elapsed().as_millis() >= NETWORK_REFRESH_TIMEOUT {
                 network_handler.send(ClientEvent::PlayerMove {
-                    position: player.position()
-                        - Vector3 {
-                            x: 0.5,
-                            y: 1.5,
-                            z: 0.5,
-                        },
+                    position: player.position(),
                 });
 
                 last_network_update = Instant::now();

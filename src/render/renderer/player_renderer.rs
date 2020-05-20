@@ -61,7 +61,7 @@ impl PlayerRenderer {
                 // TODO: add camera frustum check
 
                 self.program
-                    .set_uniform_v3("world_position", player.position);
+                    .set_uniform_v3("world_position", player.position());
                 self.mesh.draw();
             }
         }
