@@ -127,7 +127,7 @@ fn main() -> io::Result<()> {
             player.update(time_delta, &input_handler);
 
             for (_, player) in players.iter_mut() {
-                player.update(time_delta);
+                player.update();
             }
 
             if let Some(world) = world.as_mut() {
