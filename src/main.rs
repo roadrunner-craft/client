@@ -24,7 +24,6 @@ use core::events::{ClientEvent, ServerEvent};
 use core::world::{World, WorldCoordinate};
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
-use math::vector::Vector3;
 use std::collections::HashMap;
 use std::io;
 use std::time::Instant;
@@ -42,7 +41,7 @@ fn main() -> io::Result<()> {
     let mut input_handler = InputHandler::default();
     let network_handler = NetworkHandler::new()?;
 
-    let mut world = World::new();
+    let mut world: Option<World> = None;
     let mut players: HashMap<u128, Player> = HashMap::new();
     let mut player = MainPlayer::new(WorldCoordinate {
         x: 0.0,
@@ -104,8 +103,10 @@ fn main() -> io::Result<()> {
                         ServerEvent::PlayerConnected { id } => {
                             players.insert(id, Player::new(id));
                         }
-                        ServerEvent::PlayerList { ids } => {
-                            for id in ids.iter() {
+                        ServerEvent::ServerInfo { seed, player_ids } => {
+                            world = Some(World::from_seed(seed));
+
+                            for id in player_ids.iter() {
                                 players.insert(*id, Player::new(*id));
                             }
                         }
@@ -129,8 +130,11 @@ fn main() -> io::Result<()> {
                 player.update(time_delta);
             }
 
-            world.load_around(vec![player.position()]);
-            renderer.update(&world, &input_handler);
+            if let Some(world) = world.as_mut() {
+                world.load_around(vec![player.position()]);
+                renderer.update(&world, &input_handler);
+            }
+
             input_handler.clear();
 
             if last_network_update.elapsed().as_millis() >= NETWORK_REFRESH_TIMEOUT {

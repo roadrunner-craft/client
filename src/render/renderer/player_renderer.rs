@@ -4,6 +4,8 @@ use crate::render::camera::Camera;
 use crate::render::mesh::PlayerMesh;
 use crate::render::shaders::ShaderProgram;
 
+use math::vector::Vector3;
+
 pub struct PlayerRenderer {
     program: ShaderProgram,
     mesh: PlayerMesh,
@@ -60,8 +62,16 @@ impl PlayerRenderer {
             for player in players.iter() {
                 // TODO: add camera frustum check
 
-                self.program
-                    .set_uniform_v3("world_position", player.position());
+                self.program.set_uniform_v3(
+                    "world_position",
+                    player.position()
+                        - Vector3 {
+                            x: 0.5,
+                            y: 1.5,
+                            z: 0.5,
+                        },
+                );
+
                 self.mesh.draw();
             }
         }

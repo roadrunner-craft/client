@@ -1,7 +1,7 @@
 use crate::ops::{Bindable, Drawable};
 use crate::render::mesh::Mesh;
 
-use math::vector::{Vector2, Vector3};
+use math::vector::Vector3;
 
 pub struct PlayerMesh {
     mesh: Mesh,
