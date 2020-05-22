@@ -31,11 +31,6 @@ impl MainPlayer {
 
     pub fn position(&self) -> Vector3 {
         self.camera.position()
-            - Vector3 {
-                x: 0.5,
-                y: 1.5,
-                z: 0.5,
-            }
     }
 
     pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
