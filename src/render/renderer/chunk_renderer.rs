@@ -1,7 +1,7 @@
 use crate::game::TextureDatabase;
 use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
-use crate::render::mesh::chunk_mesh::ChunkMesh;
+use crate::render::mesh::chunk_mesh::ChunkMeshCollection;
 use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 
@@ -29,7 +29,7 @@ const FOG: Vector3 = Vector3 {
 pub struct ChunkRenderer {
     program: ShaderProgram,
     textures: TextureArray,
-    meshes: HashMap<ChunkGridCoordinate, ChunkMesh>,
+    meshes: HashMap<ChunkGridCoordinate, ChunkMeshCollection>,
     block_registry: BlockRegistry,
     pub render_distance: u8,
 }
@@ -118,6 +118,10 @@ impl ChunkRenderer {
                     
                     color = apply_fog(color);
 
+                    if (color.a < 0.01) {
+                        discard;
+                    }
+
                     return;
                 }
 
@@ -191,7 +195,7 @@ impl ChunkRenderer {
                 let chunk_group = world.get_chunk_group(*coords);
                 self.meshes.insert(
                     *coords,
-                    ChunkMesh::generate(&chunk_group, &self.block_registry),
+                    ChunkMeshCollection::generate(&chunk_group, &self.block_registry),
                 );
             }
         }
@@ -210,9 +214,6 @@ impl ChunkRenderer {
             .set_uniform_u32("render_distance", self.render_distance as u32);
 
         unsafe {
-            gl::Enable(gl::DEPTH_TEST);
-            gl::Enable(gl::CULL_FACE);
-
             self.textures.bind();
 
             for (coords, mesh) in self.meshes.iter() {
