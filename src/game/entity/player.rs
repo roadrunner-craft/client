@@ -1,10 +1,12 @@
-use crate::NETWORK_REFRESH_TIMEOUT;
+use crate::game::NETWORK_UPDATE_TIMEOUT;
 
 use core::world::WorldCoordinate;
 use std::time::Instant;
 
+pub type PlayerId = u128;
+
 pub struct Player {
-    id: u128,
+    id: PlayerId,
     position: WorldCoordinate,
     start_position: WorldCoordinate,
     target_position: WorldCoordinate,
@@ -12,7 +14,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(id: u128) -> Self {
+    pub fn new(id: PlayerId) -> Self {
         Self {
             id,
             position: WorldCoordinate::zero(),
@@ -34,7 +36,7 @@ impl Player {
 
     pub fn update(&mut self) {
         let percent = (self.last_update.elapsed().as_secs_f32() * 1000.0
-            / (2 * NETWORK_REFRESH_TIMEOUT) as f32)
+            / (2 * NETWORK_UPDATE_TIMEOUT) as f32)
             .min(1.0);
 
         self.position =

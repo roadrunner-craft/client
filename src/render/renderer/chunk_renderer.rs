@@ -91,7 +91,7 @@ impl ChunkRenderer {
             }
 
             vec4 apply_fog(vec4 diffuse) {
-                float fog_max = max(32.0, float((render_distance - 2) * 16));
+                float fog_max = max(32.0, float(render_distance * 16));
                 float fog_min = max(16.0, fog_max - 64.0);
 
                 float distance = length(camera_position - world_position);
@@ -197,7 +197,7 @@ impl ChunkRenderer {
         }
     }
 
-    pub fn draw<C: Camera>(&mut self, camera: &C) {
+    pub fn draw<C: Camera>(&self, camera: &C) {
         self.program.use_program();
         self.program
             .set_uniform_m4("projection_view", camera.projection_view());
