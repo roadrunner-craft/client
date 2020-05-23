@@ -24,7 +24,7 @@ impl NetworkHandler {
     pub fn send(&self, event: ClientEvent) {
         let buffer = bincode::serialize(&event).unwrap();
 
-        self.socket.send(&buffer);
+        let _ = self.socket.send(&buffer);
     }
 
     pub fn process(&self) -> io::Result<Vec<ServerEvent>> {

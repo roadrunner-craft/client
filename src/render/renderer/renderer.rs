@@ -45,13 +45,6 @@ impl Renderer {
         self.chunk_renderer.update(world, input);
     }
 
-    fn clear() {
-        unsafe {
-            gl::ClearColor(SKY_COLOR.x, SKY_COLOR.y, SKY_COLOR.z, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-        }
-    }
-
     pub fn draw<C: Camera>(&self, camera: &C, players: &Vec<&Player>) {
         self.framebuffer.bind();
 
