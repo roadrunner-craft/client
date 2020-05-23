@@ -50,7 +50,7 @@ impl PlayerRenderer {
         }
     }
 
-    pub fn draw<C: Camera>(&mut self, camera: &C, players: &Vec<&Player>) {
+    pub fn draw<C: Camera>(&self, camera: &C, players: &Vec<&Player>) {
         self.program.use_program();
         self.program
             .set_uniform_m4("projection_view", camera.projection_view());

@@ -16,8 +16,8 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Mesh {
-        let mut model = Mesh {
+    pub fn new(vertices: &Vec<Vector3>, indices: &Vec<GLuint>) -> Self {
+        let mut mesh = Self {
             vao: 0,
             vbo_count: 0,
             index_count: indices.len(),
@@ -25,12 +25,12 @@ impl Mesh {
         };
 
         unsafe {
-            gl::GenVertexArrays(1, &mut model.vao);
+            gl::GenVertexArrays(1, &mut mesh.vao);
         }
 
-        model.add_vbo(vertices);
-        model.add_ebo(indices);
-        model
+        mesh.add_vbo(vertices);
+        mesh.add_ebo(indices);
+        mesh
     }
 
     pub fn add_vbo<T>(&mut self, data: &Vec<T>) {

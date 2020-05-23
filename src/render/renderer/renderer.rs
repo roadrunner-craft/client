@@ -52,7 +52,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw<C: Camera>(&mut self, camera: &C, players: &Vec<&Player>) {
+    pub fn draw<C: Camera>(&self, camera: &C, players: &Vec<&Player>) {
         self.framebuffer.bind();
 
         unsafe {
