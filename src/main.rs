@@ -1,5 +1,6 @@
 mod game;
 mod input;
+mod network;
 mod ops;
 mod render;
 mod utils;
@@ -13,78 +14,62 @@ extern crate math;
 extern crate serde;
 extern crate serde_json;
 
-use crate::game::entity::Player;
-use crate::game::MainPlayer;
+use crate::game::{Game, GameType};
 use crate::input::InputHandler;
-use crate::input::NetworkHandler;
 use crate::render::display::Display;
-use crate::render::renderer::Renderer;
 
-use core::events::{ClientEvent, ServerEvent};
-use core::world::{World, WorldCoordinate};
+use core::utils::sleep;
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
-use std::collections::HashMap;
 use std::io;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 const FPS_REFRESH_TIMEOUT: u64 = 1;
-pub const NETWORK_REFRESH_TIMEOUT: u128 = 50;
+const FRAME_RATE_CAP: u32 = 60;
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 fn main() -> io::Result<()> {
     let event_loop = EventLoop::new();
-
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
-    let mut renderer = Renderer::new(width, height);
+
     let mut input_handler = InputHandler::default();
-    let network_handler = NetworkHandler::new()?;
 
-    let mut world: Option<World> = None;
-    let mut players: HashMap<u128, Player> = HashMap::new();
-    let mut player = MainPlayer::new(WorldCoordinate {
-        x: 0.0,
-        y: 150.0,
-        z: 0.0,
-    });
+    #[cfg(not(feature = "remote"))]
+    let game_type = GameType::Local;
+    #[cfg(feature = "remote")]
+    let game_type = GameType::Remote {
+        info: crate::network::RemoteInfo::new(String::from("localhost"), 25565),
+    };
 
-    network_handler.send(ClientEvent::PlayerConnect);
+    let mut game = Game::new(game_type)?;
+    game.resize(width, height);
 
     let mut fps: u32 = 0;
     let mut last_time = Instant::now();
     let mut last_fps_update = Instant::now();
-    let mut last_network_update = Instant::now();
+
+    let expected_tick_duration = Duration::new(1, 0) / FRAME_RATE_CAP;
 
     event_loop.run(move |event, _, control_flow| match event {
-        Event::LoopDestroyed => return,
+        Event::DeviceEvent { event, .. } => match event {
+            DeviceEvent::MouseMotion { delta } => input_handler.process_cursor(delta),
+            _ => (),
+        },
         Event::WindowEvent { event, .. } => match event {
+            WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
             WindowEvent::Resized(size) => {
                 display.resize(size);
-                renderer.resize(size.width as usize, size.height as usize);
-                player
-                    .camera
-                    .set_aspect_ratio(size.width as f32 / size.height as f32);
+                game.resize(size.width as usize, size.height as usize);
             }
             WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                 display.resize(*new_inner_size);
-                renderer.resize(
+                game.resize(
                     new_inner_size.width as usize,
                     new_inner_size.height as usize,
                 );
-                player
-                    .camera
-                    .set_aspect_ratio(new_inner_size.width as f32 / new_inner_size.height as f32);
             }
-            WindowEvent::KeyboardInput { input, .. } => input_handler.process_keyboard(input),
-            WindowEvent::CloseRequested => {
-                network_handler.send(ClientEvent::PlayerDisconnect);
-                *control_flow = ControlFlow::Exit
-            }
-            _ => (),
-        },
-        Event::DeviceEvent { event, .. } => match event {
-            DeviceEvent::MouseMotion { delta } => input_handler.process_cursor(delta),
+            WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
             _ => (),
         },
         Event::MainEventsCleared => {
@@ -97,61 +82,22 @@ fn main() -> io::Result<()> {
                 last_fps_update = Instant::now();
             }
 
-            if let Ok(events) = network_handler.process() {
-                for event in events {
-                    match event {
-                        ServerEvent::PlayerConnected { id } => {
-                            players.insert(id, Player::new(id));
-                        }
-                        ServerEvent::ServerInfo { seed, player_ids } => {
-                            world = Some(World::from_seed(seed));
-
-                            for id in player_ids.iter() {
-                                players.insert(*id, Player::new(*id));
-                            }
-                        }
-                        ServerEvent::PlayerDisconnected { id } => {
-                            players.remove(&id);
-                        }
-                        ServerEvent::PlayerMoved { id, position } => {
-                            if let Some(player) = players.get_mut(&id) {
-                                player.set_position(position);
-                            };
-                        }
-                    };
-                }
-            } else {
-                println!("could not process network events");
-            }
-
-            player.update(time_delta, &input_handler);
-
-            for (_, player) in players.iter_mut() {
-                player.update();
-            }
-
-            if let Some(world) = world.as_mut() {
-                world.load_around(vec![player.position()]);
-                renderer.update(&world, &input_handler);
-            }
+            game.update(time_delta, &input_handler);
 
             input_handler.clear();
-
-            if last_network_update.elapsed().as_millis() >= NETWORK_REFRESH_TIMEOUT {
-                network_handler.send(ClientEvent::PlayerMove {
-                    position: player.position(),
-                });
-
-                last_network_update = Instant::now();
-            }
 
             display.request_redraw();
         }
         Event::RedrawRequested(_) => {
-            let pals = players.values().collect::<Vec<&Player>>();
-            renderer.draw(&player.camera, &pals);
+            game.render();
             display.swap_buffers();
+
+            // makeshift fps limiting
+            if let Some(cooldown) = expected_tick_duration.checked_sub(last_time.elapsed()) {
+                sleep(cooldown);
+            }
         }
+        Event::LoopDestroyed => return,
         _ => (),
     });
 }

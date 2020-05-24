@@ -10,9 +10,8 @@ pub struct Display {
 impl Display {
     #[allow(unused_must_use)]
     pub fn new(title: &'static str, event_loop: &EventLoop<()>) -> Self {
-        let monitor = event_loop.available_monitors().nth(0).unwrap();
+        let monitor = event_loop.primary_monitor();
         let psize = monitor.size();
-        let psize = PhysicalSize::new(4 * 300, 4 * 300);
         let size = Size::Physical(psize);
 
         let window_builder = WindowBuilder::new()
@@ -32,7 +31,7 @@ impl Display {
             .unwrap();
         let context = unsafe { context.make_current().unwrap() };
 
-        //context.window().set_cursor_grab(true);
+        context.window().set_cursor_grab(true);
         context.window().set_cursor_visible(false);
 
         gl::load_with(|symbol| context.get_proc_address(symbol));

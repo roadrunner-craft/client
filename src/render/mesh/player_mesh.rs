@@ -61,9 +61,9 @@ impl PlayerMesh {
             4, 7, 5, 7, 6, 5, // back
         ];
 
-        let mut mesh = Mesh::new(&vertices, &indices);
-
-        Self { mesh }
+        Self {
+            mesh: Mesh::new(&vertices, &indices),
+        }
     }
 }
 

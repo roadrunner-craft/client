@@ -32,4 +32,4 @@ short_description = "A Minecraft clone written in rust"
 
 [features]
 default = []
-chunk_loading = []
+remote = []

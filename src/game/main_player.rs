@@ -11,14 +11,12 @@ const SENSITIVITY: f32 = 0.2;
 
 pub struct MainPlayer {
     pub camera: PerspectiveCamera,
-    velocity: Vector3,
 }
 
 impl MainPlayer {
     pub fn new(position: WorldCoordinate) -> Self {
         let mut p = Self {
             camera: PerspectiveCamera::new(70.0, 0.1, 1024.0),
-            velocity: Vector3::zero(),
         };
 
         p.set_position(position);
