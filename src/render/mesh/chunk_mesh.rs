@@ -10,12 +10,14 @@ use math::vector::Vector3;
 pub struct ChunkMeshCollection {
     solid: ChunkMesh,
     flora: ChunkMesh,
+    water: ChunkMesh,
 }
 
 impl ChunkMeshCollection {
     pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> Self {
         let mut solid_mesh = ChunkMesh::default();
         let mut flora_mesh = ChunkMesh::default();
+        let mut water_mesh = ChunkMesh::default();
 
         for x in 0..CHUNK_WIDTH {
             for y in 0..CHUNK_HEIGHT {
@@ -24,24 +26,40 @@ impl ChunkMeshCollection {
                     let y = y as i16;
                     let z = z as i8;
 
-                    let block = chunks.get_block(x, y, z).unwrap();
+                    let current_block = chunks.get_block(x, y, z).unwrap();
 
-                    if block.id == 0 {
+                    if current_block.id == 0 {
                         continue;
                     }
 
-                    if let Some(properties) = block_database.properties(block.id) {
+                    if let Some(properties) = block_database.properties(current_block.id) {
                         let position = Vector3 {
                             x: x as f32,
                             y: y as f32,
                             z: z as f32,
                         };
 
+                        // clean this up with mesh type property
                         if properties.flora {
-                            // add cross faces
+                            flora_mesh.add_face(CROSS_A_FACE, position, properties.texture.front);
+                            flora_mesh.add_face(CROSS_B_FACE, position, properties.texture.front);
                             continue;
                         }
 
+                        if current_block.id == 9 {
+                            let block = chunks.get_block(x, y + 1, z);
+
+                            if block.is_none()
+                                || (block.unwrap().id != 9
+                                    && !block_database.is_opaque(block.unwrap().id))
+                            {
+                                water_mesh.add_face(TOP_FACE, position, properties.texture.top);
+                            }
+
+                            continue;
+                        }
+
+                        // clean this up with block type property
                         let mesh = &mut solid_mesh;
 
                         let mut block = chunks.get_block(x, y, z - 1);
@@ -80,10 +98,22 @@ impl ChunkMeshCollection {
 
         solid_mesh.generate();
         flora_mesh.generate();
+        water_mesh.generate();
 
         Self {
             solid: solid_mesh,
             flora: flora_mesh,
+            water: water_mesh,
+        }
+    }
+
+    pub fn draw_water(&self) {
+        unsafe {
+            gl::Enable(gl::BLEND);
+
+            self.water.draw();
+
+            gl::Disable(gl::BLEND);
         }
     }
 }
@@ -322,4 +352,56 @@ const BOTTOM_FACE: Face = Face {
         },
     ],
     light: 0,
+};
+
+const CROSS_A_FACE: Face = Face {
+    vertices: [
+        Vector3 {
+            x: -0.5,
+            y: 1.0,
+            z: -0.5,
+        },
+        Vector3 {
+            x: 0.5,
+            y: 1.0,
+            z: 0.5,
+        },
+        Vector3 {
+            x: 0.5,
+            y: 0.0,
+            z: 0.5,
+        },
+        Vector3 {
+            x: -0.5,
+            y: 0.0,
+            z: -0.5,
+        },
+    ],
+    light: 3,
+};
+
+const CROSS_B_FACE: Face = Face {
+    vertices: [
+        Vector3 {
+            x: -0.5,
+            y: 1.0,
+            z: 0.5,
+        },
+        Vector3 {
+            x: 0.5,
+            y: 1.0,
+            z: -0.5,
+        },
+        Vector3 {
+            x: 0.5,
+            y: 0.0,
+            z: -0.5,
+        },
+        Vector3 {
+            x: -0.5,
+            y: 0.0,
+            z: 0.5,
+        },
+    ],
+    light: 2,
 };

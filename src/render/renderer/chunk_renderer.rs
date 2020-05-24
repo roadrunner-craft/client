@@ -102,7 +102,7 @@ impl ChunkRenderer {
             }
 
             void main() {
-                if (texture_id == 2 || texture_id == 10 || texture_id == 4) {
+                if (texture_id == 2 || texture_id == 10 || texture_id == 4 || texture_id == 25) {
                     vec4 cheapColorMapOutput = vec4(0.492, 0.762, 0.348, 1.0); // jungle
                     //vec4 cheapColorMapOutput = vec4(0.73, 0.71, 0.395, 1.0); // desert
 
@@ -118,16 +118,25 @@ impl ChunkRenderer {
                     
                     color = apply_fog(color);
 
-                    if (color.a < 0.01) {
+                    if (color.a == 0.0) {
                         discard;
                     }
 
                     return;
                 }
 
+                if (texture_id == 7) {
+                    vec4 water_map = vec4(0.329, 0.631, 1.0, 1.0);
+
+                    color = get_color(25) * water_map * get_color(texture_id - 1);
+                    color = apply_fog(color);
+
+                    return;
+                }
+
                 color = apply_fog(get_color(texture_id - 1));
 
-                if (color.a < 0.01) {
+                if (color.a == 0.0) {
                     discard;
                 }
             }
@@ -138,7 +147,7 @@ impl ChunkRenderer {
 
         for (i, file) in database.iter() {
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join(format!("res/textures/block/{}.png", file));
+                .join(format!("../res/textures/block/{}.png", file));
             textures.add_file(&path, (*i as u32) - 1);
         }
 
@@ -216,11 +225,8 @@ impl ChunkRenderer {
         unsafe {
             self.textures.bind();
 
-            for (coords, mesh) in self.meshes.iter() {
-                let position = Vector2 {
-                    x: CHUNK_WIDTH as f32 * coords.x as f32,
-                    y: CHUNK_DEPTH as f32 * coords.z as f32,
-                };
+            let visible_chunks = self.meshes.iter().filter(|(coords, _)| {
+                let position = coords.abs();
 
                 let chunk_volume = AABB::new(Volume::new(
                     position.x as i64,
@@ -231,13 +237,19 @@ impl ChunkRenderer {
                     CHUNK_DEPTH as i64,
                 ));
 
-                if !camera.frustum().contains(&chunk_volume) {
-                    continue;
-                }
+                camera.frustum().contains(&chunk_volume)
+            });
 
-                self.program.set_uniform_v2("chunk_position", position);
+            for (coords, mesh) in visible_chunks.clone() {
+                self.program.set_uniform_v2("chunk_position", coords.abs());
 
                 mesh.draw();
+            }
+
+            for (coords, mesh) in visible_chunks {
+                self.program.set_uniform_v2("chunk_position", coords.abs());
+
+                mesh.draw_water();
             }
         }
     }
