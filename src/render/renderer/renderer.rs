@@ -28,6 +28,10 @@ impl Renderer {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
         post_pipeline.add(PostProcessingEffectType::Identity);
 
+        unsafe {
+            gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+        }
+
         Self {
             framebuffer: FrameBuffer::new(width, height, 1, true),
             player_renderer: PlayerRenderer::new(),
