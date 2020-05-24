@@ -147,7 +147,7 @@ impl ChunkRenderer {
 
         for (i, file) in database.iter() {
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join(format!("../res/textures/block/{}.png", file));
+                .join(format!("res/textures/block/{}.png", file));
             textures.add_file(&path, (*i as u32) - 1);
         }
 
