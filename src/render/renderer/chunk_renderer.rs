@@ -31,6 +31,20 @@ const FOG: Vector3 = Vector3 {
     z: 1.0,
 };
 
+#[cfg(feature = "watchers")]
+fn spawn_watcher() -> (RecommendedWatcher, Receiver<NotifyResult<NotifyEvent>>) {
+    let (tx, rx) = channel();
+
+    let mut watcher: RecommendedWatcher =
+        Watcher::new_immediate(move |res| tx.send(res).unwrap()).unwrap();
+
+    watcher
+        .watch(&Path::new("res/textures"), RecursiveMode::Recursive)
+        .unwrap();
+
+    (watcher, rx)
+}
+
 fn load_textures() -> TextureArray {
     let database = TextureDatabase::new();
     let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
@@ -172,16 +186,6 @@ impl ChunkRenderer {
             fs::read_to_string(path).expect("<block_database> Could not read data from file");
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
-        #[cfg(feature = "watchers")]
-        let (tx, rx) = channel();
-        #[cfg(feature = "watchers")]
-        let mut watcher: RecommendedWatcher =
-            Watcher::new_immediate(move |res| tx.send(res).unwrap()).unwrap();
-        #[cfg(feature = "watchers")]
-        watcher
-            .watch(&Path::new("res/textures"), RecursiveMode::Recursive)
-            .unwrap();
-
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
@@ -190,7 +194,7 @@ impl ChunkRenderer {
                 block_registry,
                 render_distance: LOAD_DISTANCE,
                 #[cfg(feature = "watchers")]
-                texture_watcher: (watcher, rx),
+                texture_watcher: spawn_watcher(),
             },
             Err(err) => {
                 panic!(
