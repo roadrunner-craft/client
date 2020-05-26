@@ -15,9 +15,7 @@ use std::fs;
 use std::path::Path;
 
 #[cfg(feature = "watchers")]
-use notify::{RecommendedWatcher, RecursiveMode, Result as NotifyResult, Watcher, event::Event as NotifyEvent};
-#[cfg(feature = "watchers")]
-use std::sync::mpsc::{channel, Receiver};
+use crate::utils::watcher::*;
 
 // TODO: remove the dependancy to glutin from this file.
 use crate::input::InputHandler;
@@ -30,20 +28,6 @@ const FOG: Vector3 = Vector3 {
     y: 0.76,
     z: 1.0,
 };
-
-#[cfg(feature = "watchers")]
-fn spawn_watcher() -> (RecommendedWatcher, Receiver<NotifyResult<NotifyEvent>>) {
-    let (tx, rx) = channel();
-
-    let mut watcher: RecommendedWatcher =
-        Watcher::new_immediate(move |res| tx.send(res).unwrap()).unwrap();
-
-    watcher
-        .watch(&Path::new("res/textures"), RecursiveMode::Recursive)
-        .unwrap();
-
-    (watcher, rx)
-}
 
 fn load_textures() -> TextureArray {
     let database = TextureDatabase::new();
@@ -64,8 +48,9 @@ pub struct ChunkRenderer {
     meshes: HashMap<ChunkGridCoordinate, ChunkMeshCollection>,
     block_registry: BlockRegistry,
     pub render_distance: u8,
+
     #[cfg(feature = "watchers")]
-    texture_watcher: (RecommendedWatcher, Receiver<NotifyResult<NotifyEvent>>),
+    texture_watcher: Watcher,
 }
 
 impl ChunkRenderer {
@@ -193,8 +178,9 @@ impl ChunkRenderer {
                 meshes: HashMap::new(),
                 block_registry,
                 render_distance: LOAD_DISTANCE,
+
                 #[cfg(feature = "watchers")]
-                texture_watcher: spawn_watcher(),
+                texture_watcher: Watcher::new(&Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures")),
             },
             Err(err) => {
                 panic!(
@@ -215,13 +201,8 @@ impl ChunkRenderer {
         }
 
         #[cfg(feature = "watchers")]
-        if let Ok(res) = self.texture_watcher.1.try_recv() {
+        if self.texture_watcher.poll() {
             self.textures = load_textures();
-
-            // clear the watcher channel
-            loop {
-                if self.texture_watcher.1.try_recv().is_err() { break }
-            }
         }
 
         // find newly generated chunks
