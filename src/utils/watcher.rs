@@ -24,7 +24,7 @@ impl Watcher {
     }
 
     pub fn poll(&self) -> bool {
-        if let Ok(res) = self.receiver.try_recv() {
+        if self.receiver.try_recv().is_ok() {
             // clear the watcher channel
             loop {
                 if self.receiver.try_recv().is_err() {
