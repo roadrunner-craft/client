@@ -5,8 +5,7 @@ use core::world::WorldCoordinate;
 use glutin::event::VirtualKeyCode;
 use math::vector::Vector3;
 
-//const SPEED: f64 = 20.0;
-const SPEED: f64 = 10.0;
+const SPEED: f64 = 20.0;
 const SENSITIVITY: f32 = 0.2;
 
 pub struct MainPlayer {

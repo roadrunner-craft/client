@@ -151,6 +151,20 @@
             "bottom": 16
         }
     },
+    "31": {
+        "name": "minecraft:tall_grass",
+        "flora": true,
+        "opaque": false,
+        "solid": false,
+        "texture": {
+            "front": 25,
+            "back": 25,
+            "left": 25,
+            "right": 25,
+            "top": 25,
+            "bottom": 25
+        }
+    },
     "45": {
         "name": "minecraft:brick_block",
         "texture": {
