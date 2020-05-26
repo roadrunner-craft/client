@@ -9,10 +9,17 @@ use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
 use math::container::{Volume, AABB};
-use math::vector::{Vector2, Vector3};
+use math::vector::Vector3;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+#[cfg(feature = "watchers")]
+use notify::event::Event as NotifyEvent;
+#[cfg(feature = "watchers")]
+use notify::{RecommendedWatcher, RecursiveMode, Result as NotifyResult, Watcher};
+#[cfg(feature = "watchers")]
+use std::sync::mpsc::{channel, Receiver};
 
 // TODO: remove the dependancy to glutin from this file.
 use crate::input::InputHandler;
@@ -26,12 +33,27 @@ const FOG: Vector3 = Vector3 {
     z: 1.0,
 };
 
+fn load_textures() -> TextureArray {
+    let database = TextureDatabase::new();
+    let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
+
+    for (i, file) in database.iter() {
+        let path =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("res/textures/block/{}.png", file));
+        textures.add_file(&path, (*i as u32) - 1);
+    }
+
+    textures
+}
+
 pub struct ChunkRenderer {
     program: ShaderProgram,
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMeshCollection>,
     block_registry: BlockRegistry,
     pub render_distance: u8,
+    #[cfg(feature = "watchers")]
+    texture_watcher: (RecommendedWatcher, Receiver<NotifyResult<NotifyEvent>>),
 }
 
 impl ChunkRenderer {
@@ -118,7 +140,7 @@ impl ChunkRenderer {
                     
                     color = apply_fog(color);
 
-                    if (color.a == 0.0) {
+                    if (color.a < 0.01) {
                         discard;
                     }
 
@@ -126,7 +148,8 @@ impl ChunkRenderer {
                 }
 
                 if (texture_id == 7) {
-                    vec4 water_map = vec4(0.329, 0.631, 1.0, 1.0);
+                    // vec4 water_map = vec4(0.329, 0.631, 1.0, 1.0);
+                    vec4 water_map = vec4(0.329, 0.584, 0.918, 1.0);
 
                     color = get_color(25) * water_map * get_color(texture_id - 1);
                     color = apply_fog(color);
@@ -136,20 +159,13 @@ impl ChunkRenderer {
 
                 color = apply_fog(get_color(texture_id - 1));
 
-                if (color.a == 0.0) {
+                if (color.a < 0.01) {
                     discard;
                 }
             }
         "#;
 
-        let database = TextureDatabase::new();
-        let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
-
-        for (i, file) in database.iter() {
-            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join(format!("res/textures/block/{}.png", file));
-            textures.add_file(&path, (*i as u32) - 1);
-        }
+        let textures = load_textures();
 
         let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("res/data/blocks.json");
         let path = path.to_str().unwrap();
@@ -158,6 +174,16 @@ impl ChunkRenderer {
             fs::read_to_string(path).expect("<block_database> Could not read data from file");
         let block_registry = BlockRegistry::new(serde_json::from_str(&data).unwrap());
 
+        #[cfg(feature = "watchers")]
+        let (tx, rx) = channel();
+        #[cfg(feature = "watchers")]
+        let mut watcher: RecommendedWatcher =
+            Watcher::new_immediate(move |res| tx.send(res).unwrap()).unwrap();
+        #[cfg(feature = "watchers")]
+        watcher
+            .watch(&Path::new("res/textures"), RecursiveMode::Recursive)
+            .unwrap();
+
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
@@ -165,6 +191,8 @@ impl ChunkRenderer {
                 meshes: HashMap::new(),
                 block_registry,
                 render_distance: LOAD_DISTANCE,
+                #[cfg(feature = "watchers")]
+                texture_watcher: (watcher, rx),
             },
             Err(err) => {
                 panic!(
@@ -179,8 +207,19 @@ impl ChunkRenderer {
         if input.just_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
             self.render_distance -= 1;
         }
+
         if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
             self.render_distance += 1;
+        }
+
+        #[cfg(feature = "watchers")]
+        if let Ok(res) = self.texture_watcher.1.try_recv() {
+            self.textures = load_textures();
+
+            // clear the watcher channel
+            loop {
+                if self.texture_watcher.1.try_recv().is_err() { break }
+            }
         }
 
         // find newly generated chunks
@@ -222,35 +261,33 @@ impl ChunkRenderer {
         self.program
             .set_uniform_u32("render_distance", self.render_distance as u32);
 
-        unsafe {
-            self.textures.bind();
+        self.textures.bind();
 
-            let visible_chunks = self.meshes.iter().filter(|(coords, _)| {
-                let position = coords.abs();
+        let visible_chunks = self.meshes.iter().filter(|(coords, _)| {
+            let position = coords.abs();
 
-                let chunk_volume = AABB::new(Volume::new(
-                    position.x as i64,
-                    0,
-                    position.y as i64,
-                    CHUNK_WIDTH as i64,
-                    CHUNK_HEIGHT as i64,
-                    CHUNK_DEPTH as i64,
-                ));
+            let chunk_volume = AABB::new(Volume::new(
+                position.x as i64,
+                0,
+                position.y as i64,
+                CHUNK_WIDTH as i64,
+                CHUNK_HEIGHT as i64,
+                CHUNK_DEPTH as i64,
+            ));
 
-                camera.frustum().contains(&chunk_volume)
-            });
+            camera.frustum().contains(&chunk_volume)
+        });
 
-            for (coords, mesh) in visible_chunks.clone() {
-                self.program.set_uniform_v2("chunk_position", coords.abs());
+        for (coords, mesh) in visible_chunks.clone() {
+            self.program.set_uniform_v2("chunk_position", coords.abs());
 
-                mesh.draw();
-            }
+            mesh.draw();
+        }
 
-            for (coords, mesh) in visible_chunks {
-                self.program.set_uniform_v2("chunk_position", coords.abs());
+        for (coords, mesh) in visible_chunks {
+            self.program.set_uniform_v2("chunk_position", coords.abs());
 
-                mesh.draw_water();
-            }
+            mesh.draw_water();
         }
     }
 }
