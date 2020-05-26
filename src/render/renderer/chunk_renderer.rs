@@ -15,9 +15,7 @@ use std::fs;
 use std::path::Path;
 
 #[cfg(feature = "watchers")]
-use notify::event::Event as NotifyEvent;
-#[cfg(feature = "watchers")]
-use notify::{RecommendedWatcher, RecursiveMode, Result as NotifyResult, Watcher};
+use notify::{RecommendedWatcher, RecursiveMode, Result as NotifyResult, Watcher, event::Event as NotifyEvent};
 #[cfg(feature = "watchers")]
 use std::sync::mpsc::{channel, Receiver};
 
