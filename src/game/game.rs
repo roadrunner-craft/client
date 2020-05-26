@@ -32,7 +32,7 @@ impl Game {
     pub fn new(game_type: GameType) -> io::Result<Self> {
         let player = MainPlayer::new(WorldCoordinate {
             x: 0.0,
-            y: 150.0,
+            y: 70.0,
             z: 0.0,
         });
 
