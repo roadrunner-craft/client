@@ -18,6 +18,7 @@ extern crate serde_json;
 use crate::game::{Game, GameType};
 use crate::input::InputHandler;
 use crate::render::display::Display;
+use log::info;
 
 use core::utils::{
     logging,
@@ -34,6 +35,7 @@ use std::time::{Duration, Instant};
 const FPS_REFRESH_TIMEOUT: u64 = 1;
 const FRAME_RATE_CAP: u32 = 60;
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
+const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
     if cfg!(debug_assertions) {
