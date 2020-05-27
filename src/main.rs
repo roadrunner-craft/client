@@ -10,6 +10,7 @@ extern crate core;
 extern crate gl;
 extern crate glutin;
 extern crate image;
+extern crate log;
 extern crate math;
 extern crate serde;
 extern crate serde_json;
@@ -17,6 +18,7 @@ extern crate serde_json;
 use crate::game::{Game, GameType};
 use crate::input::InputHandler;
 use crate::render::display::Display;
+use log::info;
 
 use core::utils::sleep;
 use glutin::event::{DeviceEvent, Event, WindowEvent};
@@ -27,8 +29,12 @@ use std::time::{Duration, Instant};
 const FPS_REFRESH_TIMEOUT: u64 = 1;
 const FRAME_RATE_CAP: u32 = 60;
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
+const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
+    core::utils::logging::init();
+    info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
+
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
