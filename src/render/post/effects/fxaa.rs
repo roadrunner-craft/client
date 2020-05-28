@@ -2,6 +2,12 @@ use crate::render::display::FrameBuffer;
 use crate::render::post::PostProcessingEffect;
 use crate::render::shaders::ShaderProgram;
 
+/// Fast approximate anti-aliasing
+///
+/// Remove staggered edge in the image by bluring along the edges using the FXAA algorithm.
+///
+/// A detailed explanation can be found in this document:
+/// http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
 pub struct FXAAPostProcessing {
     program: ShaderProgram,
 }
