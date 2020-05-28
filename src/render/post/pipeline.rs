@@ -9,6 +9,7 @@ pub enum PostProcessingEffectType {
     Identity,
     StaticWave,
     Inverted,
+    FXAA,
 }
 
 pub struct PostProcessingPipeline {
@@ -25,7 +26,7 @@ impl PostProcessingPipeline {
             effects: Vec::new(),
             swap1: FrameBuffer::new(width, height, 2, false),
             swap2: FrameBuffer::new(width, height, 1, false),
-            screen: FrameBuffer::empty(),
+            screen: FrameBuffer::empty(width, height),
             quad: TextureQuad::new(),
         }
     }
@@ -33,6 +34,7 @@ impl PostProcessingPipeline {
     pub fn resize(&mut self, width: usize, height: usize) {
         self.swap1 = FrameBuffer::new(width, height, 2, false);
         self.swap2 = FrameBuffer::new(width, height, 1, false);
+        self.screen = FrameBuffer::empty(width, height);
     }
 
     pub fn add(&mut self, effect: PostProcessingEffectType) {
@@ -40,6 +42,7 @@ impl PostProcessingPipeline {
             PostProcessingEffectType::Identity => Box::new(IdentityPostProcessing::new()),
             PostProcessingEffectType::StaticWave => Box::new(StaticWavePostProcessing::new()),
             PostProcessingEffectType::Inverted => Box::new(InvertedPostProcessing::new()),
+            PostProcessingEffectType::FXAA => Box::new(FXAAPostProcessing::new()),
         });
     }
 
