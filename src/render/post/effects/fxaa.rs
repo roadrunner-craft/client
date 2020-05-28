@@ -65,11 +65,10 @@ impl FXAAPostProcessing {
                     (luma_north_west + luma_north_east + luma_south_west + luma_south_east) * (0.25 * FXAA_REDUCE_MUL)  // biased luma average
                 );
                 
-                // take the smallest direction offset and scale the direction to 1.0 proportionally
-                float scaler = 1.0 / (min(abs(direction.x), abs(direction.y)) + direction_reduction);
+                float reciprocal_scaler = 1.0 / (min(abs(direction.x), abs(direction.y)) + direction_reduction);
 
                 // this is the scaled direction vector used to apply the blur
-                direction = clamp(direction * scaler, -FXAA_SPAN_MAX, FXAA_SPAN_MAX) * texel_size;
+                direction = clamp(direction * reciprocal_scaler, -FXAA_SPAN_MAX, FXAA_SPAN_MAX) * texel_size;
 
                 vec3 rgb_near = (1.0/2.0) * (
                     texture(tex, uv + direction * (1.0/3.0 - 0.5)).rgb +
