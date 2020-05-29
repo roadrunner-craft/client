@@ -26,7 +26,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new(width: usize, height: usize) -> Self {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
-        post_pipeline.add(PostProcessingEffectType::Identity);
+        post_pipeline.add(PostProcessingEffectType::FXAA);
 
         unsafe {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
