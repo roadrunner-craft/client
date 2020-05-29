@@ -18,12 +18,11 @@ impl FXAAPostProcessing {
             #version 410 core
 
             layout (location=0) in vec3 position;
-            layout (location=1) in vec2 uv;
 
-            out vec2 pass_uv;
+            out vec2 uv;
 
             void main() {
-                pass_uv = uv;
+                uv = (position.xy + 1.0) / 2.0;;
                 gl_Position = vec4(position, 1.0);
             }
         "#;
@@ -35,7 +34,7 @@ impl FXAAPostProcessing {
             #define FXAA_REDUCE_MUL   (1.0/8.0)
             #define FXAA_SPAN_MAX     8.0
             
-            in vec2 pass_uv;
+            in vec2 uv;
 
             out vec4 color;
 
@@ -93,7 +92,7 @@ impl FXAAPostProcessing {
 
             void main() {
                 vec2 texel_size = vec2(1.0 / buffer_size.x, 1.0 / buffer_size.y);
-                color = vec4(fxaa(input_texture, pass_uv, texel_size), 1.0);
+                color = vec4(fxaa(input_texture, uv, texel_size), 1.0);
             }
         "#;
 
