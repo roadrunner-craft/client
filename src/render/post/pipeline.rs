@@ -7,8 +7,6 @@ use crate::render::post::PostProcessingEffect;
 #[allow(dead_code)]
 pub enum PostProcessingEffectType {
     Identity,
-    StaticWave,
-    Inverted,
     FXAA,
 }
 
@@ -40,8 +38,6 @@ impl PostProcessingPipeline {
     pub fn add(&mut self, effect: PostProcessingEffectType) {
         self.effects.push(match effect {
             PostProcessingEffectType::Identity => Box::new(IdentityPostProcessing::new()),
-            PostProcessingEffectType::StaticWave => Box::new(StaticWavePostProcessing::new()),
-            PostProcessingEffectType::Inverted => Box::new(InvertedPostProcessing::new()),
             PostProcessingEffectType::FXAA => Box::new(FXAAPostProcessing::new()),
         });
     }
