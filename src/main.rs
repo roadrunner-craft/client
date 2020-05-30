@@ -77,7 +77,7 @@ fn main() -> io::Result<()> {
             last_time = Instant::now();
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
-                fps = (1.0 / time_delta) as u32;
+                fps = time_delta.recip() as u32;
                 println!("FPS: {}", fps);
                 last_fps_update = Instant::now();
             }
