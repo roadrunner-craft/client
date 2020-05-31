@@ -1,6 +1,6 @@
 use crate::ops::Bindable;
 
-use core::utils::logging::info;
+use core::utils::logging::error;
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
 use std::ffi::c_void;
@@ -65,7 +65,7 @@ impl TextureArray {
         if let Some(path) = path.to_str() {
             match image::open(path) {
                 Err(err) => {
-                    info!("<texture-array> Could not load image {}: {}", path, err);
+                    error!("<texture-array> Could not load image {}: {}", path, err);
                     // TODO: add default image
                 }
                 Ok(img) => {
@@ -75,7 +75,7 @@ impl TextureArray {
                     };
 
                     if img.width() != self.size || img.height() != self.size {
-                        info!("<texture-array> Image aspect ratio must be 1: {}", path);
+                        error!("<texture-array> Image aspect ratio must be 1: {}", path);
                         // TODO: add default image
                     }
 
