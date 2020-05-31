@@ -1,7 +1,7 @@
 use crate::network::RemoteInfo;
 
 use core::events::{ClientEvent, ServerEvent};
-use core::utils::logging;
+use core::utils::logging::info;
 use serde::export::Err as SerdeErr;
 use serde::export::Ok as SerdeOk;
 use std::io;
@@ -39,7 +39,7 @@ impl NetworkHandler {
 
             match bincode::deserialize(&data) {
                 SerdeOk(event) => events.push(event),
-                SerdeErr(err) => logging::info!("{}", err),
+                SerdeErr(err) => info!("{}", err),
             }
         }
 

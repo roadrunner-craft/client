@@ -18,13 +18,14 @@ use crate::game::{Game, GameType};
 use crate::input::InputHandler;
 use crate::render::display::Display;
 
-use core::utils::logging;
 use core::utils::sleep;
+use core::utils::{
+    logging,
+    logging::{info, Logger},
+};
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
-use std::fs::File;
 use std::io;
-use std::io::stdout;
 use std::time::{Duration, Instant};
 
 const FPS_REFRESH_TIMEOUT: u64 = 1;
@@ -33,10 +34,12 @@ const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
-    let file_logger = Box::new(logging::Logger::new(File::create("logs").unwrap()));
-    let out_logger = Box::new(logging::Logger::new(stdout()));
-    logging::init(vec![file_logger, out_logger]);
-    logging::info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
+    logging::init(vec![
+        Box::new(Logger::to_file("logs")),
+        Box::new(Logger::to_stdout()),
+    ]);
+    info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
+
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
@@ -86,7 +89,7 @@ fn main() -> io::Result<()> {
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
                 fps = (1.0 / time_delta) as u32;
-                logging::info!("FPS: {}", fps);
+                info!("FPS: {}", fps);
                 last_fps_update = Instant::now();
             }
 
