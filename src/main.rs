@@ -20,10 +20,13 @@ use crate::input::InputHandler;
 use crate::render::display::Display;
 use log::info;
 
+use core::utils::logging;
 use core::utils::sleep;
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
+use std::fs::File;
 use std::io;
+use std::io::stdout;
 use std::time::{Duration, Instant};
 
 const FPS_REFRESH_TIMEOUT: u64 = 1;
@@ -32,9 +35,10 @@ const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
-    core::utils::logging::init();
+    let file_logger = Box::new(logging::Logger::new(File::create("logs").unwrap()));
+    let out_logger = Box::new(logging::Logger::new(stdout()));
+    logging::init(vec![file_logger, out_logger]);
     info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
-
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
