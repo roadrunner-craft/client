@@ -42,7 +42,7 @@ fn main() -> io::Result<()> {
         info: crate::network::RemoteInfo::new(String::from("localhost"), 25565),
     };
 
-    let mut game = Game::new(game_type)?;
+    let mut game = Game::new(game_type, &mut input_handler)?;
     game.resize(width, height);
 
     let mut fps: u32 = 0;
