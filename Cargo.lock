@@ -1222,7 +1222,6 @@ dependencies = [
  "gl",
  "glutin",
  "image 0.23.4",
- "log",
  "math",
  "notify",
  "serde",

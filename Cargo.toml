@@ -19,7 +19,6 @@ notify = { version = "5.0.0-pre.2", optional = true }
 math = { path = "../math" }
 #core = { git = "https://github.com/roadrunner-craft/core" }
 core = { path = "../core" }
-log = { version = "0.4.8", features = ["std"] }
 
 
 [package.metadata.bundle]

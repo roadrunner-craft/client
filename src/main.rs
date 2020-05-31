@@ -10,7 +10,6 @@ extern crate core;
 extern crate gl;
 extern crate glutin;
 extern crate image;
-extern crate log;
 extern crate math;
 extern crate serde;
 extern crate serde_json;
@@ -18,7 +17,6 @@ extern crate serde_json;
 use crate::game::{Game, GameType};
 use crate::input::InputHandler;
 use crate::render::display::Display;
-use log::info;
 
 use core::utils::logging;
 use core::utils::sleep;
@@ -38,7 +36,7 @@ fn main() -> io::Result<()> {
     let file_logger = Box::new(logging::Logger::new(File::create("logs").unwrap()));
     let out_logger = Box::new(logging::Logger::new(stdout()));
     logging::init(vec![file_logger, out_logger]);
-    info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
+    logging::info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
