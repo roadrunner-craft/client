@@ -18,8 +18,6 @@ impl KeyboardHandler {
         }: KeyboardInput,
     ) {
         if let Some(keycode) = virtual_keycode {
-            // println!("{:?}", keycode);
-
             match state {
                 ElementState::Pressed => {
                     if !self.is_pressed(keycode) {
