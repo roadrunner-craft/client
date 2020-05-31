@@ -1,9 +1,9 @@
 use glutin::event::{KeyboardInput, VirtualKeyCode, ElementState};
 
 use crate::input::{CursorDelta, CursorHandler, KeyboardHandler};
-use std::sync::mpsc::{Sender, channel};
-use std::collections::{HashMap};
-use std::time::Instant;
+use crate::input::InputObserver;
+use std::sync::mpsc::Sender;
+use std::collections::HashMap;
 
 #[derive(Debug, Default)]
 pub struct InputHandler {
@@ -56,7 +56,11 @@ impl InputHandler {
         self.keyboard.clear();
     }
 
-    pub fn register(&mut self, keycode: VirtualKeyCode, sender: Sender<ElementState>) {
-        self.keycode_channels.entry(keycode).or_default().push(sender);
+    pub fn register(&mut self, observer: &mut impl InputObserver) {
+
+        for callback in observer.get_input_callbacks() {
+            self.keycode_channels.entry(callback.keycode)
+                .or_default().push(callback.sender.clone());
+        };
     }
 }

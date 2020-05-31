@@ -1,22 +1,17 @@
-use crate::input::InputHandler;
+use crate::input::{InputHandler, InputObserver, InputCallback};
 use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
-use glutin::event::{VirtualKeyCode, ElementState};
 use math::vector::Vector3;
-use std::sync::mpsc::{Sender, Receiver, channel};
-use std::collections::HashMap;
 
 mod input_handlers;
 
 const SPEED: f64 = 20.0;
 const SENSITIVITY: f32 = 0.2;
 
-type Callback = fn(&mut MainPlayer);
-
 pub struct MainPlayer {
     pub camera: PerspectiveCamera,
-    event_handlers: Vec<(Receiver<ElementState>, Callback, Callback)>,
+    input_callbacks: Vec<InputCallback<Self>>,
     is_moving_forward: bool,
     is_moving_backward: bool,
     is_moving_left: bool,
@@ -29,7 +24,7 @@ impl MainPlayer {
     pub fn new(position: WorldCoordinate, input: &mut InputHandler) -> Self {
         let mut p = Self {
             camera: PerspectiveCamera::new(70.0, 0.1, 1024.0),
-            event_handlers: Vec::new(),
+            input_callbacks: Vec::new(),
             is_moving_forward: false,
             is_moving_backward: false,
             is_moving_left: false,
@@ -76,6 +71,7 @@ impl MainPlayer {
         self.camera.set_euler_angles(camera_angles);
 
         self.process_inputs();
+
         if self.is_moving_forward { zaxis += 1.0; }
         if self.is_moving_backward { zaxis -= 1.0; }
         if self.is_moving_left { xaxis -= 1.0; }

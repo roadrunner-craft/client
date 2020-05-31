@@ -84,7 +84,7 @@ impl ChunkRenderer {
                 texture_id = info >> 4u;
 
                 world_position = vec3(chunk_position.x, 0, chunk_position.y) + position;
-                
+
                 gl_Position = projection_view * vec4(world_position, 1.0);
             }
         "#;
@@ -104,7 +104,7 @@ impl ChunkRenderer {
             uniform vec3 camera_position;
             uniform vec3 fog_color;
             uniform uint render_distance;
-            
+
             vec4 get_color(uint id) {
                 return light * texture(diffuse_textures, vec3(uv, id));
             }
@@ -134,7 +134,7 @@ impl ChunkRenderer {
                     } else {
                         color = get_color(texture_id - 1) * cheapColorMapOutput;
                     }
-                    
+
                     color = apply_fog(color);
 
                     if (color.a < 0.01) {
