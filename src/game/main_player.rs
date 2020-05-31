@@ -18,7 +18,9 @@ pub struct MainPlayer {
     is_moving_forward: bool,
     is_moving_backward: bool,
     is_moving_left: bool,
-    is_moving_right: bool
+    is_moving_right: bool,
+    is_moving_up: bool,
+    is_moving_down: bool,
 }
 
 impl MainPlayer {
@@ -29,7 +31,9 @@ impl MainPlayer {
             is_moving_forward: false,
             is_moving_backward: false,
             is_moving_left: false,
-            is_moving_right: false
+            is_moving_right: false,
+            is_moving_up: false,
+            is_moving_down: false,
         };
 
         p.register_input_handlers(input);
@@ -74,6 +78,8 @@ impl MainPlayer {
         if self.is_moving_backward { zaxis -= 1.0; }
         if self.is_moving_left { xaxis -= 1.0; }
         if self.is_moving_right { xaxis += 1.0; }
+        if self.is_moving_up { yaxis += 1.0; }
+        if self.is_moving_down { yaxis -= 1.0; }
 
         let angle = self.camera.euler_angles().y.to_radians();
 

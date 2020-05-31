@@ -25,6 +25,8 @@ impl MainPlayer {
         self.register_move_backward(input);
         self.register_move_left(input);
         self.register_move_right(input);
+        self.register_move_up(input);
+        self.register_move_down(input);
     }
 
     pub fn register_move_forward(&mut self, input: &mut InputHandler) {
@@ -83,4 +85,31 @@ impl MainPlayer {
         input.register(VirtualKeyCode::D, sender)
     }
 
+    pub fn register_move_up(&mut self, input: &mut InputHandler) {
+        let on_pressed = |player: &mut MainPlayer| {
+            player.is_moving_up = true;
+        };
+
+        let on_released = |player: &mut MainPlayer| {
+            player.is_moving_up = false;
+        };
+
+        let (sender, receiver) = channel();
+        self.event_handlers.push((receiver, on_pressed, on_released));
+        input.register(VirtualKeyCode::Space, sender)
+    }
+
+    pub fn register_move_down(&mut self, input: &mut InputHandler) {
+        let on_pressed = |player: &mut MainPlayer| {
+            player.is_moving_down = true;
+        };
+
+        let on_released = |player: &mut MainPlayer| {
+            player.is_moving_down = false;
+        };
+
+        let (sender, receiver) = channel();
+        self.event_handlers.push((receiver, on_pressed, on_released));
+        input.register(VirtualKeyCode::LShift, sender)
+    }
 }
