@@ -6,6 +6,7 @@ use std::path::Path;
 use std::sync::mpsc::{channel, Receiver};
 
 pub struct Watcher {
+    watcher: RecommendedWatcher,
     receiver: Receiver<NotifyResult<NotifyEvent>>,
 }
 
@@ -20,7 +21,10 @@ impl Watcher {
             .watch(path, RecursiveMode::Recursive)
             .expect(format!("<watcher> could not create watcher for {:?}", path).as_str());
 
-        Self { receiver: rx }
+        Self {
+            watcher,
+            receiver: rx,
+        }
     }
 
     pub fn poll(&self) -> bool {
