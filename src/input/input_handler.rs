@@ -1,15 +1,16 @@
-use glutin::event::{KeyboardInput, VirtualKeyCode};
+use glutin::event::{KeyboardInput, VirtualKeyCode, ElementState};
 
 use crate::input::{CursorDelta, CursorHandler, KeyboardHandler};
 use std::sync::mpsc::{Sender, channel};
 use std::collections::{HashMap};
+use std::time::Instant;
 
 #[derive(Debug, Default)]
 pub struct InputHandler {
     keyboard: KeyboardHandler,
     cursor: CursorHandler,
 
-    keycode_channels: HashMap<VirtualKeyCode, Vec<Sender<VirtualKeyCode>>>
+    keycode_channels: HashMap<VirtualKeyCode, Vec<Sender<ElementState>>>
 }
 
 impl InputHandler {
@@ -24,7 +25,7 @@ impl InputHandler {
 
         if let Some(keycode) = virtual_keycode {
             for sender in self.keycode_channels.entry(keycode).or_default() {
-                sender.send(keycode);
+                sender.send(state);
             };
         }
         // self.keyboard.process(input)
@@ -55,7 +56,7 @@ impl InputHandler {
         self.keyboard.clear();
     }
 
-    pub fn register(&mut self, keycode: VirtualKeyCode, sender: Sender<VirtualKeyCode>) {
+    pub fn register(&mut self, keycode: VirtualKeyCode, sender: Sender<ElementState>) {
         self.keycode_channels.entry(keycode).or_default().push(sender);
     }
 }
