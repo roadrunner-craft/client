@@ -2,7 +2,7 @@ use glutin::event::{VirtualKeyCode, ElementState};
 use std::sync::mpsc::{Sender, Receiver, channel};
 
 use crate::input::InputHandler;
-use crate::game::main_player::MainPlayer;
+use crate::game::main_player::{MainPlayer, Callback};
 
 impl MainPlayer {
 
@@ -13,7 +13,7 @@ impl MainPlayer {
                Ok(ElementState::Released) => Some(on_release.clone()),
                Err(_) => None
             }
-        }).collect::<Vec<fn(&mut MainPlayer)>>();
+        }).collect::<Vec<Callback>>();
 
         for handler in handlers {
             (handler)(self);

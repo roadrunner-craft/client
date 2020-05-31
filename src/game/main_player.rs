@@ -12,9 +12,11 @@ mod input_handlers;
 const SPEED: f64 = 20.0;
 const SENSITIVITY: f32 = 0.2;
 
+type Callback = fn(&mut MainPlayer);
+
 pub struct MainPlayer {
     pub camera: PerspectiveCamera,
-    event_handlers: Vec<(Receiver<ElementState>, fn(&mut MainPlayer), fn(&mut MainPlayer))>,
+    event_handlers: Vec<(Receiver<ElementState>, Callback, Callback)>,
     is_moving_forward: bool,
     is_moving_backward: bool,
     is_moving_left: bool,
