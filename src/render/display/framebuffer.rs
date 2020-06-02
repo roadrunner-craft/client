@@ -2,6 +2,7 @@ use crate::ops::Bindable;
 use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizei, GLuint};
+use math::vector::Vector2;
 use std::ptr;
 
 #[derive(Default, Debug)]
@@ -10,16 +11,21 @@ pub struct FrameBuffer {
     texture: GLuint,
     unit: GLuint,
     depth: Option<GLuint>,
+    size: Vector2,
 }
 
 impl FrameBuffer {
     /// FrameBuffer 0, use this to bind on the default buffer
-    pub fn empty() -> Self {
+    pub fn empty(width: usize, height: usize) -> Self {
         Self {
             id: 0,
             texture: 0,
             unit: 0,
             depth: None,
+            size: Vector2 {
+                x: width as f32,
+                y: height as f32,
+            },
         }
     }
 
@@ -86,6 +92,10 @@ impl FrameBuffer {
             texture,
             unit,
             depth: if depth_buffer { Some(depth) } else { None },
+            size: Vector2 {
+                x: width as f32,
+                y: height as f32,
+            },
         }
     }
 
@@ -107,6 +117,10 @@ impl FrameBuffer {
         unsafe {
             gl::Clear(bits);
         }
+    }
+
+    pub fn size(&self) -> Vector2 {
+        self.size
     }
 
     pub fn unit(&self) -> GLuint {
