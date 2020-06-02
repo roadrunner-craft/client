@@ -21,7 +21,7 @@ use crate::render::display::Display;
 use core::utils::sleep;
 use core::utils::{
     logging,
-    logging::{info, Logger},
+    logging::{info, Level, Logger},
 };
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
@@ -35,8 +35,8 @@ const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
     logging::init(vec![
-        Box::new(Logger::to_file("logs")),
-        Box::new(Logger::to_stdout()),
+        Box::new(Logger::to_file("logs", Level::Debug)),
+        Box::new(Logger::to_stdout(Level::Info)),
     ]);
     info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
 
