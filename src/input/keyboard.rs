@@ -1,9 +1,9 @@
-use glutin::event::{ElementState, KeyboardInput, VirtualKeyCode};
+use glutin::event::VirtualKeyCode;
 use std::collections::HashMap;
 
 #[derive(Debug, Default)]
 struct KeyState {
-    is_pressed: bool
+    pressed: bool
 }
 
 #[derive(Debug, Default)]
@@ -13,16 +13,16 @@ pub struct Keyboard {
 
 impl Keyboard {
     pub fn press(&mut self, keycode: VirtualKeyCode) {
-        self.states.entry(keycode).or_default().is_pressed = true;
+        self.states.entry(keycode).or_default().pressed = true;
     }
 
     pub fn release(&mut self, keycode: VirtualKeyCode) {
-        self.states.entry(keycode).or_default().is_pressed = false;
+        self.states.entry(keycode).or_default().pressed = false;
     }
 
-    pub fn is_pressed(&self, keycode: VirtualKeyCode) -> bool {
+    pub fn pressed(&self, keycode: VirtualKeyCode) -> bool {
         if let Some(state) = self.states.get(&keycode) {
-            return state.is_pressed
+            return state.pressed
         }
 
         return false

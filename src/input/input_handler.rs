@@ -1,38 +1,25 @@
 use glutin::event::{KeyboardInput, VirtualKeyCode, ElementState};
 
-use crate::input::{CursorDelta, CursorHandler, Keyboard, Axis};
-use std::sync::mpsc::Sender;
+use crate::input::{CursorDelta, CursorHandler, Keyboard};
+use crate::input::axis::{Axis, KeyboardAxis};
 use std::collections::HashMap;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct InputHandler {
     keyboard: Keyboard,
     cursor: CursorHandler,
-    input_axes: HashMap<Axis, AxisControl>
+    axes: HashMap<String, Vec<Box<dyn Axis>>>
 }
 
-#[derive(Debug)]
-pub struct AxisControl {
-    up_key: VirtualKeyCode,
-    down_key: VirtualKeyCode,
-}
-
-impl InputHandler {
+impl <'a>InputHandler {
 
     pub fn new() -> Self {
         let mut i = Self::default();
-        i.input_axes.insert(Axis::Vertical, AxisControl {
-            up_key: VirtualKeyCode::W,
-            down_key: VirtualKeyCode::S,
-        });
-
-        i.input_axes.insert(Axis::Horizontal, AxisControl {
-            up_key: VirtualKeyCode::D,
-            down_key: VirtualKeyCode::A,
-        });
-
+        i.register_axis("z", KeyboardAxis::new(VirtualKeyCode::W, VirtualKeyCode::S));
+        i.register_axis("x", KeyboardAxis::new(VirtualKeyCode::D, VirtualKeyCode::A));
         i
     }
+
     pub fn process_keyboard(
         &mut self,
         KeyboardInput {
@@ -54,8 +41,8 @@ impl InputHandler {
         self.cursor.process(input)
     }
 
-    pub fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.keyboard.is_pressed(keycode)
+    pub fn key_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.keyboard.pressed(keycode)
     }
 
     pub fn get_cursor_delta(&self) -> &CursorDelta {
@@ -66,13 +53,18 @@ impl InputHandler {
         self.cursor.clear();
     }
 
-    pub fn get_axis(&self, axis: Axis) -> f32 {
+    pub fn register_axis<T : 'static + Axis>(&mut self, name: &str, axis: T) {
+        self.axes.entry(name.to_string()).or_default().push(Box::new(axis))
+    }
+
+    pub fn get_axis(&self, name: &str) -> f32 {
 
         let mut val = 0.0;
 
-        if let Some(axis_control) = self.input_axes.get(&axis) {
-            if self.is_key_pressed(axis_control.up_key) { val += 1.0 }
-            if self.is_key_pressed(axis_control.down_key) { val -= 1.0 }
+        if let Some(axes) = self.axes.get(name) {
+            for axis in axes {
+                val += axis.get_value(self);
+            }
         }
 
         return val

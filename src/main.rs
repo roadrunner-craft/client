@@ -15,7 +15,7 @@ extern crate serde;
 extern crate serde_json;
 
 use crate::game::{Game, GameType};
-use crate::input::{InputHandler, Axis};
+use crate::input::InputHandler;
 use crate::render::display::Display;
 
 use core::utils::sleep;
@@ -42,7 +42,7 @@ fn main() -> io::Result<()> {
         info: crate::network::RemoteInfo::new(String::from("localhost"), 25565),
     };
 
-    let mut game = Game::new(game_type, &mut input_handler)?;
+    let mut game = Game::new(game_type)?;
     game.resize(width, height);
 
     let mut fps: u32 = 0;

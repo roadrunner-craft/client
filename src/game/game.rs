@@ -29,12 +29,12 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(game_type: GameType, input_handler: &mut InputHandler) -> io::Result<Self> {
+    pub fn new(game_type: GameType) -> io::Result<Self> {
         let player = MainPlayer::new(WorldCoordinate {
             x: 0.0,
             y: 70.0,
             z: 0.0,
-        }, input_handler);
+        });
 
         Ok(match game_type.clone() {
             GameType::Local => Self {

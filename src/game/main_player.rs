@@ -1,22 +1,20 @@
-use crate::input::{InputHandler, Axis};
+use crate::input::InputHandler;
 use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
 use math::vector::Vector3;
 
-mod input_handlers;
-
 const SPEED: f64 = 20.0;
 const SENSITIVITY: f32 = 0.2;
 
 pub struct MainPlayer {
-    pub camera: PerspectiveCamera
+    pub camera: PerspectiveCamera,
 }
 
 impl MainPlayer {
-    pub fn new(position: WorldCoordinate, input: &mut InputHandler) -> Self {
+    pub fn new(position: WorldCoordinate) -> Self {
         let mut p = Self {
-            camera: PerspectiveCamera::new(70.0, 0.1, 1024.0)
+            camera: PerspectiveCamera::new(70.0, 0.1, 1024.0),
         };
 
         p.set_position(position);
@@ -33,9 +31,9 @@ impl MainPlayer {
 
     pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
 
-        let mut xaxis = input.get_axis(Axis::Horizontal);
-        let mut yaxis = 0.0;
-        let mut zaxis = input.get_axis(Axis::Vertical);
+        let xaxis = input.get_axis("x");
+        let yaxis = 0.0;
+        let zaxis = input.get_axis("z");
 
         let cursor_delta = input.get_cursor_delta();
         let camera_delta = Vector3 {

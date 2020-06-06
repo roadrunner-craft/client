@@ -192,11 +192,11 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, world: &World, input: &InputHandler) {
-        if input.is_key_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
+        if input.key_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
             self.render_distance -= 1;
         }
 
-        if input.is_key_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
+        if input.key_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
             self.render_distance += 1;
         }
 
