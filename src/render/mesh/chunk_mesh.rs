@@ -1,11 +1,23 @@
 use crate::ops::{Bindable, Drawable};
 use crate::render::mesh::Mesh;
 use core::block::BlockRegistry;
+use core::chunk::Chunk;
+use core::chunk::ChunkGridCoordinate;
 use core::chunk::ChunkGroup;
 use core::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 
 use gl::types::GLuint;
 use math::vector::Vector3;
+
+pub fn generate_mesh(
+    group: ChunkGroup,
+    block_registry: BlockRegistry,
+) -> (ChunkGridCoordinate, ChunkMeshCollection) {
+    (
+        group.current.coords,
+        ChunkMeshCollection::generate(&group, &block_registry),
+    )
+}
 
 pub struct ChunkMeshCollection {
     solid: ChunkMesh,
@@ -14,7 +26,7 @@ pub struct ChunkMeshCollection {
 }
 
 impl ChunkMeshCollection {
-    pub fn generate(chunks: &ChunkGroup, block_database: &BlockRegistry) -> Self {
+    pub fn generate(chunks: &ChunkGroup, block_registry: &BlockRegistry) -> Self {
         let mut solid_mesh = ChunkMesh::default();
         let mut flora_mesh = ChunkMesh::default();
         let mut water_mesh = ChunkMesh::default();
@@ -32,7 +44,7 @@ impl ChunkMeshCollection {
                         continue;
                     }
 
-                    if let Some(properties) = block_database.properties(current_block.id) {
+                    if let Some(properties) = block_registry.properties(current_block.id) {
                         let position = Vector3 {
                             x: x as f32,
                             y: y as f32,
@@ -51,7 +63,7 @@ impl ChunkMeshCollection {
 
                             if block.is_none()
                                 || (block.unwrap().id != 9
-                                    && !block_database.is_opaque(block.unwrap().id))
+                                    && !block_registry.is_opaque(block.unwrap().id))
                             {
                                 water_mesh.add_face(TOP_FACE, position, properties.texture.top);
                             }
@@ -63,32 +75,32 @@ impl ChunkMeshCollection {
                         let mesh = &mut solid_mesh;
 
                         let mut block = chunks.get_block(x, y, z - 1);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(FRONT_FACE, position, properties.texture.front);
                         }
 
                         block = chunks.get_block(x, y, z + 1);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(BACK_FACE, position, properties.texture.back);
                         }
 
                         block = chunks.get_block(x - 1, y, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(LEFT_FACE, position, properties.texture.left);
                         }
 
                         block = chunks.get_block(x + 1, y, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(RIGHT_FACE, position, properties.texture.right);
                         }
 
                         block = chunks.get_block(x, y + 1, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(TOP_FACE, position, properties.texture.top);
                         }
 
                         block = chunks.get_block(x, y - 1, z);
-                        if block.is_none() || !block_database.is_opaque(block.unwrap().id) {
+                        if block.is_none() || !block_registry.is_opaque(block.unwrap().id) {
                             mesh.add_face(BOTTOM_FACE, position, properties.texture.bottom);
                         }
                     }
@@ -96,15 +108,17 @@ impl ChunkMeshCollection {
             }
         }
 
-        solid_mesh.generate();
-        flora_mesh.generate();
-        water_mesh.generate();
-
         Self {
             solid: solid_mesh,
             flora: flora_mesh,
             water: water_mesh,
         }
+    }
+
+    pub fn upload_mesh(&mut self) {
+        self.solid.generate();
+        self.flora.generate();
+        self.water.generate();
     }
 
     pub fn draw_water(&self) {

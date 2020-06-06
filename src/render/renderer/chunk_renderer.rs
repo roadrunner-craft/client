@@ -1,18 +1,20 @@
 use crate::game::TextureDatabase;
 use crate::ops::{Bindable, Drawable};
 use crate::render::camera::Camera;
-use crate::render::mesh::chunk_mesh::ChunkMeshCollection;
+use crate::render::mesh::chunk_mesh::{generate_mesh, ChunkMeshCollection};
 use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 
 use core::block::BlockRegistry;
-use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
+use core::chunk::{Chunk, ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
 use math::container::{Volume, AABB};
 use math::vector::Vector3;
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 use std::fs;
 use std::path::Path;
+use std::sync::mpsc::{channel, Receiver, Sender};
+use core::utils::ThreadPool;
 
 #[cfg(feature = "watchers")]
 use crate::utils::watcher::*;
@@ -42,12 +44,19 @@ fn load_textures() -> TextureArray {
     textures
 }
 
+type ChunkLoadingChannel = (Sender<(ChunkGridCoordinate, ChunkMeshCollection)>, Receiver<(ChunkGridCoordinate, ChunkMeshCollection)>);
+
 pub struct ChunkRenderer {
     program: ShaderProgram,
     textures: TextureArray,
     meshes: HashMap<ChunkGridCoordinate, ChunkMeshCollection>,
     block_registry: BlockRegistry,
     pub render_distance: u8,
+
+    // Threading
+    chunk_loading_chan: ChunkLoadingChannel,
+    threadpool: ThreadPool,
+    loading_chunks: HashSet<ChunkGridCoordinate>,
 
     #[cfg(feature = "watchers")]
     texture_watcher: Watcher,
@@ -179,6 +188,10 @@ impl ChunkRenderer {
                 block_registry,
                 render_distance: LOAD_DISTANCE,
 
+                chunk_loading_chan: channel(),
+                threadpool: ThreadPool::new(8),
+                loading_chunks: HashSet::new(),
+
                 #[cfg(feature = "watchers")]
                 texture_watcher: Watcher::new(&Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures")),
             },
@@ -205,29 +218,45 @@ impl ChunkRenderer {
             self.textures = load_textures();
         }
 
-        // find newly generated chunks
-        let new_chunks = world
-            .chunks
-            .keys()
-            .filter(|coords| !self.meshes.contains_key(coords))
-            .collect::<Vec<&ChunkGridCoordinate>>();
+        let (_, receiver) = &self.chunk_loading_chan;
+        match receiver.try_recv() {
+            Ok((coords, mut chunk)) => {
+                self.loading_chunks.remove(&coords);
+                chunk.upload_mesh();
+                self.meshes.insert(coords, chunk);
+            }
+            Err(_) => (),
+        };
 
-        // remove unloaded chunk and new chunks neighbour
-        self.meshes.retain(|coords, _| {
+        // remove unloaded chunk
+        self.meshes.retain(|coords, _| 
             world.chunks.contains_key(coords)
-                && new_chunks
-                    .iter()
-                    .all(|other| !ChunkGridCoordinate::are_neighbours(coords, other))
-        });
+        );
 
         // generate missing geometry for loaded chunks
         for coords in world.chunks.keys() {
-            if !self.meshes.contains_key(coords) {
+            if !self.meshes.contains_key(coords) && !self.loading_chunks.contains(coords) {
                 let chunk_group = world.get_chunk_group(*coords);
-                self.meshes.insert(
-                    *coords,
-                    ChunkMeshCollection::generate(&chunk_group, &self.block_registry),
+
+                if chunk_group.is_none() {
+                    continue;
+                }
+
+                let (sender, _) = &self.chunk_loading_chan;
+                let tx = sender.clone();
+                let registry = self.block_registry.clone();
+
+                self.threadpool.run(move ||
+                    tx.send(
+                       generate_mesh(
+                           chunk_group.unwrap(),
+                           registry
+                       )
+                    ).unwrap()
                 );
+
+                self.loading_chunks.insert(*coords);
+
             }
         }
     }
