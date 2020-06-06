@@ -20,9 +20,9 @@ pub fn generate_mesh(
 }
 
 pub struct ChunkMeshCollection {
-    pub solid: ChunkMesh,
-    pub flora: ChunkMesh,
-    pub water: ChunkMesh,
+    solid: ChunkMesh,
+    flora: ChunkMesh,
+    water: ChunkMesh,
 }
 
 impl ChunkMeshCollection {
