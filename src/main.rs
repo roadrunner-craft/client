@@ -21,7 +21,7 @@ use crate::render::display::Display;
 use core::utils::sleep;
 use core::utils::{
     logging,
-    logging::{info, Level, LogFile, LogStdOut},
+    logging::{info, warn, Level, LogFile, LogStdOut},
 };
 use glutin::event::{DeviceEvent, Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
@@ -35,7 +35,7 @@ const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
     logging::init(vec![
-        Box::new(LogFile::new("logs", Level::Debug)),
+        Box::new(LogFile::new(Level::Debug)),
         Box::new(LogStdOut::new(Level::Info)),
     ]);
     info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
@@ -89,7 +89,11 @@ fn main() -> io::Result<()> {
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
                 fps = (1.0 / time_delta) as u32;
-                info!("FPS: {}", fps);
+                if fps < 30 {
+                    warn!("FPS: {}", fps);
+                } else {
+                    info!("FPS: {}", fps);
+                }
                 last_fps_update = Instant::now();
             }
 
