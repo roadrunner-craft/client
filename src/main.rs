@@ -34,10 +34,17 @@ const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
-    logging::init(vec![
-        Box::new(LogFile::new(Level::Debug)),
-        Box::new(LogStdOut::new(Level::Info)),
-    ]);
+    if cfg!(debug_assertions) {
+        logging::init(vec![
+            Box::new(LogFile::new(Level::Debug)),
+            Box::new(LogStdOut::new(Level::Info)),
+        ]);
+    } else {
+        logging::init(vec![
+            Box::new(LogFile::new(Level::Info)),
+            Box::new(LogStdOut::new(Level::Warn)),
+        ]);
+    }
     info!("{} v{}", PKG_NAME, PKG_VERSION);
 
     let event_loop = EventLoop::new();
