@@ -4,7 +4,7 @@ Yet another blocky game :)
 
 ## Run
 
-`cargo run`
+`cargo run [--release]`
 
 ## Build
 
@@ -18,4 +18,5 @@ Yet another blocky game :)
 
 To enable a feature, type `cargo run --features FEATURE_NAME`. Here's the list of currently available features:
 
-- chunk_loading: Loads and unloads chunks as the camera moves around
+- watchers: watch the res folder to reload assets at runtime
+- remote: temporary flag to make the client connect to the server hardcoded in `main.rs`
