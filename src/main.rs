@@ -38,7 +38,7 @@ fn main() -> io::Result<()> {
         Box::new(LogFile::new(Level::Debug)),
         Box::new(LogStdOut::new(Level::Info)),
     ]);
-    info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
+    info!("{} v{}", PKG_NAME, PKG_VERSION);
 
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
