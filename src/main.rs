@@ -37,7 +37,6 @@ const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() -> io::Result<()> {
-<<<<<<< HEAD
     if cfg!(debug_assertions) {
         logging::init(vec![
             Box::new(FileLogger::new(
@@ -57,13 +56,6 @@ fn main() -> io::Result<()> {
     }
 
     info!("{} v{}", PKG_NAME, PKG_VERSION);
-=======
-    logging::init(vec![
-        Box::new(Logger::to_file("logs")),
-        Box::new(Logger::to_stdout()),
-    ]);
-    info!("Welcome to {} v{}", PKG_NAME, PKG_VERSION);
->>>>>>> 15eccf6... use convenience ctor and use defs
 
     let event_loop = EventLoop::new();
     let display = Display::new(PKG_NAME, &event_loop);
@@ -114,7 +106,6 @@ fn main() -> io::Result<()> {
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
                 fps = (1.0 / time_delta) as u32;
-<<<<<<< HEAD
 
                 if fps < 30 {
                     warn!("FPS: {}", fps);
@@ -122,9 +113,6 @@ fn main() -> io::Result<()> {
                     info!("FPS: {}", fps);
                 }
 
-=======
-                info!("FPS: {}", fps);
->>>>>>> 15eccf6... use convenience ctor and use defs
                 last_fps_update = Instant::now();
             }
 
