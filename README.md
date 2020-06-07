@@ -1,4 +1,4 @@
-# roadrunner ![Rust](https://github.com/roadrunner-craft/client/workflows/Rust/badge.svg)
+# Roadrunner ![Rust](https://github.com/roadrunner-craft/client/workflows/Rust/badge.svg)
 
 Yet another blocky game :)
 
@@ -31,5 +31,5 @@ cargo bundle --release
 
 To enable a feature, type `cargo run --features FEATURE_NAME`. Here's the list of currently available features:
 
-- watchers: watch the res folder to reload assets at runtime
-- remote: temporary flag to make the client connect to the server hardcoded in `main.rs`
+- **watchers**: watch the res folder to reload assets at runtime
+- **remote**: temporary flag to make the client connect to the server hardcoded in `main.rs`
