@@ -13,6 +13,7 @@ extern crate image;
 extern crate math;
 extern crate serde;
 extern crate serde_json;
+extern crate ttf_parser;
 
 use crate::game::{Game, GameType};
 use crate::input::InputHandler;

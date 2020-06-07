@@ -1225,6 +1225,7 @@ dependencies = [
  "notify",
  "serde",
  "serde_json",
+ "ttf-parser",
 ]
 
 [[package]]
@@ -1388,6 +1389,12 @@ dependencies = [
  "lzw",
  "miniz_oxide",
 ]
+
+[[package]]
+name = "ttf-parser"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52fbe7769f5af5d7d25aea74b9443b64e544a5ffb4d2b2968295ddea934f1a06"
 
 [[package]]
 name = "unicode-xid"

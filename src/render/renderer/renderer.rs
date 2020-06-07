@@ -5,10 +5,11 @@ use crate::render::camera::Camera;
 use crate::render::display::FrameBuffer;
 use crate::render::post::{PostProcessingEffectType, PostProcessingPipeline};
 use crate::render::renderer::{ChunkRenderer, PlayerRenderer};
-
-use math::vector::Vector3;
+use crate::render::ui::Font;
 
 use core::world::World;
+use math::vector::Vector3;
+use std::path::Path;
 
 pub const SKY_COLOR: Vector3 = Vector3 {
     x: 0.455,
@@ -27,6 +28,8 @@ impl Renderer {
     pub fn new(width: usize, height: usize) -> Self {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
         post_pipeline.add(PostProcessingEffectType::FXAA);
+
+        let f = Font::new(Path::new("res/fonts/font.ttf"), 16.0);
 
         unsafe {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);

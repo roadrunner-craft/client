@@ -8,6 +8,7 @@ use std::path::Path;
 static mut DEFAULT_TEXTURE_ID: GLuint = 0;
 static mut DEFAULT_TEXTURE_SIZE: u32 = 0;
 
+#[derive(Clone)]
 pub struct Texture {
     id: GLuint,
     size: u32,
