@@ -2,18 +2,31 @@
 
 Yet another blocky game :)
 
+## Dependencies
+
+You'll need the most up to date version of [core](https://github.com/roadrunner-craft/core), [math](https://github.com/roadrunner-craft/math) and [assets](https://github.com/roadrunner-craft/assets)
+
+#### Export the assets
+
+```sh
+./assets/scripts/export.py ./client
+```
+
 ## Run
 
-`cargo run [--release]`
+```sh
+cargo run [--release]
+```
 
 ## Build
 
-    # install the bundle command
-    cargo install cargo-bundle
+```sh
+# install the bundle command
+cargo install cargo-bundle
 
-    # build for a release
-    cargo bundle --release
-
+# build for a release
+cargo bundle --release
+```
 ## Features
 
 To enable a feature, type `cargo run --features FEATURE_NAME`. Here's the list of currently available features:
