@@ -31,5 +31,5 @@ cargo bundle --release
 
 To enable a feature, type `cargo run --features FEATURE_NAME`. Here's the list of currently available features:
 
-- **watchers**: watch the res folder to reload assets at runtime
+- **watchers**: watch the `res` folder to reload assets at runtime
 - **remote**: temporary flag to make the client connect to the server hardcoded in `main.rs`
