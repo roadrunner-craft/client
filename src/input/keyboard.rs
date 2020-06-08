@@ -18,8 +18,6 @@ impl KeyboardHandler {
         }: KeyboardInput,
     ) {
         if let Some(keycode) = virtual_keycode {
-            // println!("{:?}", keycode);
-
             match state {
                 ElementState::Pressed => {
                     if !self.is_pressed(keycode) {
@@ -45,11 +43,6 @@ impl KeyboardHandler {
     /// indicates a previously unpressed key was just pressed
     pub fn just_pressed(&self, keycode: VirtualKeyCode) -> bool {
         self.pressed_since_clear.contains(&keycode)
-    }
-
-    /// indicates a previously pressed key was just released
-    pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
-        self.released_since_clear.contains(&keycode)
     }
 
     /// to call at the end of each gameloop

@@ -6,7 +6,7 @@ use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
 
 use core::block::BlockRegistry;
-use core::chunk::{Chunk, ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
+use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 use core::world::{World, LOAD_DISTANCE};
 use math::container::{Volume, AABB};
 use math::vector::Vector3;

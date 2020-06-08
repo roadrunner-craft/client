@@ -1,10 +1,7 @@
 use crate::ops::{Bindable, Drawable};
 use crate::render::mesh::Mesh;
 use core::block::BlockRegistry;
-use core::chunk::Chunk;
-use core::chunk::ChunkGridCoordinate;
-use core::chunk::ChunkGroup;
-use core::chunk::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
+use core::chunk::{ChunkGridCoordinate, ChunkGroup, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
 
 use gl::types::GLuint;
 use math::vector::Vector3;
