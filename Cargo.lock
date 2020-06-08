@@ -157,8 +157,11 @@ checksum = "0dbbb57365263e881e805dc77d94697c9118fd94d8da011240555aa7b23445bd"
 name = "core"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
+ "log",
  "math",
  "serde",
+ "termcolor",
 ]
 
 [[package]]
@@ -1376,6 +1379,15 @@ dependencies = [
  "proc-macro2 1.0.12",
  "quote 1.0.4",
  "unicode-xid 0.2.0",
+]
+
+[[package]]
+name = "termcolor"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb6bfa289a4d7c5766392812c0a1f4c1ba45afa1ad47803c11e1f407d846d75f"
+dependencies = [
+ "winapi-util",
 ]
 
 [[package]]
