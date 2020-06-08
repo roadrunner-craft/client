@@ -45,11 +45,6 @@ impl KeyboardHandler {
         self.pressed_since_clear.contains(&keycode)
     }
 
-    /// indicates a previously pressed key was just released
-    pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
-        self.released_since_clear.contains(&keycode)
-    }
-
     /// to call at the end of each gameloop
     pub fn clear(&mut self) {
         self.pressed_since_clear.clear();

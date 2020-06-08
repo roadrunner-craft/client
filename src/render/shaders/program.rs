@@ -58,14 +58,6 @@ impl ShaderProgram {
         unsafe { gl::Uniform1ui(self.get_uniform_location(name), value) }
     }
 
-    pub fn set_uniform_float(&self, name: &str, value: f32) {
-        unsafe { gl::Uniform1f(self.get_uniform_location(name), value) }
-    }
-
-    pub fn set_uniform_bool(&self, name: &str, value: bool) {
-        unsafe { gl::Uniform1i(self.get_uniform_location(name), value as i32) }
-    }
-
     pub fn set_uniform_v2(&self, name: &str, value: Vector2) {
         unsafe { gl::Uniform2f(self.get_uniform_location(name), value.x, value.y) }
     }

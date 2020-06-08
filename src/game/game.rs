@@ -16,11 +16,14 @@ pub const NETWORK_UPDATE_TIMEOUT: u128 = 50;
 #[derive(Debug, Clone)]
 pub enum GameType {
     Local,
-    Remote { info: RemoteInfo },
+    // TODO: remove this dead_code attrib
+    #[allow(dead_code)]
+    Remote {
+        info: RemoteInfo,
+    },
 }
 
 pub struct Game {
-    game_type: GameType,
     world: Option<World>,
     player: MainPlayer,
     players: HashMap<PlayerId, Player>,
@@ -39,7 +42,6 @@ impl Game {
 
         Ok(match game_type.clone() {
             GameType::Local => Self {
-                game_type,
                 world: Some(World::new()),
                 player,
                 players: HashMap::new(),
@@ -48,7 +50,6 @@ impl Game {
                 last_network_update: Instant::now(),
             },
             GameType::Remote { info } => Self {
-                game_type,
                 world: None,
                 player,
                 players: HashMap::new(),
@@ -115,7 +116,7 @@ impl Game {
             for event in events {
                 match event {
                     ServerEvent::PlayerConnected { id } => {
-                        self.players.insert(id, Player::new(id));
+                        self.players.insert(id, Player::new());
                     }
                     ServerEvent::PlayerDisconnected { id } => {
                         self.players.remove(&id);
@@ -129,7 +130,7 @@ impl Game {
                         self.world = Some(World::from_seed(seed));
 
                         for id in player_ids.iter() {
-                            self.players.insert(*id, Player::new(*id));
+                            self.players.insert(*id, Player::new());
                         }
                     }
                 };

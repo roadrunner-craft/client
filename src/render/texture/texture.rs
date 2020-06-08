@@ -76,10 +76,6 @@ impl Texture {
             id
         }
     }
-
-    pub fn unit(&self) -> GLuint {
-        self.unit
-    }
 }
 
 impl Bindable for Texture {

@@ -6,7 +6,6 @@ use std::time::Instant;
 pub type PlayerId = u128;
 
 pub struct Player {
-    id: PlayerId,
     position: WorldCoordinate,
     start_position: WorldCoordinate,
     target_position: WorldCoordinate,
@@ -14,9 +13,8 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(id: PlayerId) -> Self {
+    pub fn new() -> Self {
         Self {
-            id,
             position: WorldCoordinate::zero(),
             start_position: WorldCoordinate::zero(),
             target_position: WorldCoordinate::zero(),
