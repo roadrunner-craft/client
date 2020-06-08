@@ -1,5 +1,6 @@
 use crate::ops::Bindable;
 
+use core::utils::logging::warn;
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
 use std::ffi::c_void;
@@ -20,7 +21,7 @@ impl Texture {
             None => Texture::default(),
             Some(path) => match image::open(path) {
                 Err(err) => {
-                    println!("<texture> Could not load image {}: {}", path, err);
+                    warn!("<texture> Could not load image {}: {}", path, err);
                     return Self::default();
                 }
                 Ok(img) => {
@@ -31,7 +32,7 @@ impl Texture {
 
                     let width = img.width();
                     if width != img.height() {
-                        println!("<texture> Image aspect ratio must be 1: {}", path);
+                        warn!("<texture> Image aspect ratio must be 1: {}", path);
                         return Self::default();
                     }
 

@@ -5,6 +5,7 @@ use crate::network::{NetworkHandler, RemoteInfo};
 use crate::render::renderer::Renderer;
 
 use core::events::{ClientEvent, ServerEvent};
+use core::utils::logging::error;
 use core::world::{World, WorldCoordinate};
 use std::collections::HashMap;
 use std::io;
@@ -134,7 +135,7 @@ impl Game {
                 };
             }
         } else {
-            println!("<game> could not process network events");
+            error!("<game> could not process network events");
         }
     }
 
