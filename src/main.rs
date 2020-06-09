@@ -12,9 +12,9 @@ extern crate gl;
 extern crate glutin;
 extern crate image;
 extern crate math;
+extern crate rusttype;
 extern crate serde;
 extern crate serde_json;
-extern crate ttf_parser;
 
 use crate::game::{Game, GameType};
 use crate::input::InputHandler;
@@ -22,7 +22,7 @@ use crate::render::display::Display;
 
 use core::utils::{
     logging,
-    logging::{info, warn, FileLogger, FileLoggerOptions, Level, StdoutLogger},
+    logging::{FileLogger, FileLoggerOptions, Level, StdoutLogger},
     sleep,
 };
 use glutin::event::{DeviceEvent, Event, WindowEvent};

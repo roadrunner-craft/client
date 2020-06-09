@@ -11,10 +11,16 @@ use core::world::World;
 use math::vector::Vector3;
 use std::path::Path;
 
+//pub const SKY_COLOR: Vector3 = Vector3 {
+//    x: 0.455,
+//    y: 0.678,
+//    z: 0.984,
+//};
+
 pub const SKY_COLOR: Vector3 = Vector3 {
-    x: 0.455,
-    y: 0.678,
-    z: 0.984,
+    x: 0.62,
+    y: 0.76,
+    z: 1.0,
 };
 
 pub struct Renderer {

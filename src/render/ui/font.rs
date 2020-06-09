@@ -1,53 +1,76 @@
-use crate::ops::Bindable;
 use crate::render::texture::Texture;
 
+use rusttype::{Font as FontType, Point, Scale};
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::pin::Pin;
-use std::slice;
-use ttf_parser::Font as FontType;
 
-struct FontCharacter {
+pub struct FontCharacter {
     texture: Texture,
-    size: (u16, u16),
-    bearing: (u16, u16),
-    advance: u16,
+    width: f32,
+    height: f32,
+    side_bearing: f32,
+    advance: f32,
 }
 
-struct OwnedFont<'font> {
-    data: Vec<u8>,
-    font: Option<FontType<'font>>,
+pub struct Font {
+    size: f32,
+    line_gap: f32,
+    chars: HashMap<char, FontCharacter>,
 }
 
-impl OwnedFont<'_> {
-    fn new() -> Self {
-        let font = 
+impl Font {
+    pub fn new(path: &Path, size: f32) -> Option<Self> {
+        let data = fs::read(path.to_str()?).ok()?;
+        let font = FontType::try_from_bytes(data.as_slice())?;
 
-        let mut p = Box::pin(font);
+        let scale = Scale::uniform(size);
+        let v_metrics = font.v_metrics(scale);
 
-        unsafe {
-            let slice: &'static [u8] = slice::from_raw_parts(p.data.as_ptr(), p.data.len());
-            let mut_ref: Pin<&mut Self> = Pin::as_mut(&mut p);
-            let mut_inner = mut_ref.get_unchecked_mut();
-            mut_inner.font = Some(FontType::from_data(slice, 0)?);
+        let mut chars = HashMap::new();
+
+        if let Some(font_char) = Font::generate_glyph(&font, '\u{0}', scale) {
+            chars.insert('\u{0}', font_char);
         }
 
-        Some(p)
-    }
-
-    fn as_font(self: &'a OwnedFont) -> &FontType<'a> {
-        match self.font.as_ref() {
-            Some(f) => f,
-            None => unsafe { core::hint::unreachable_unchecked() },
+        for i in 0x20..0x7f_u8 {
+            if let Some(font_char) = Font::generate_glyph(&font, i as char, scale) {
+                chars.insert(i as char, font_char);
+            }
         }
+
+        Some(Self {
+            size,
+            line_gap: v_metrics.line_gap,
+            chars,
+        })
     }
-}
 
-pub struct Font<'font> {
-    font: OwnedFont,
-}
+    fn generate_glyph(font: &FontType, c: char, scale: Scale) -> Option<FontCharacter> {
+        let glyph = font.glyph(c).scaled(scale);
+        let h_metrics = glyph.h_metrics();
 
-impl<'font> Font<'font> {
-    pub fn new(path: &Path, size: f32) -> Option<Pin<Box<Self>>> {
+        let bbox = glyph.exact_bounding_box()?;
+        let positioned_glyph = glyph.positioned(Point { x: 0.0, y: 0.0 });
+
+        let width = bbox.width();
+        let height = bbox.height();
+
+        //let mut image = Vec::new();
+
+        debug!("{} -> {}x{} {:?}", c, width, height, h_metrics);
+
+        positioned_glyph.draw(|x, y, v| debug!("{}, {}, {}", x, y, v));
+
+        //let texture = Texture::from_image();
+        let texture = Texture::default();
+
+        Some(FontCharacter {
+            texture,
+            height,
+            width,
+            side_bearing: h_metrics.left_side_bearing,
+            advance: h_metrics.advance_width,
+        })
     }
 }

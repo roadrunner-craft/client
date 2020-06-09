@@ -1,11 +1,12 @@
-use crate::game::entity::{Player, PlayerId};
-use crate::game::MainPlayer;
+use crate::game::{
+    entity::{Player, PlayerId},
+    MainPlayer,
+};
 use crate::input::InputHandler;
 use crate::network::{NetworkHandler, RemoteInfo};
 use crate::render::renderer::Renderer;
 
 use core::events::{ClientEvent, ServerEvent};
-use core::utils::logging::error;
 use core::world::{World, WorldCoordinate};
 use std::collections::HashMap;
 use std::io;

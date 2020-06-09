@@ -1,6 +1,5 @@
 use crate::ops::Bindable;
 
-use core::utils::logging::warn;
 use gl::types::{GLint, GLsizei, GLuint};
 use image::DynamicImage;
 use std::ffi::c_void;
