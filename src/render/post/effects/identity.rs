@@ -12,11 +12,12 @@ impl IdentityPostProcessing {
             #version 410 core
 
             layout (location=0) in vec3 position;
+            layout (location=1) in vec2 uv_data;
 
             out vec2 uv;
 
             void main() {
-                uv = (position.xy + 1.0) / 2.0;
+                uv = uv_data;
                 gl_Position = vec4(position, 1.0);
             }
         "#;
@@ -36,11 +37,10 @@ impl IdentityPostProcessing {
 
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self { program },
-            Err(err) => panic!(
-                "<post> could not compile shaders in {}: \n\n{}\n",
-                file!(),
-                err
-            ),
+            Err(err) => {
+                error!("could not compile shader program {}:{}", file!(), line!());
+                panic!("\n{}\n", err);
+            }
         }
     }
 }

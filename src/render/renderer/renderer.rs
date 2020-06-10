@@ -1,21 +1,15 @@
 use crate::game::entity::Player;
 use crate::input::InputHandler;
 use crate::ops::Bindable;
-use crate::render::camera::Camera;
-use crate::render::display::FrameBuffer;
-use crate::render::post::{PostProcessingEffectType, PostProcessingPipeline};
-use crate::render::renderer::{ChunkRenderer, PlayerRenderer};
-use crate::render::ui::Font;
+use crate::render::{
+    camera::Camera,
+    display::FrameBuffer,
+    post::{PostProcessingEffectType, PostProcessingPipeline},
+    renderer::{ChunkRenderer, PlayerRenderer, UIRenderer},
+};
 
 use core::world::World;
 use math::vector::Vector3;
-use std::path::Path;
-
-//pub const SKY_COLOR: Vector3 = Vector3 {
-//    x: 0.455,
-//    y: 0.678,
-//    z: 0.984,
-//};
 
 pub const SKY_COLOR: Vector3 = Vector3 {
     x: 0.62,
@@ -27,6 +21,7 @@ pub struct Renderer {
     framebuffer: FrameBuffer,
     player_renderer: PlayerRenderer,
     chunk_renderer: ChunkRenderer,
+    ui_renderer: UIRenderer,
     post_pipeline: PostProcessingPipeline,
 }
 
@@ -34,8 +29,6 @@ impl Renderer {
     pub fn new(width: usize, height: usize) -> Self {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
         post_pipeline.add(PostProcessingEffectType::FXAA);
-
-        let f = Font::new(Path::new("res/fonts/font.ttf"), 16.0);
 
         unsafe {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
@@ -45,6 +38,7 @@ impl Renderer {
             framebuffer: FrameBuffer::new(width, height, 1, true),
             player_renderer: PlayerRenderer::new(),
             chunk_renderer: ChunkRenderer::new(),
+            ui_renderer: UIRenderer::new(width, height),
             post_pipeline,
         }
     }
@@ -52,6 +46,7 @@ impl Renderer {
     pub fn resize(&mut self, width: usize, height: usize) {
         self.framebuffer = FrameBuffer::new(width, height, 1, true);
         self.post_pipeline.resize(width, height);
+        self.ui_renderer.resize(width, height);
     }
 
     pub fn update(&mut self, world: &World, input: &InputHandler) {
@@ -72,6 +67,6 @@ impl Renderer {
 
         self.post_pipeline.apply(&self.framebuffer);
 
-        // draw ui here
+        self.ui_renderer.draw();
     }
 }

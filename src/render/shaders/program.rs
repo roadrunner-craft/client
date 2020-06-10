@@ -66,6 +66,10 @@ impl ShaderProgram {
         unsafe { gl::Uniform3f(self.get_uniform_location(name), value.x, value.y, value.z) }
     }
 
+    pub fn set_uniform_bool(&self, name: &str, value: bool) {
+        unsafe { gl::Uniform1i(self.get_uniform_location(name), value as i32) }
+    }
+
     pub fn set_uniform_m4(&self, name: &str, value: &Matrix4) {
         unsafe {
             gl::UniformMatrix4fv(
