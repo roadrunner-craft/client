@@ -21,7 +21,7 @@ use crate::render::display::Display;
 
 use core::utils::{
     logging,
-    logging::{info, warn, FileLogger, FileLoggerOptions, Level, StdoutLogger},
+    logging::{FileLogger, FileLoggerOptions, Level, StdoutLogger},
     sleep,
 };
 use glutin::event::{DeviceEvent, Event, WindowEvent};
