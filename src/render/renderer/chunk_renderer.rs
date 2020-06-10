@@ -189,7 +189,7 @@ impl ChunkRenderer {
                 render_distance: LOAD_DISTANCE,
 
                 chunk_loading_chan: channel(),
-                threadpool: ThreadPool::new(8),
+                threadpool: ThreadPool::new(1),
                 loading_chunks: HashSet::new(),
 
                 #[cfg(feature = "watchers")]
@@ -219,14 +219,11 @@ impl ChunkRenderer {
         }
 
         let (_, receiver) = &self.chunk_loading_chan;
-        match receiver.try_recv() {
-            Ok((coords, mut chunk)) => {
-                self.loading_chunks.remove(&coords);
-                chunk.upload_mesh();
-                self.meshes.insert(coords, chunk);
-            }
-            Err(_) => (),
-        };
+        while let Ok((coords, mut chunk)) = receiver.try_recv() {
+            self.loading_chunks.remove(&coords);
+            chunk.upload_mesh();
+            self.meshes.insert(coords, chunk);
+        }
 
         // remove unloaded chunk
         self.meshes.retain(|coords, _| 
