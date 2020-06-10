@@ -64,7 +64,7 @@ impl TextureArray {
         if let Some(path) = path.to_str() {
             match image::open(path) {
                 Err(err) => {
-                    println!("<texture-array> Could not load image {}: {}", path, err);
+                    warn!("<texture-array> Could not load image {}: {}", path, err);
                     // TODO: add default image
                 }
                 Ok(img) => {
@@ -74,7 +74,7 @@ impl TextureArray {
                     };
 
                     if img.width() != self.size || img.height() != self.size {
-                        println!("<texture-array> Image aspect ratio must be 1: {}", path);
+                        warn!("<texture-array> Image aspect ratio must be 1: {}", path);
                         // TODO: add default image
                     }
 

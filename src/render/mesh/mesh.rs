@@ -120,7 +120,7 @@ impl Bindable for Mesh {
 impl Drop for Mesh {
     fn drop(&mut self) {
         unsafe {
-            gl::DeleteBuffers(self.buffers.len() as i32, mem::transmute(&self.buffers));
+            gl::DeleteBuffers(self.buffers.len() as i32, self.buffers.as_mut_ptr());
             gl::DeleteVertexArrays(1, &self.vao);
         }
     }

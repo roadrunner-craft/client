@@ -38,7 +38,7 @@ impl NetworkHandler {
 
             match bincode::deserialize(&data) {
                 SerdeOk(event) => events.push(event),
-                SerdeErr(err) => println!("{}", err),
+                SerdeErr(err) => error!("{}", err),
             }
         }
 
