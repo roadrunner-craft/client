@@ -1,7 +1,6 @@
 use crate::network::RemoteInfo;
 
 use core::events::{ClientEvent, ServerEvent};
-use core::utils::logging::error;
 use serde::export::Err as SerdeErr;
 use serde::export::Ok as SerdeOk;
 use std::io;
