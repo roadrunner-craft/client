@@ -34,9 +34,7 @@ impl Font {
 
         let chars: HashMap<char, FontCharacter> = (0x20..0x7f_u8)
             .chain(0..=0_u8)
-            .map(|i| (i as char, Font::generate_glyph(&font, i as char, scale)))
-            .filter(|(_, n)| n.is_some())
-            .map(|(c, n)| (c, n.unwrap()))
+            .filter_map(|i| Font::generate_glyph(&font, i as char, scale).map(|f| (i as char, f)))
             .collect();
 
         Some(Self { chars })
