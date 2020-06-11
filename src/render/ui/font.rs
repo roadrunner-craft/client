@@ -32,17 +32,12 @@ impl Font {
 
         let scale = Scale::uniform(size);
 
-        let mut chars = HashMap::new();
-
-        if let Some(font_char) = Font::generate_glyph(&font, '\u{0}', scale) {
-            chars.insert('\u{0}', font_char);
-        }
-
-        for i in 0x20..0x7f_u8 {
-            if let Some(font_char) = Font::generate_glyph(&font, i as char, scale) {
-                chars.insert(i as char, font_char);
-            }
-        }
+        let chars: HashMap<char, FontCharacter> = (0x20..0x7f_u8)
+            .chain(0..=0_u8)
+            .map(|i| (i as char, Font::generate_glyph(&font, i as char, scale)))
+            .filter(|(_, n)| n.is_some())
+            .map(|(c, n)| (c, n.unwrap()))
+            .collect();
 
         Some(Self { chars })
     }
