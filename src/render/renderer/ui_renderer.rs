@@ -111,7 +111,7 @@ impl UIRenderer {
             );
 
             texture.bind();
-            quad.draw();
+            // quad.draw();
         }
 
         unsafe {
