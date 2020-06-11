@@ -1,5 +1,7 @@
-use crate::game::entity::{Player, PlayerId};
-use crate::game::MainPlayer;
+use crate::game::{
+    entity::{Player, PlayerId},
+    MainPlayer,
+};
 use crate::input::InputHandler;
 use crate::network::{NetworkHandler, RemoteInfo};
 use crate::render::renderer::Renderer;
