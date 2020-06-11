@@ -12,6 +12,7 @@ extern crate gl;
 extern crate glutin;
 extern crate image;
 extern crate math;
+extern crate rusttype;
 extern crate serde;
 extern crate serde_json;
 

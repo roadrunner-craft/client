@@ -1,8 +1,7 @@
 use crate::network::RemoteInfo;
 
 use core::events::{ClientEvent, ServerEvent};
-use serde::export::Err as SerdeErr;
-use serde::export::Ok as SerdeOk;
+use serde::export::{Err as SerdeErr, Ok as SerdeOk};
 use std::io;
 use std::net::UdpSocket;
 
