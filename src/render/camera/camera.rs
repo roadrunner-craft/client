@@ -1,4 +1,4 @@
-use crate::render::camera::perspective::PerspectiveProjection;
+use crate::render::camera::PerspectiveProjection;
 
 use math::container::Frustum;
 use math::matrix::Matrix4;

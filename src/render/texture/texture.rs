@@ -1,16 +1,10 @@
 use crate::ops::Bindable;
 
 use gl::types::{GLint, GLsizei, GLuint};
-use image::DynamicImage;
 use std::ffi::c_void;
-use std::path::Path;
-
-static mut DEFAULT_TEXTURE_ID: GLuint = 0;
-static mut DEFAULT_TEXTURE_SIZE: u32 = 0;
 
 pub enum TextureType {
     GREYSCALE,
-    RGBA,
 }
 
 #[derive(Clone, Default)]
@@ -22,25 +16,6 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn new(path: &Path, unit: GLuint) -> Option<Self> {
-        let path = path.to_str()?;
-        let img = match image::open(path).ok()? {
-            DynamicImage::ImageRgba8(img) => img,
-            img => img.to_rgba(),
-        };
-
-        let width = img.width();
-        let height = img.height();
-
-        Some(Self::from_image(
-            &img.into_raw(),
-            width,
-            height,
-            TextureType::RGBA,
-            unit,
-        ))
-    }
-
     pub fn from_image(
         img: &Vec<u8>,
         width: u32,
@@ -72,7 +47,6 @@ impl Texture {
 
             let format = match texture_type {
                 TextureType::GREYSCALE => gl::RED,
-                TextureType::RGBA => gl::RGBA,
             };
 
             gl::TexImage2D(
@@ -119,10 +93,6 @@ impl Bindable for Texture {
 
 impl Drop for Texture {
     fn drop(&mut self) {
-        unsafe {
-            if self.id != DEFAULT_TEXTURE_ID {
-                gl::DeleteTextures(1, &self.id)
-            }
-        }
+        unsafe { gl::DeleteTextures(1, &self.id) }
     }
 }

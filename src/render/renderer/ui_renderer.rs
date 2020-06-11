@@ -93,7 +93,7 @@ impl UIRenderer {
             gl::Enable(gl::BLEND);
         }
 
-        for (rect, texture) in self.font.iter_for(&String::from("Hello World!"), 0.0) {
+        for (rect, texture) in self.font.iter_for(&String::from("Hello World!")) {
             let quad =
                 TextureQuad::new_rect(rect.x + 300.0, rect.y + 300.0, rect.width, rect.height);
 

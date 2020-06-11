@@ -22,8 +22,6 @@ pub struct FontCharacter {
 }
 
 pub struct Font {
-    size: f32,
-    line_gap: f32,
     chars: HashMap<char, FontCharacter>,
 }
 
@@ -33,7 +31,6 @@ impl Font {
         let font = FontType::try_from_bytes(data.as_slice())?;
 
         let scale = Scale::uniform(size);
-        let v_metrics = font.v_metrics(scale);
 
         let mut chars = HashMap::new();
 
@@ -47,11 +44,7 @@ impl Font {
             }
         }
 
-        Some(Self {
-            size,
-            line_gap: v_metrics.line_gap,
-            chars,
-        })
+        Some(Self { chars })
     }
 
     fn generate_glyph(font: &FontType, c: char, scale: Scale) -> Option<FontCharacter> {
@@ -89,11 +82,10 @@ impl Font {
         }
     }
 
-    pub fn iter_for<'a>(&'a self, string: &'a String, width: f32) -> FontIterator<'a> {
+    pub fn iter_for<'a>(&'a self, string: &'a String) -> FontIterator<'a> {
         FontIterator {
             font: self,
             string: string.chars(),
-            width,
             x: 0.0,
             y: 0.0,
         }
@@ -107,7 +99,6 @@ impl Font {
 pub struct FontIterator<'a> {
     font: &'a Font,
     string: Chars<'a>,
-    width: f32,
     x: f32,
     y: f32,
 }
