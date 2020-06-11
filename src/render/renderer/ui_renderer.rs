@@ -62,7 +62,7 @@ impl UIRenderer {
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
-                font: Font::new(Path::new("res/fonts/font.ttf"), 128.0).unwrap(),
+                font: Font::new(Path::new("res/fonts/nunito-regular.ttf"), 128.0).unwrap(),
                 projection: OrthographicProjection::new(
                     0.0,
                     width as f32,
@@ -93,10 +93,7 @@ impl UIRenderer {
             gl::Enable(gl::BLEND);
         }
 
-        for (rect, texture) in self
-            .font
-            .iter_for(String::from("abcdefghijklmnopqrstuvwxyz"), 0.0)
-        {
+        for (rect, texture) in self.font.iter_for(&String::from("Hello World!"), 0.0) {
             let quad =
                 TextureQuad::new_rect(rect.x + 300.0, rect.y + 300.0, rect.width, rect.height);
 
@@ -114,7 +111,6 @@ impl UIRenderer {
             );
 
             texture.bind();
-            quad.bind();
             quad.draw();
         }
 

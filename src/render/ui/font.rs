@@ -1,16 +1,23 @@
 use crate::render::texture::{Texture, TextureType};
 use crate::render::ui::Rect;
 
+use math::utils::next_power_of_two;
 use rusttype::{Font as FontType, Point, Scale};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::str::Chars;
 
-pub struct FontCharacter {
+pub struct DrawableFontCharacter {
     texture: Texture,
     width: u32,
     height: u32,
-    side_bearing: f32,
+    top_bearing: i32,
+}
+
+pub struct FontCharacter {
+    drawable: Option<DrawableFontCharacter>,
+    side_bearing: i32,
     advance: f32,
 }
 
@@ -52,35 +59,43 @@ impl Font {
         let h_metrics = glyph.h_metrics();
 
         let positioned_glyph = glyph.positioned(Point { x: 0.0, y: 0.0 });
-        let bbox = positioned_glyph.pixel_bounding_box()?;
+        if let Some(bbox) = positioned_glyph.pixel_bounding_box() {
+            let width = next_power_of_two(bbox.width() as u32);
+            let height = next_power_of_two(bbox.height() as u32);
 
-        let width = bbox.width() as u32;
-        let height = bbox.height() as u32;
+            let mut image = Vec::new();
+            image.resize((width * height) as usize, 0);
 
-        let mut image = Vec::new();
-        image.resize((width * height) as usize, 0);
+            positioned_glyph.draw(|x, y, v| image[(y * width + x) as usize] = (v * 255.0) as u8);
 
-        positioned_glyph.draw(|x, y, v| image[(y * width + x) as usize] = (v * 255.0) as u8);
+            let texture = Texture::from_image(&image, width, height, TextureType::GREYSCALE, 5);
 
-        let texture = Texture::from_image(&image, width, height, TextureType::GREYSCALE, 5);
-
-        Some(FontCharacter {
-            texture,
-            height,
-            width,
-            side_bearing: h_metrics.left_side_bearing,
-            advance: h_metrics.advance_width,
-        })
+            Some(FontCharacter {
+                drawable: Some(DrawableFontCharacter {
+                    texture,
+                    width: bbox.width() as u32,
+                    height: bbox.height() as u32,
+                    top_bearing: bbox.min.y,
+                }),
+                side_bearing: h_metrics.left_side_bearing as i32,
+                advance: h_metrics.advance_width,
+            })
+        } else {
+            Some(FontCharacter {
+                drawable: None,
+                side_bearing: h_metrics.left_side_bearing as i32,
+                advance: h_metrics.advance_width,
+            })
+        }
     }
 
-    pub fn iter_for<'a>(&'a self, string: String, width: f32) -> FontIterator<'a> {
+    pub fn iter_for<'a>(&'a self, string: &'a String, width: f32) -> FontIterator<'a> {
         FontIterator {
             font: self,
-            string,
+            string: string.chars(),
             width,
             x: 0.0,
             y: 0.0,
-            index: 0,
         }
     }
 
@@ -91,37 +106,39 @@ impl Font {
 
 pub struct FontIterator<'a> {
     font: &'a Font,
-    string: String,
+    string: Chars<'a>,
     width: f32,
     x: f32,
     y: f32,
-    index: usize,
 }
 
 impl<'a> Iterator for FontIterator<'a> {
     type Item = (Rect, &'a Texture);
 
     fn next(&mut self) -> Option<Self::Item> {
-        // find font info for character
-        let c = self.string.chars().nth(self.index)?;
-        let font_char = self
-            .font
-            .chars(c)
-            .unwrap_or_else(|| self.font.chars('\u{0}').unwrap());
+        loop {
+            let c = self.string.next()?;
+            let font_char = self
+                .font
+                .chars(c)
+                .unwrap_or_else(|| self.font.chars('\u{0}').unwrap());
 
-        self.index += 1;
+            if let Some(drawable) = &font_char.drawable {
+                let rect = Rect::new(
+                    self.x + font_char.side_bearing as f32,
+                    self.y + drawable.top_bearing as f32,
+                    drawable.width as f32,
+                    drawable.height as f32,
+                );
 
-        let rect = Rect::new(
-            self.x + font_char.side_bearing,
-            self.y,
-            font_char.width as f32,
-            font_char.height as f32,
-        );
+                let result = (rect, &drawable.texture);
 
-        let result = (rect, &font_char.texture);
+                self.x += font_char.advance;
 
-        self.x += font_char.advance;
-
-        Some(result)
+                return Some(result);
+            } else {
+                self.x += font_char.advance;
+            }
+        }
     }
 }

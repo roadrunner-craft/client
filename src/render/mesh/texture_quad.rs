@@ -1,6 +1,7 @@
 use crate::ops::{Bindable, Drawable};
 use crate::render::mesh::Mesh;
 
+use math::utils::next_power_of_two;
 use math::vector::{Vector2, Vector3};
 
 pub struct TextureQuad {
@@ -67,14 +68,19 @@ impl TextureQuad {
             },
         ];
 
-        //let indices = vec![0, 1, 3, 1, 2, 3];
         let indices = vec![0, 3, 1, 1, 3, 2];
+
+        let texture_width = next_power_of_two(width as u32) as f32;
+        let texture_height = next_power_of_two(height as u32) as f32;
+
+        let u = width / texture_width;
+        let v = height / texture_height;
 
         let uvs = vec![
             Vector2 { x: 0.0, y: 0.0 },
-            Vector2 { x: 1.0, y: 0.0 },
-            Vector2 { x: 1.0, y: 1.0 },
-            Vector2 { x: 0.0, y: 1.0 },
+            Vector2 { x: u, y: 0.0 },
+            Vector2 { x: u, y: v },
+            Vector2 { x: 0.0, y: v },
         ];
 
         let mut mesh = Mesh::new(&vertices, &indices);
