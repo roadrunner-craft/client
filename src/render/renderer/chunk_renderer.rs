@@ -4,6 +4,7 @@ use crate::render::camera::Camera;
 use crate::render::mesh::chunk_mesh::{generate_mesh, ChunkMeshCollection};
 use crate::render::shaders::ShaderProgram;
 use crate::render::texture::TextureArray;
+use crate::utils::path::*;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
@@ -36,9 +37,8 @@ fn load_textures() -> TextureArray {
     let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
 
     for (i, file) in database.iter() {
-        let path =
-            Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("res/textures/block/{}.png", file));
-        textures.add_file(&path, (*i as u32) - 1);
+        let path = ResourcePath::new(ResourceType::Texture, ResourceSubtype::Block, file);
+        textures.add_file(&path.as_path(), (*i as u32) - 1);
     }
 
     textures

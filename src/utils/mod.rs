@@ -1,5 +1,6 @@
 pub mod c;
 mod identifiable;
+pub mod path;
 
 #[cfg(feature = "watchers")]
 pub mod watcher;

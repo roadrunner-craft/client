@@ -21,6 +21,12 @@ math = { path = "../math" }
 core = { path = "../core" }
 
 
+[features]
+default = []
+watchers = ["notify"]
+remote = []
+
+
 [package.metadata.bundle]
 name = "Roadrunner"
 identifier = "app.frigon.roadrunner"
@@ -31,7 +37,3 @@ copyright = "Copyright (c) Alexandre Frigon 2020."
 category = "Games"
 short_description = "A Minecraft clone written in rust"
 
-[features]
-default = []
-watchers = ["notify"]
-remote = []
