@@ -15,4 +15,8 @@ impl Rect {
             height,
         }
     }
+
+    pub fn zero() -> Self {
+        Self::default()
+    }
 }

@@ -1,5 +1,6 @@
 use crate::render::texture::{Texture, TextureType};
 use crate::render::ui::Rect;
+use crate::utils::path::*;
 
 use math::utils::next_power_of_two;
 use rusttype::{Font as FontType, Point, Scale};
@@ -8,14 +9,14 @@ use std::fs;
 use std::path::Path;
 use std::str::Chars;
 
-pub struct DrawableFontCharacter {
+struct DrawableFontCharacter {
     texture: Texture,
     width: u32,
     height: u32,
     top_bearing: i32,
 }
 
-pub struct FontCharacter {
+struct FontCharacter {
     drawable: Option<DrawableFontCharacter>,
     side_bearing: i32,
     advance: f32,
@@ -26,11 +27,11 @@ pub struct Font {
 }
 
 impl Font {
-    pub fn new(path: &Path, size: f32) -> Option<Self> {
+    pub fn new(path: &Path, size: u32) -> Option<Self> {
         let data = fs::read(path.to_str()?).ok()?;
         let font = FontType::try_from_bytes(data.as_slice())?;
 
-        let scale = Scale::uniform(size);
+        let scale = Scale::uniform(size as f32);
 
         let chars: HashMap<char, FontCharacter> = (0x20..0x7f_u8)
             .chain(0..=0_u8)
@@ -126,3 +127,26 @@ impl<'a> Iterator for FontIterator<'a> {
         }
     }
 }
+
+//#[derive(Default)]
+//pub struct FontStore {
+//    fonts: HashMap<(String, u32), Font>,
+//}
+//
+//impl FontStore {
+//    pub fn font(&mut self, name: String, size: u32) -> Option<&Font> {
+//        let font = self.fonts.get(&(name.clone(), size));
+//        if font.is_some() {
+//            return font;
+//        }
+//
+//        let path = ResourcePath::new(ResourceType::Font, &name);
+//        let font = Font::new(path.as_path(), size);
+//
+//        if let Some(f) = font {
+//            self.fonts.insert((name.clone(), size), f);
+//        }
+//
+//        self.fonts.get(&(name.clone(), size))
+//    }
+//}

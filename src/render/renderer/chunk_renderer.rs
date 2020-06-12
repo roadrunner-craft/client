@@ -37,7 +37,7 @@ fn load_textures() -> TextureArray {
     let textures = TextureArray::new(TEXTURE_RESOLUTION, database.len() as u32, 2);
 
     for (i, file) in database.iter() {
-        let path = ResourcePath::new(ResourceType::Texture, ResourceSubtype::Block, file);
+        let path = ResourcePath::new_with_subtype(ResourceType::Texture, ResourceSubtype::Block, file);
         textures.add_file(&path.as_path(), (*i as u32) - 1);
     }
 

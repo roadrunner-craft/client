@@ -17,15 +17,15 @@ pub const SKY_COLOR: Vector3 = Vector3 {
     z: 1.0,
 };
 
-pub struct Renderer {
+pub struct Renderer<'a> {
     framebuffer: FrameBuffer,
     player_renderer: PlayerRenderer,
     chunk_renderer: ChunkRenderer,
-    ui_renderer: UIRenderer,
+    ui_renderer: UIRenderer<'a>,
     post_pipeline: PostProcessingPipeline,
 }
 
-impl Renderer {
+impl Renderer<'_> {
     pub fn new(width: usize, height: usize) -> Self {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
         post_pipeline.add(PostProcessingEffectType::FXAA);

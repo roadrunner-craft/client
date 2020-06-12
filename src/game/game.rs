@@ -24,16 +24,16 @@ pub enum GameType {
     },
 }
 
-pub struct Game {
+pub struct Game<'a> {
     world: Option<World>,
     player: MainPlayer,
     players: HashMap<PlayerId, Player>,
-    renderer: Renderer,
+    renderer: Renderer<'a>,
     network: Option<NetworkHandler>,
     last_network_update: Instant,
 }
 
-impl Game {
+impl Game<'_> {
     pub fn new(game_type: GameType) -> io::Result<Self> {
         let player = MainPlayer::new(WorldCoordinate {
             x: 0.0,
@@ -148,7 +148,7 @@ impl Game {
     }
 }
 
-impl Drop for Game {
+impl Drop for Game<'_> {
     fn drop(&mut self) {
         self.send_event(ClientEvent::PlayerDisconnect);
     }

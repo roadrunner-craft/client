@@ -4,7 +4,7 @@ use crate::utils::Identifiable;
 
 use gl::types::{GLchar, GLint, GLuint};
 use math::matrix::Matrix4;
-use math::vector::{Vector2, Vector3};
+use math::vector::{Vector2, Vector3, Vector4};
 use std::mem;
 use std::ptr;
 use std::vec::Vec;
@@ -64,6 +64,18 @@ impl ShaderProgram {
 
     pub fn set_uniform_v3(&self, name: &str, value: Vector3) {
         unsafe { gl::Uniform3f(self.get_uniform_location(name), value.x, value.y, value.z) }
+    }
+
+    pub fn set_uniform_v4(&self, name: &str, value: Vector4) {
+        unsafe {
+            gl::Uniform4f(
+                self.get_uniform_location(name),
+                value.x,
+                value.y,
+                value.z,
+                value.w,
+            )
+        }
     }
 
     pub fn set_uniform_bool(&self, name: &str, value: bool) {

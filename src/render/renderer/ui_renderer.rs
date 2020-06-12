@@ -1,18 +1,27 @@
 use crate::ops::{Bindable, Drawable};
 use crate::render::{
-    camera::OrthographicProjection, mesh::TextureQuad, shaders::ShaderProgram, ui::Font,
+    camera::OrthographicProjection,
+    mesh::TextureQuad,
+    shaders::ShaderProgram,
+    ui::{Rect, UIElement, UIView},
 };
+use crate::utils::Color;
 
 use math::vector::Vector3;
 use std::path::Path;
+use std::sync::Mutex;
 
-pub struct UIRenderer {
+//lazy_static! {
+//    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
+//}
+
+pub struct UIRenderer<'a> {
     program: ShaderProgram,
     projection: OrthographicProjection,
-    font: Font,
+    view: UIView<'a>,
 }
 
-impl UIRenderer {
+impl<'a> UIRenderer<'a> {
     pub fn new(width: usize, height: usize) -> Self {
         let vertex_src: &'static str = r#"
             #version 410 core
@@ -38,19 +47,19 @@ impl UIRenderer {
             out vec4 color;
 
             uniform sampler2D diffuse_texture;
-            uniform vec3 background_color;
-            uniform vec3 tint_color;
+            uniform vec4 background_color;
+            uniform vec4 tint_color;
             uniform bool render_texture;
 
             void main() {
                 if (!render_texture) {
-                    color = vec4(background_color, 1.0);
+                    color = background_color;
                 } else {
                     color = texture(diffuse_texture, uv);
                     color = vec4(color.r * tint_color.r, 
                                  color.r * tint_color.g, 
                                  color.r * tint_color.b, 
-                                 color.r * 1.0);
+                                 color.r * tint_color.a);
                 }
 
                 if (color.a < 0.01) {
@@ -59,10 +68,17 @@ impl UIRenderer {
             }
         "#;
 
+        let mut view = UIView::<'a>::new(Rect::new(300.0, 300.0, 300.0, 100.0));
+        view.background_color = Color::from_hex(0xffab00);
+
+        let mut child = UIView::<'a>::new(Rect::new(150.0, 50.0, 300.0, 300.0));
+        view.background_color = Color::from_hex(0x00abff);
+
+        view.add_subview(Box::new(child));
+
         match ShaderProgram::new(vertex_src, fragment_src) {
             Ok(program) => Self {
                 program,
-                font: Font::new(Path::new("res/fonts/nunito-regular.ttf"), 128.0).unwrap(),
                 projection: OrthographicProjection::new(
                     0.0,
                     width as f32,
@@ -71,6 +87,7 @@ impl UIRenderer {
                     -1.0,
                     1.0,
                 ),
+                view,
             },
             Err(err) => {
                 error!("could not compile shader program {}:{}", file!(), line!());
@@ -93,26 +110,7 @@ impl UIRenderer {
             gl::Enable(gl::BLEND);
         }
 
-        for (rect, texture) in self.font.iter_for(&String::from("Hello World!")) {
-            let quad =
-                TextureQuad::new_rect(rect.x + 300.0, rect.y + 300.0, rect.width, rect.height);
-
-            self.program.set_uniform_bool("render_texture", true);
-            self.program
-                .set_uniform_texture("diffuse_texture", texture.unit());
-
-            self.program.set_uniform_v3(
-                "tint_color",
-                Vector3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-            );
-
-            texture.bind();
-            // quad.draw();
-        }
+        self.view.render(&self.program);
 
         unsafe {
             gl::Disable(gl::BLEND);
