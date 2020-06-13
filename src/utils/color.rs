@@ -57,4 +57,9 @@ impl Color {
     pub fn black() -> Self {
         Self::new(0, 0, 0)
     }
+
+    #[inline]
+    pub fn clear() -> Self {
+        Self::new_alpha(0, 0, 0, 0)
+    }
 }

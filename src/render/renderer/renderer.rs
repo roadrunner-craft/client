@@ -17,15 +17,15 @@ pub const SKY_COLOR: Vector3 = Vector3 {
     z: 1.0,
 };
 
-pub struct Renderer<'a> {
+pub struct Renderer {
     framebuffer: FrameBuffer,
     player_renderer: PlayerRenderer,
     chunk_renderer: ChunkRenderer,
-    ui_renderer: UIRenderer<'a>,
+    ui_renderer: UIRenderer,
     post_pipeline: PostProcessingPipeline,
 }
 
-impl Renderer<'_> {
+impl Renderer {
     pub fn new(width: usize, height: usize) -> Self {
         let mut post_pipeline = PostProcessingPipeline::new(width, height);
         post_pipeline.add(PostProcessingEffectType::FXAA);
@@ -51,6 +51,7 @@ impl Renderer<'_> {
 
     pub fn update(&mut self, world: &World, input: &InputHandler) {
         self.chunk_renderer.update(world, input);
+        self.ui_renderer.update();
     }
 
     pub fn draw<C: Camera>(&self, camera: &C, players: &Vec<&Player>) {

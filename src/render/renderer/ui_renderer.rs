@@ -3,7 +3,7 @@ use crate::render::{
     camera::OrthographicProjection,
     mesh::TextureQuad,
     shaders::ShaderProgram,
-    ui::{Rect, UIElement, UIView},
+    ui::{Point, Rect, UIElement, UIView},
 };
 use crate::utils::Color;
 
@@ -15,13 +15,13 @@ use std::sync::Mutex;
 //    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
 //}
 
-pub struct UIRenderer<'a> {
+pub struct UIRenderer {
     program: ShaderProgram,
     projection: OrthographicProjection,
-    view: UIView<'a>,
+    view: UIView,
 }
 
-impl<'a> UIRenderer<'a> {
+impl UIRenderer {
     pub fn new(width: usize, height: usize) -> Self {
         let vertex_src: &'static str = r#"
             #version 410 core
@@ -68,11 +68,11 @@ impl<'a> UIRenderer<'a> {
             }
         "#;
 
-        let mut view = UIView::<'a>::new(Rect::new(300.0, 300.0, 300.0, 100.0));
-        view.background_color = Color::from_hex(0xffab00);
+        let mut view = UIView::new(Rect::new(300.0, 300.0, 300.0, 100.0));
+        view.background_color = Color::from_hex(0xffdab9);
 
-        let mut child = UIView::<'a>::new(Rect::new(150.0, 50.0, 300.0, 300.0));
-        view.background_color = Color::from_hex(0x00abff);
+        let mut child = UIView::new(Rect::new(150.0, 50.0, 300.0, 300.0));
+        child.background_color = Color::from_hex(0x00abff);
 
         view.add_subview(Box::new(child));
 
@@ -100,6 +100,10 @@ impl<'a> UIRenderer<'a> {
         self.projection.resize(width, height);
     }
 
+    pub fn update(&mut self) {
+        self.view.update(Point::zero());
+    }
+
     pub fn draw(&self) {
         self.program.use_program();
         self.program
@@ -110,7 +114,7 @@ impl<'a> UIRenderer<'a> {
             gl::Enable(gl::BLEND);
         }
 
-        self.view.render(&self.program);
+        self.view.render(Point::zero(), &self.program);
 
         unsafe {
             gl::Disable(gl::BLEND);
