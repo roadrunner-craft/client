@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::str::Chars;
+use std::sync::Arc;
 
 struct DrawableFontCharacter {
     texture: Texture,
@@ -128,25 +129,25 @@ impl<'a> Iterator for FontIterator<'a> {
     }
 }
 
-//#[derive(Default)]
-//pub struct FontStore {
-//    fonts: HashMap<(String, u32), Font>,
-//}
-//
-//impl FontStore {
-//    pub fn font(&mut self, name: String, size: u32) -> Option<&Font> {
-//        let font = self.fonts.get(&(name.clone(), size));
-//        if font.is_some() {
-//            return font;
-//        }
-//
-//        let path = ResourcePath::new(ResourceType::Font, &name);
-//        let font = Font::new(path.as_path(), size);
-//
-//        if let Some(f) = font {
-//            self.fonts.insert((name.clone(), size), f);
-//        }
-//
-//        self.fonts.get(&(name.clone(), size))
-//    }
-//}
+type FontId = (String, u32);
+type FontRef = Arc<Font>;
+
+#[derive(Default)]
+pub struct FontStore {
+    fonts: HashMap<FontId, FontRef>,
+}
+
+impl FontStore {
+    pub fn font(&mut self, name: String, size: u32) -> Option<FontRef> {
+        if !self.fonts.contains_key(&(name.clone(), size)) {
+            let path = ResourcePath::new(ResourceType::Font, &name);
+            let font = Font::new(path.as_path(), size);
+
+            if let Some(f) = font {
+                self.fonts.insert((name.clone(), size), Arc::new(f));
+            }
+        }
+
+        self.fonts.get(&(name.clone(), size)).map(|f| f.clone())
+    }
+}

@@ -3,17 +3,15 @@ use crate::render::{
     camera::OrthographicProjection,
     mesh::TextureQuad,
     shaders::ShaderProgram,
-    ui::{Point, Rect, UIElement, UIView},
+    ui::{FontStore, Point, Rect, UIElement, UIView},
 };
 use crate::utils::Color;
 
-use math::vector::Vector3;
-use std::path::Path;
 use std::sync::Mutex;
 
-//lazy_static! {
-//    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
-//}
+lazy_static! {
+    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
+}
 
 pub struct UIRenderer {
     program: ShaderProgram,
