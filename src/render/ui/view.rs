@@ -67,17 +67,15 @@ impl UIElement for UIView {
         }
     }
 
-    fn render(&self, origin: Point, program: &ShaderProgram) {
+    fn render(&self, program: &ShaderProgram) {
         program.set_uniform_bool("render_texture", false);
         program.set_uniform_v4("background_color", self.background_color.as_vec());
         program.set_uniform_v4("tint_color", self.tint_color.as_vec());
 
-        let new_origin = origin + self.frame.origin();
-
         self.quad.draw();
 
         for subview in self.subviews.as_slice() {
-            subview.render(new_origin, program);
+            subview.render(program);
         }
     }
 }
@@ -87,5 +85,5 @@ pub trait UIElement {
 
     fn update(&mut self, origin: Point);
 
-    fn render(&self, origin: Point, program: &ShaderProgram);
+    fn render(&self, program: &ShaderProgram);
 }

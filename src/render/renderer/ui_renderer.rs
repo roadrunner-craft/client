@@ -114,7 +114,7 @@ impl UIRenderer {
             gl::Enable(gl::BLEND);
         }
 
-        self.view.render(Point::zero(), &self.program);
+        self.view.render(&self.program);
 
         unsafe {
             gl::Disable(gl::BLEND);
