@@ -41,14 +41,8 @@ impl UIView {
         self.needs_layout = true;
         self.frame = rect;
     }
-}
 
-impl UIElement for UIView {
-    fn as_view(&mut self) -> &mut Self {
-        self
-    }
-
-    fn update(&mut self, origin: Point) {
+    pub fn update(&mut self, origin: Point) {
         let new_origin = origin + self.frame.origin();
 
         if self.needs_layout {
@@ -63,8 +57,18 @@ impl UIElement for UIView {
         }
 
         for subview in self.subviews.as_mut_slice() {
-            subview.update(new_origin);
+            subview.as_view_mut().update(new_origin);
         }
+    }
+}
+
+impl UIElement for UIView {
+    fn as_view(&self) -> &UIView {
+        self
+    }
+
+    fn as_view_mut(&mut self) -> &mut UIView {
+        self
     }
 
     fn render(&self, program: &ShaderProgram) {
@@ -81,9 +85,8 @@ impl UIElement for UIView {
 }
 
 pub trait UIElement {
-    fn as_view(&mut self) -> &mut UIView;
-
-    fn update(&mut self, origin: Point);
+    fn as_view(&self) -> &UIView;
+    fn as_view_mut(&mut self) -> &mut UIView;
 
     fn render(&self, program: &ShaderProgram);
 }

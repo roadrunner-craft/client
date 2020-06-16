@@ -10,6 +10,12 @@ use std::path::Path;
 use std::str::Chars;
 use std::sync::Arc;
 
+use std::sync::Mutex;
+
+lazy_static! {
+    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
+}
+
 struct DrawableFontCharacter {
     texture: Texture,
     width: u32,
@@ -138,6 +144,10 @@ pub struct FontStore {
 }
 
 impl FontStore {
+    pub fn default_font(&mut self) -> Option<FontRef> {
+        self.font("main-regular".to_string(), 16)
+    }
+
     pub fn font(&mut self, name: String, size: u32) -> Option<FontRef> {
         if !self.fonts.contains_key(&(name.clone(), size)) {
             let path = ResourcePath::new(ResourceType::Font, &name);

@@ -3,15 +3,9 @@ use crate::render::{
     camera::OrthographicProjection,
     mesh::TextureQuad,
     shaders::ShaderProgram,
-    ui::{FontStore, Point, Rect, UIElement, UIView},
+    ui::{Point, Rect, UIElement, UILabel, UIView},
 };
 use crate::utils::Color;
-
-use std::sync::Mutex;
-
-lazy_static! {
-    pub static ref FONT_STORE: Mutex<FontStore> = Mutex::new(FontStore::default());
-}
 
 pub struct UIRenderer {
     program: ShaderProgram,
@@ -59,6 +53,7 @@ impl UIRenderer {
                                  color.r * tint_color.b, 
                                  color.r * tint_color.a);
                 }
+                color = background_color;
 
                 if (color.a < 0.01) {
                     discard;
@@ -69,8 +64,9 @@ impl UIRenderer {
         let mut view = UIView::new(Rect::new(300.0, 300.0, 300.0, 100.0));
         view.background_color = Color::from_hex(0xffdab9);
 
-        let mut child = UIView::new(Rect::new(150.0, 50.0, 300.0, 300.0));
-        child.background_color = Color::from_hex(0x00abff);
+        let mut child = UILabel::new(Rect::new(300.0, 150.0, 300.0, 300.0));
+        child.as_view_mut().background_color = Color::from_hex(0xff);
+        child.set_text(String::from("penis"));
 
         view.add_subview(Box::new(child));
 
