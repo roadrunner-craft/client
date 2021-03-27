@@ -1,7 +1,6 @@
 use crate::network::RemoteInfo;
 
 use core::events::{ClientEvent, ServerEvent};
-use serde::export::{Err as SerdeErr, Ok as SerdeOk};
 use std::io;
 use std::net::UdpSocket;
 
@@ -36,8 +35,8 @@ impl NetworkHandler {
             }
 
             match bincode::deserialize(&data) {
-                SerdeOk(event) => events.push(event),
-                SerdeErr(err) => error!("{}", err),
+                Ok(event) => events.push(event),
+                Err(err) => error!("{}", err),
             }
         }
 
