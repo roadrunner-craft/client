@@ -67,6 +67,6 @@ impl Renderer {
 
         self.post_pipeline.apply(&self.framebuffer);
 
-       self.ui_renderer.draw();
+        self.ui_renderer.draw();
     }
 }
