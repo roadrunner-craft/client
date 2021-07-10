@@ -78,11 +78,10 @@ impl Mesh {
                 gl::STATIC_DRAW,
             );
 
-            gl::VertexAttribPointer(
+            gl::VertexAttribIPointer(
                 self.vbo_count,
                 1,
                 gl::UNSIGNED_INT,
-                gl::FALSE,
                 0,
                 ptr::null(),
             );
