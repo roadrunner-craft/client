@@ -2,6 +2,7 @@ use crate::ops::{Bindable, Drawable};
 use crate::utils::Identifiable;
 
 use gl::types::{GLint, GLsizeiptr, GLuint};
+use math::vector::Vector;
 use math::vector::Vector3;
 use std::mem;
 use std::ptr;
@@ -33,7 +34,10 @@ impl Mesh {
         mesh
     }
 
-    pub fn add_vbo<T>(&mut self, data: &Vec<T>) {
+    pub fn add_vbo<T>(&mut self, data: &Vec<T>)
+    where
+        T: Vector,
+    {
         let mut vbo: GLuint = 0;
 
         self.bind();
@@ -78,20 +82,13 @@ impl Mesh {
                 gl::STATIC_DRAW,
             );
 
-            gl::VertexAttribIPointer(
-                self.vbo_count,
-                1,
-                gl::UNSIGNED_INT,
-                0,
-                ptr::null(),
-            );
+            gl::VertexAttribIPointer(self.vbo_count, 1, gl::UNSIGNED_INT, 0, ptr::null());
             gl::EnableVertexAttribArray(self.vbo_count);
         }
 
         self.buffers.push(vbo);
         self.vbo_count += 1;
     }
-
 
     fn add_ebo(&mut self, indices: &Vec<GLuint>) {
         let mut ebo: GLuint = 0;
