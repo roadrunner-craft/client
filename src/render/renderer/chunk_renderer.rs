@@ -8,14 +8,15 @@ use crate::utils::path::*;
 
 use core::block::BlockRegistry;
 use core::chunk::{ChunkGridCoordinate, CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
+use core::utils::ThreadPool;
 use core::world::{World, LOAD_DISTANCE};
-use math::container::{Volume, AABB};
+use math::container::AABB;
+use math::geometry::Box;
 use math::vector::Vector3;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, Sender};
-use core::utils::ThreadPool;
 
 #[cfg(feature = "watchers")]
 use crate::utils::watcher::*;
@@ -44,7 +45,10 @@ fn load_textures() -> TextureArray {
     textures
 }
 
-type ChunkLoadingChannel = (Sender<(ChunkGridCoordinate, ChunkMeshCollection)>, Receiver<(ChunkGridCoordinate, ChunkMeshCollection)>);
+type ChunkLoadingChannel = (
+    Sender<(ChunkGridCoordinate, ChunkMeshCollection)>,
+    Receiver<(ChunkGridCoordinate, ChunkMeshCollection)>,
+);
 
 pub struct ChunkRenderer {
     program: ShaderProgram,
@@ -193,7 +197,9 @@ impl ChunkRenderer {
                 loading_chunks: HashSet::new(),
 
                 #[cfg(feature = "watchers")]
-                texture_watcher: Watcher::new(&Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures")),
+                texture_watcher: Watcher::new(
+                    &Path::new(env!("CARGO_MANIFEST_DIR")).join("res/textures"),
+                ),
             },
             Err(err) => {
                 panic!(
@@ -226,9 +232,8 @@ impl ChunkRenderer {
         }
 
         // remove unloaded chunk
-        self.meshes.retain(|coords, _| 
-            world.chunks.contains_key(coords)
-        );
+        self.meshes
+            .retain(|coords, _| world.chunks.contains_key(coords));
 
         // generate missing geometry for loaded chunks
         for coords in world.chunks.keys() {
@@ -243,17 +248,12 @@ impl ChunkRenderer {
                 let tx = sender.clone();
                 let registry = self.block_registry.clone();
 
-                self.threadpool.run(move ||
-                    tx.send(
-                       generate_mesh(
-                           chunk_group.unwrap(),
-                           registry
-                       )
-                    ).unwrap()
-                );
+                self.threadpool.run(move || {
+                    tx.send(generate_mesh(chunk_group.unwrap(), registry))
+                        .unwrap()
+                });
 
                 self.loading_chunks.insert(*coords);
-
             }
         }
     }
@@ -275,13 +275,11 @@ impl ChunkRenderer {
         let visible_chunks = self.meshes.iter().filter(|(coords, _)| {
             let position = coords.abs();
 
-            let chunk_volume = AABB::new(Volume::new(
-                position.x as i64,
-                0,
-                position.y as i64,
-                CHUNK_WIDTH as i64,
-                CHUNK_HEIGHT as i64,
-                CHUNK_DEPTH as i64,
+            let chunk_volume = AABB::new(Box::new(
+                Vector3::new(position.x, 0.0, position.y),
+                CHUNK_WIDTH as f32,
+                CHUNK_HEIGHT as f32,
+                CHUNK_DEPTH as f32,
             ));
 
             camera.frustum().contains(&chunk_volume)
