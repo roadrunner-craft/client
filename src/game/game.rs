@@ -37,7 +37,7 @@ impl Game {
     pub fn new(game_type: GameType) -> io::Result<Self> {
         let player = MainPlayer::new(WorldCoordinate {
             x: 0.0,
-            y: 70.0,
+            y: 100.0,
             z: 0.0,
         });
 
@@ -84,7 +84,9 @@ impl Game {
     }
 
     fn update_world(&mut self, time_delta: f64, input_handler: &InputHandler) {
-        self.player.update(time_delta, &input_handler);
+        if let Some(world) = &self.world {
+            self.player.update(time_delta, &world, &input_handler);
+        }
 
         for (_, player) in self.players.iter_mut() {
             player.update();

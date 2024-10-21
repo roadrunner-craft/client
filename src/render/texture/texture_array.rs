@@ -70,7 +70,7 @@ impl TextureArray {
                 Ok(img) => {
                     let img = match img {
                         DynamicImage::ImageRgba8(img) => img,
-                        img => img.to_rgba(),
+                        img => img.to_rgba8(),
                     };
 
                     if img.width() != self.size || img.height() != self.size {

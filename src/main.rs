@@ -66,13 +66,12 @@ fn main() -> io::Result<()> {
     let game_type = GameType::Local;
     #[cfg(feature = "remote")]
     let game_type = GameType::Remote {
-        info: crate::network::RemoteInfo::new(String::from("localhost"), 25565),
+        info: crate::network::RemoteInfo::new(String::from("192.168.4.21"), 25565),
     };
 
     let mut game = Game::new(game_type)?;
     game.resize(width, height);
 
-    let mut fps: u32 = 0;
     let mut last_time = Instant::now();
     let mut last_fps_update = Instant::now();
 
@@ -104,7 +103,7 @@ fn main() -> io::Result<()> {
             last_time = Instant::now();
 
             if last_fps_update.elapsed().as_secs() >= FPS_REFRESH_TIMEOUT {
-                fps = (1.0 / time_delta) as u32;
+                let fps: u32 = (1.0 / time_delta) as u32;
 
                 if fps < 30 {
                     warn!("FPS: {}", fps);
