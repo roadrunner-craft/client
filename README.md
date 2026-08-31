@@ -15,7 +15,7 @@ You'll need the most up to date version of [core](https://github.com/roadrunner-
 ## Run
 
 ```sh
-cargo run [--release]
+mise run run
 ```
 
 ## Build
