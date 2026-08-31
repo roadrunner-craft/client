@@ -3,3 +3,11 @@ lockfile = true
 
 [tools]
 rust = "1"
+
+[tasks.build]
+description = "Build in release mode"
+run = "cargo build --release"
+
+[tasks.run]
+description = "Run the client"
+run = "cargo run"
