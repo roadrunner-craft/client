@@ -1,4 +1,9 @@
 .DS_Store
+.claude
+.env
+.env.*
+!.env.example
+mise.local.toml
 
 /target
 Cargo.lock
